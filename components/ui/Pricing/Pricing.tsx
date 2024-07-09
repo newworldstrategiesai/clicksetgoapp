@@ -111,7 +111,7 @@ export default function Pricing({ user, products, subscription }: Props) {
               Pricing Plans
             </h1>
             <p className="max-w-2xl m-auto mt-5 text-xl text-zinc-200 sm:text-center sm:text-2xl">
-              Start building for free, then add a site plan to go live. Account
+              Start building for $97, then add a site plan to go live. Account
               plans unlock additional features.
             </p>
             <div className="relative self-center mt-6 bg-zinc-900 rounded-lg p-0.5 flex sm:mt-8 border border-zinc-800">
