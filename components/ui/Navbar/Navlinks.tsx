@@ -25,6 +25,12 @@ export default function Navlinks({ user }: NavlinksProps) {
           <Link href="/" className={s.link}>
             Pricing
           </Link>
+          <Link href="/overview" className={s.link}>
+            Overview
+          </Link>
+          <Link href="/dashboard" className={s.link}>
+            Dashboard
+          </Link>
           {user && (
             <Link href="/account" className={s.link}>
               Account
