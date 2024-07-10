@@ -2,9 +2,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { cache } from 'react';
 
 export const getUser = cache(async (supabase: SupabaseClient) => {
-  const {
-    data: { user }
-  } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
+  if (error) throw error;
   return user;
 });
 
@@ -15,6 +14,7 @@ export const getSubscription = cache(async (supabase: SupabaseClient) => {
     .in('status', ['trialing', 'active'])
     .maybeSingle();
 
+  if (error) throw error;
   return subscription;
 });
 
@@ -25,21 +25,24 @@ export const getProducts = cache(async (supabase: SupabaseClient) => {
     .eq('active', true)
     .eq('prices.active', true)
     .order('metadata->index')
-    .order('unit_amount', { referencedTable: 'prices' });
+    .order('unit_amount', { foreignTable: 'prices' });
 
+  if (error) throw error;
   return products;
 });
 
 export const getUserDetails = cache(async (supabase: SupabaseClient) => {
-  const { data: userDetails } = await supabase
+  const { data: userDetails, error } = await supabase
     .from('users')
     .select('*')
     .single();
+
+  if (error) throw error;
   return userDetails;
 });
 
-export async function getMessages(supabase) {
-  let { data, error } = await supabase
+export async function getMessages(supabase: SupabaseClient) {
+  const { data, error } = await supabase
     .from('messages')
     .select('*')
     .order('created_at', { ascending: true });
@@ -48,8 +51,11 @@ export async function getMessages(supabase) {
   return data;
 }
 
-export async function sendMessage(supabase, messageText) {
-  const user = await supabase.auth.getUser();
+export async function sendMessage(supabase: SupabaseClient, messageText: string) {
+  const { data: { user }, error: userError } = await supabase.auth.getUser();
+  if (userError) throw userError;
+  if (!user) throw new Error('User not found');
+
   const { data, error } = await supabase
     .from('messages')
     .insert([{ text: messageText, user_id: user.id }]);

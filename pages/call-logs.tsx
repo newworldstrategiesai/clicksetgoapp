@@ -1,10 +1,25 @@
-// pages/overview.js
+// pages/call-logs.tsx
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import axios from 'axios';
 
-const Overview = () => {
-  const [callLogs, setCallLogs] = useState([]);
+interface CallLog {
+  id: string;
+  customer: {
+    number: string;
+  };
+  type: string;
+  status: string;
+  startedAt: string;
+  endedAt: string;
+  duration: number;
+  assistant: {
+    name: string;
+  };
+}
+
+const CallLogs: React.FC = () => {
+  const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -73,4 +88,4 @@ const Overview = () => {
   );
 };
 
-export default Overview;
+export default CallLogs;
