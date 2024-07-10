@@ -28,7 +28,6 @@ export const createClient = () => {
             // This can be ignored if there is middleware refreshing user sessions
           }
         },
-        // The remove method is used to delete a cookie by its name
         remove(name: string, options: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
