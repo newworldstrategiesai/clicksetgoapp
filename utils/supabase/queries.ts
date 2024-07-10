@@ -37,3 +37,23 @@ export const getUserDetails = cache(async (supabase: SupabaseClient) => {
     .single();
   return userDetails;
 });
+
+export async function getMessages(supabase) {
+  let { data, error } = await supabase
+    .from('messages')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function sendMessage(supabase, messageText) {
+  const user = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('messages')
+    .insert([{ text: messageText, user_id: user.id }]);
+
+  if (error) throw error;
+  return data;
+}

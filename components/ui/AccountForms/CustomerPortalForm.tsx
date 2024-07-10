@@ -26,7 +26,7 @@ interface Props {
 
 export default function CustomerPortalForm({ subscription }: Props) {
   const router = useRouter();
-  const currentPath = usePathname();
+  const currentPath = usePathname() ?? '/default-path'; // Provide a default path if currentPath is null
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subscriptionPrice =
