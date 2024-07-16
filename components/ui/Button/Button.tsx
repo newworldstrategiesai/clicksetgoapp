@@ -1,11 +1,8 @@
 'use client';
 
 import cn from 'classnames';
-import React, { forwardRef, useRef, ButtonHTMLAttributes } from 'react';
-import { mergeRefs } from 'react-merge-refs';
-
+import React, { forwardRef, useRef, ButtonHTMLAttributes, useEffect, useState } from 'react';
 import LoadingDots from '@/components/ui/LoadingDots';
-
 import styles from './Button.module.css';
 
 interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -30,15 +27,26 @@ const Button = forwardRef<HTMLButtonElement, Props>((props, buttonRef) => {
     ...rest
   } = props;
   const ref = useRef(null);
+  const [mergeRefs, setMergeRefs] = useState<any>(null);
+
+  useEffect(() => {
+    import('react-merge-refs').then(module => {
+      setMergeRefs(() => module.mergeRefs);
+    });
+  }, []);
+
+  if (!mergeRefs) return null;
+
   const rootClassName = cn(
     styles.root,
     {
       [styles.slim]: variant === 'slim',
       [styles.loading]: loading,
-      [styles.disabled]: disabled
+      [styles.disabled]: disabled,
     },
     className
   );
+
   return (
     <Component
       aria-pressed={active}
@@ -48,7 +56,7 @@ const Button = forwardRef<HTMLButtonElement, Props>((props, buttonRef) => {
       disabled={disabled}
       style={{
         width,
-        ...style
+        ...style,
       }}
       {...rest}
     >

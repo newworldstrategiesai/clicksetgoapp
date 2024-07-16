@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SMSList from '@/components/SMSList';
 
-const SMSLogsPage = () => {
+const SMSLogs = () => {
   const [smsLogs, setSmsLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -28,9 +28,9 @@ const SMSLogsPage = () => {
 
   const indexOfLastLog = currentPage * logsPerPage;
   const indexOfFirstLog = indexOfLastLog - logsPerPage;
-  const currentLogs = smsLogs.slice(indexOfFirstLog, indexOfLastLog);
+  const currentLogs = smsLogs.slice(indexOfFirstLog, indexOfFirstLog + logsPerPage);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   return (
     <div className="p-4">
@@ -52,4 +52,4 @@ const SMSLogsPage = () => {
   );
 };
 
-export default SMSLogsPage;
+export default SMSLogs;
