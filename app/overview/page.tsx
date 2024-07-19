@@ -1,7 +1,6 @@
-import dynamic from 'next/dynamic';
+import React from 'react';
 import ProtectedPage from '@/components/ProtectedPage';
-
-const Overview = dynamic(() => import('@/components/ui/Overview/Overview'), { ssr: false });
+import Overview from '@/components/ui/Overview/Overview';
 
 const OverviewPage = () => {
   return <Overview />;
