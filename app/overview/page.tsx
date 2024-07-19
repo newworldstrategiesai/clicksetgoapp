@@ -1,8 +1,9 @@
-import React from 'react';
-import Overview from '@/components/ui/Overview/Overview';
+import dynamic from 'next/dynamic';
 import ProtectedPage from '@/components/ProtectedPage';
 
-const OverviewPage: React.FC = () => {
+const Overview = dynamic(() => import('@/components/ui/Overview/Overview'), { ssr: false });
+
+const OverviewPage = () => {
   return <Overview />;
 };
 
