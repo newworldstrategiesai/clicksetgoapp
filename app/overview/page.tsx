@@ -1,6 +1,9 @@
 import React from 'react';
 import Overview from '@/components/ui/Overview/Overview';
+import ProtectedPage from '@/components/ProtectedPage';
 
-export default function OverviewPage() {
+const OverviewPage: React.FC = () => {
   return <Overview />;
-}
+};
+
+export default ProtectedPage(OverviewPage);

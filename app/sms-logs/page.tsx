@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import SMSList from '@/components/SMSList';
+import ProtectedPage from '@/components/ProtectedPage';
 
-const SMSLogs = () => {
-  const [smsLogs, setSmsLogs] = useState([]);
+const SMSLogs: React.FC = () => {
+  const [smsLogs, setSmsLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -52,4 +53,4 @@ const SMSLogs = () => {
   );
 };
 
-export default SMSLogs;
+export default ProtectedPage(SMSLogs);
