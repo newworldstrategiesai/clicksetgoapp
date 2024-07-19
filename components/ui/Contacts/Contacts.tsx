@@ -1,4 +1,4 @@
-"use client"; // Add this line at the top
+'use client'; // Add this line at the top
 
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
@@ -23,10 +23,12 @@ const customStyles = {
     maxWidth: '500px',
     padding: '20px',
     borderRadius: '10px',
+    backgroundColor: 'black', // Set modal background to black
+    color: 'white', // Set text color to white
   },
 };
 
-const Contacts: React.FC = () => {
+const Contacts = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
@@ -72,9 +74,6 @@ const Contacts: React.FC = () => {
 
     try {
       setLoading(true);
-      console.log('Initiating call with:', selectedContact);
-      console.log('Call reason:', callReason);
-
       const response = await fetch('/api/make-call', {
         method: 'POST',
         headers: {
@@ -86,15 +85,13 @@ const Contacts: React.FC = () => {
         }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        console.error('Failed to initiate call:', data);
-        setError('Failed to initiate call.');
-      } else {
-        const data = await response.json();
-        console.log('Response from /api/make-call:', data);
+      const data = await response.json();
+      if (response.ok) {
         console.log('Call initiated:', data);
         alert('Call initiated successfully!');
+      } else {
+        console.error('Failed to initiate call:', data);
+        setError('Failed to initiate call.');
       }
     } catch (error) {
       console.error('Error initiating call:', error);
@@ -153,14 +150,14 @@ const Contacts: React.FC = () => {
       >
         {selectedContact && (
           <div>
-            <h2 className="text-2xl font-bold mb-4">Call {selectedContact.first_name} {selectedContact.last_name}</h2>
-            <p><strong>Phone:</strong> {selectedContact.phone}</p>
-            <p><strong>Email:</strong> {selectedContact.email_address}</p>
+            <h2 className="text-2xl font-bold mb-4 text-white">Call {selectedContact.first_name} {selectedContact.last_name}</h2>
+            <p className="text-white"><strong>Phone:</strong> {selectedContact.phone}</p>
+            <p className="text-white"><strong>Email:</strong> {selectedContact.email_address}</p>
             <textarea
               value={callReason}
               onChange={(e) => setCallReason(e.target.value)}
               placeholder="Reason for calling"
-              className="w-full p-2 mt-4 border rounded-lg"
+              className="w-full p-2 mt-4 border rounded-lg bg-black text-white"
             />
             {error && <p className="text-red-500 mt-2">{error}</p>}
             <button

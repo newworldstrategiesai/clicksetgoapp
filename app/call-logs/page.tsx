@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/utils/supabase/server';
 import { getUser } from '@/utils/supabase/queries';
-import SMSLogsClient from '@/components/SMSLogsClient';
+import CallLogsClient from '@/components/CallLogsClient';
 
-export default async function SMSLogsPage() {
+export default async function CallLogsPage() {
   try {
     const supabase = createClient();
     const user = await getUser(supabase);
@@ -12,7 +12,7 @@ export default async function SMSLogsPage() {
       return redirect('/signin');
     }
 
-    return <SMSLogsClient />;
+    return <CallLogsClient />;
   } catch (error) {
     console.error('Error fetching user data:', error);
     return redirect('/signin');

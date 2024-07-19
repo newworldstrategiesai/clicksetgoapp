@@ -1,21 +1,25 @@
-"use client"; // This marks the component as a Client Component
+// components/ProtectedPage.js
+'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation'; // Use next/navigation for routing
-import { supabase } from 'utils/supabaseClient';
+import { useRouter } from 'next/navigation';
+import { supabase } from 'utils/supabaseClient'; // Use named import
 
 const ProtectedPage = (WrappedComponent) => {
   return (props) => {
     const router = useRouter();
     const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
       const checkUser = async () => {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
+        const { data, error } = await supabase.auth.getSession();
+
+        if (error || !data.session) {
           router.replace('/signin'); // Redirect to login page if not authenticated
         } else {
-          setLoading(false); // Set loading to false if authenticated
+          setUser(data.session.user);
+          setLoading(false);
         }
       };
 
@@ -23,7 +27,7 @@ const ProtectedPage = (WrappedComponent) => {
     }, [router]);
 
     if (loading) {
-      return <p>Loading...</p>; // Show a loading state while checking authentication
+      return <div>Loading...</div>; // Show a loading indicator while checking auth state
     }
 
     return <WrappedComponent {...props} />;

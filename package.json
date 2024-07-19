@@ -36,6 +36,8 @@
     "@radix-ui/react-tooltip": "^1.1.2",
     "@shadcn/ui": "^0.0.4",
     "@stripe/stripe-js": "2.4.0",
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/auth-helpers-react": "^0.5.0",
     "@supabase/ssr": "^0.1.0",
     "@supabase/supabase-js": "^2.44.4",
     "ai": "^3.2.24",
@@ -71,7 +73,7 @@
   },
   "devDependencies": {
     "@types/luxon": "^3.4.2",
-    "@types/node": "^20.14.2",
+    "@types/node": "^20.14.11",
     "@types/papaparse": "^5.3.14",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
@@ -87,7 +89,7 @@
     "prettier": "^3.3.1",
     "prettier-plugin-tailwindcss": "^0.5.14",
     "supabase": "^1.172.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.3"
   },
   "name": "subscription-starter-2",
   "version": "1.0.0",

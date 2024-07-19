@@ -1,4 +1,3 @@
-// components/CallLogsList.js
 import React from 'react';
 
 const CallLogsList = ({ logs, currentPage, logsPerPage, totalLogs, paginate }) => {
