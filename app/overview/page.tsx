@@ -1,9 +1,24 @@
-import React from 'react';
-import ProtectedPage from '@/components/ProtectedPage';
-import Overview from '@/components/ui/Overview/Overview';
+import Pricing from '@/components/ui/Pricing/Pricing';
+import { createClient } from '@/utils/supabase/server';
+import {
+  getProducts,
+  getSubscription,
+  getUser
+} from '@/utils/supabase/queries';
 
-const OverviewPage = () => {
-  return <Overview />;
-};
+export default async function PricingPage() {
+  const supabase = createClient();
+  const [user, products, subscription] = await Promise.all([
+    getUser(supabase),
+    getProducts(supabase),
+    getSubscription(supabase)
+  ]);
 
-export default ProtectedPage(OverviewPage);
+  return (
+    <Pricing
+      user={user}
+      products={products ?? []}
+      subscription={subscription}
+    />
+  );
+}
