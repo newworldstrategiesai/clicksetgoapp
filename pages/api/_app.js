@@ -11,7 +11,7 @@ function MyApp({ Component, pageProps }) {
         if (event === 'SIGNED_IN') {
           // Handle user signed in
         } else if (event === 'SIGNED_OUT') {
-          router.replace('/login'); // Redirect to login page on sign out
+          router.replace('/signin'); // Redirect to login page on sign out
         }
       }
     );
