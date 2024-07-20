@@ -17,50 +17,41 @@ export default function Navlinks({ user }: NavlinksProps) {
   const pathname = usePathname() ?? ''; // Ensure pathname is never null
 
   return (
-    <div className="relative flex flex-row justify-between py-4 align-center md:py-6">
-      <div className="flex items-center flex-1">
-        <Link href="/" className={s.logo} aria-label="Logo">
-          <Logo />
+    <div className="flex flex-col md:flex-row md:space-x-4">
+      <Link href="/pricing" className={s.link}>
+        Pricing
+      </Link>
+      {user && (
+        <>
+          <Link href="/overview" className={s.link}>
+            Overview
+          </Link>
+          <Link href="/call-logs" className={s.link}>
+            Call Logs
+          </Link>
+          <Link href="/sms-logs" className={s.link}>
+            SMS Logs
+          </Link>
+          <Link href="/contacts" className={s.link}>
+            Contacts
+          </Link>
+          <Link href="/account" className={s.link}>
+            Account
+          </Link>
+        </>
+      )}
+      {user ? (
+        <form onSubmit={(e) => handleRequest(e, SignOut, router)} className="mt-2 md:mt-0">
+          <input type="hidden" name="pathName" value={pathname} />
+          <button type="submit" className={s.link}>
+            Sign out
+          </button>
+        </form>
+      ) : (
+        <Link href="/signin" className={s.link}>
+          Sign In
         </Link>
-        <nav className="ml-6 space-x-2 lg:block">
-          <Link href="/pricing" className={s.link}>
-            Pricing
-          </Link>
-          {user && (
-            <>
-              <Link href="/overview" className={s.link}>
-                Overview
-              </Link>
-              <Link href="/call-logs" className={s.link}>
-                Call Logs
-              </Link>
-              <Link href="/sms-logs" className={s.link}>
-                SMS Logs
-              </Link>
-              <Link href="/contacts" className={s.link}>
-                Contacts
-              </Link>
-              <Link href="/account" className={s.link}>
-                Account
-              </Link>
-            </>
-          )}
-        </nav>
-      </div>
-      <div className="flex justify-end space-x-8">
-        {user ? (
-          <form onSubmit={(e) => handleRequest(e, SignOut, router)}>
-            <input type="hidden" name="pathName" value={pathname} />
-            <button type="submit" className={s.link}>
-              Sign out
-            </button>
-          </form>
-        ) : (
-          <Link href="/signin" className={s.link}>
-            Sign In
-          </Link>
-        )}
-      </div>
+      )}
     </div>
   );
 }

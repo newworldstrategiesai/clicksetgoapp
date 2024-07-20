@@ -1,14 +1,12 @@
-'use client'; // Add this line at the top
+"use client";
 
 import React, { useState, useEffect } from 'react';
-import Papa from 'papaparse';
 import Modal from 'react-modal';
 
 interface Contact {
   first_name: string;
   last_name: string;
   phone: string;
-  email_address: string;
 }
 
 const customStyles = {
@@ -23,8 +21,8 @@ const customStyles = {
     maxWidth: '500px',
     padding: '20px',
     borderRadius: '10px',
-    backgroundColor: 'black', // Set modal background to black
-    color: 'white', // Set text color to white
+    backgroundColor: 'black',
+    color: 'white',
   },
 };
 
@@ -44,8 +42,7 @@ const Contacts = () => {
         const parsedContacts = data.map((contact: Contact) => ({
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone.startsWith('+') ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, '')}`,
-          email_address: contact.email_address
+          phone: contact.phone.startsWith('+') ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, '')}`
         }));
         setContacts(parsedContacts);
       })
@@ -68,7 +65,7 @@ const Contacts = () => {
 
   const handleCallNow = async () => {
     if (!selectedContact || !callReason) {
-      setError('Please select a contact and provide a reason for the call.');
+      setError('Please provide a reason for the call.');
       return;
     }
 
@@ -103,44 +100,33 @@ const Contacts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
-      <div className="flex flex-col items-center">
+    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 md:px-0">
+      <div className="flex flex-col items-center w-full max-w-5xl">
         <div className="text-center mb-4">
-          <h1 className="text-4xl font-bold">Your Agents Don't Have Anyone To Call Yet :(</h1>
+          <h1 className="text-2xl md:text-4xl font-bold">Your Agents Don't Have Anyone To Call Yet :(</h1>
         </div>
         <div className="text-center mb-8">
           <p>No worries! Make your agents happy by uploading contacts that they can call once you launch a campaign.</p>
         </div>
         {error && <p className="text-red-500">{error}</p>}
-        <table className="table-auto w-full text-left">
-          <thead>
-            <tr>
-              <th className="px-4 py-2">First Name</th>
-              <th className="px-4 py-2">Last Name</th>
-              <th className="px-4 py-2">Phone</th>
-              <th className="px-4 py-2">Email</th>
-              <th className="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {contacts.map((contact, index) => (
-              <tr key={index} className="border-t">
-                <td className="px-4 py-2">{contact.first_name}</td>
-                <td className="px-4 py-2">{contact.last_name}</td>
-                <td className="px-4 py-2">{contact.phone}</td>
-                <td className="px-4 py-2">{contact.email_address}</td>
-                <td className="px-4 py-2">
-                  <button
-                    onClick={() => openModal(contact)}
-                    className="px-4 py-2 bg-green-500 text-white rounded-lg"
-                  >
-                    Call
-                  </button>
-                </td>
+        <div className="w-full overflow-x-auto">
+          <table className="table-auto w-full text-left">
+            <thead>
+              <tr>
+                <th className="px-4 md:px-6 py-2">Name</th>
+                <th className="px-4 md:px-6 py-2">Phone</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {contacts.map((contact, index) => (
+                <tr key={index} className="border-t cursor-pointer hover:bg-gray-700" onClick={() => openModal(contact)}>
+                  <td className="px-4 md:px-6 py-2">{contact.first_name} {contact.last_name}</td>
+                  <td className="px-4 md:px-6 py-2">{contact.phone}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
       <Modal
         isOpen={modalIsOpen}
@@ -150,14 +136,13 @@ const Contacts = () => {
       >
         {selectedContact && (
           <div>
-            <h2 className="text-2xl font-bold mb-4 text-white">Call {selectedContact.first_name} {selectedContact.last_name}</h2>
-            <p className="text-white"><strong>Phone:</strong> {selectedContact.phone}</p>
-            <p className="text-white"><strong>Email:</strong> {selectedContact.email_address}</p>
+            <h2 className="text-2xl font-bold mb-4">Call {selectedContact.first_name} {selectedContact.last_name}</h2>
+            <p><strong>Phone:</strong> {selectedContact.phone}</p>
             <textarea
               value={callReason}
               onChange={(e) => setCallReason(e.target.value)}
               placeholder="Reason for calling"
-              className="w-full p-2 mt-4 border rounded-lg bg-black text-white"
+              className="w-full p-2 mt-4 border rounded-lg text-black"
             />
             {error && <p className="text-red-500 mt-2">{error}</p>}
             <button
