@@ -9,6 +9,8 @@ const dev = process.env.NODE_ENV !== 'production';
 const app = next({ dev });
 const handle = app.getRequestHandler();
 
+const AUTH_TOKEN = process.env.AUTH_TOKEN; // Add this line
+
 app.prepare().then(() => {
   const server = express();
 
@@ -22,6 +24,15 @@ app.prepare().then(() => {
 
   // Middleware to parse JSON bodies
   server.use(express.json());
+
+  // Middleware to check authentication token
+  server.use((req, res, next) => {
+    if (req.headers.authorization === `Bearer ${AUTH_TOKEN}`) {
+      next();
+    } else {
+      res.status(401).send('Unauthorized');
+    }
+  });
 
   // Function to read and parse the CSV file
   const parseCSV = () => {
