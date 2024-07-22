@@ -13,7 +13,15 @@ module.exports = {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1400px",
+        'iphone-se': '320px',       // iPhone SE
+        'iphone-12-pro': '390px',   // iPhone 12 Pro
+        'iphone-14-pro-max': '430px', // iPhone 14 Pro Max
+        'iphone-15': '430px',       // iPhone 15
+        'ipad-air': '820px',        // iPad Air
+        'ipad-pro': '1024px',       // iPad Pro
+        'macbook-pro': '1280px',    // MacBook Pro
+        'galaxy-a51': '412px',      // Samsung Galaxy A51
+        'galaxy-a71': '412px',      // Samsung Galaxy A71
       },
     },
     extend: {
@@ -75,3 +83,4 @@ module.exports = {
   },
   plugins: [require("tailwindcss-animate")],
 }
+

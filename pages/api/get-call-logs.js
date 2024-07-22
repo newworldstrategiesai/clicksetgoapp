@@ -4,11 +4,17 @@ export default async function handler(req, res) {
   const VAPI_API_URL = 'https://api.vapi.ai/call';
   const VAPI_API_KEY = process.env.VAPI_API_KEY; // Ensure this is set in your .env file
 
+  const { pageSize = 300, lastCreatedAt } = req.query;
+
   try {
     const response = await axios.get(VAPI_API_URL, {
       headers: {
         'Authorization': `Bearer ${VAPI_API_KEY}`,
         'Content-Type': 'application/json'
+      },
+      params: {
+        limit: pageSize,
+        createdAtLt: lastCreatedAt
       }
     });
 

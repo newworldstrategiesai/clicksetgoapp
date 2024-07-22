@@ -90,3 +90,27 @@ input::placeholder, textarea::placeholder {
   color: white; /* To ensure placeholder text is also visible */
 }
 
+.table-container {
+  padding-left: 10px; /* Adjusted padding */
+  padding-right: 10px; /* Adjusted padding */
+}
+
+
+
+/* Modal Styles */
+.modal-content {
+  background: black;
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 600px;
+  width: 90%;
+  margin: 0 auto;
+}
+
+.modal-overlay {
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

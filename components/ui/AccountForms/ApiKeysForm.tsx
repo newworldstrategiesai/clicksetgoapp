@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Button from '@/components/ui/Button';
+import Card from '@/components/ui/Card';
 import { saveApiKeys } from '@/utils/auth-helpers/client';
 
 interface ApiKeysFormProps {
@@ -29,58 +30,65 @@ export default function ApiKeysForm({ userId }: ApiKeysFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label htmlFor="twilioSid" className="block text-sm font-medium text-gray-700">
-          Twilio Account SID
-        </label>
-        <input
-          type="text"
-          name="twilioSid"
-          id="twilioSid"
-          className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="twilioAuthToken" className="block text-sm font-medium text-gray-700">
-          Twilio Auth Token
-        </label>
-        <input
-          type="text"
-          name="twilioAuthToken"
-          id="twilioAuthToken"
-          className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="elevenLabsKey" className="block text-sm font-medium text-gray-700">
-          ElevenLabs API Key
-        </label>
-        <input
-          type="text"
-          name="elevenLabsKey"
-          id="elevenLabsKey"
-          className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          required
-        />
-      </div>
-      <div>
-        <label htmlFor="vapiKey" className="block text-sm font-medium text-gray-700">
-          VAPI Key
-        </label>
-        <input
-          type="text"
-          name="vapiKey"
-          id="vapiKey"
-          className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-          required
-        />
-      </div>
-      <Button type="submit" loading={isSubmitting}>
-        Save API Keys
-      </Button>
-    </form>
+    <Card
+      title="API Keys"
+      description="Manage your API keys for Twilio, ElevenLabs, and VAPI."
+      footer={
+        <Button type="submit" loading={isSubmitting}>
+          Save API Keys
+        </Button>
+      }
+    >
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="twilioSid" className="block text-sm font-medium text-white">
+            Twilio Account SID
+          </label>
+          <input
+            type="text"
+            name="twilioSid"
+            id="twilioSid"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="twilioAuthToken" className="block text-sm font-medium text-white">
+            Twilio Auth Token
+          </label>
+          <input
+            type="text"
+            name="twilioAuthToken"
+            id="twilioAuthToken"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="elevenLabsKey" className="block text-sm font-medium text-white">
+            ElevenLabs API Key
+          </label>
+          <input
+            type="text"
+            name="elevenLabsKey"
+            id="elevenLabsKey"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="vapiKey" className="block text-sm font-medium text-white">
+            VAPI Key
+          </label>
+          <input
+            type="text"
+            name="vapiKey"
+            id="vapiKey"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            required
+          />
+        </div>
+      </form>
+    </Card>
   );
 }
