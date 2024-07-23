@@ -5,21 +5,7 @@ import axios from 'axios';
 import moment from 'moment';
 import Link from 'next/link';
 import CallLogsList from './CallLogsList'; // Adjust the path based on your project structure
-
-interface CallLog {
-  id: string;
-  customer?: { number: string };
-  type: string;
-  status: string;
-  startedAt: string;
-  endedAt: string;
-  duration: string;
-  assistant?: { name: string };
-  summary?: string;
-  recordingUrl?: string;
-  fullName?: string;
-  createdAt: string;
-}
+import { CallLog } from '../types'; // Import the common CallLog type
 
 const CallLogsClient: React.FC = () => {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
@@ -138,7 +124,7 @@ const CallLogsClient: React.FC = () => {
   }, [loading, hasMore]);
 
   return (
-    <div className="p-4 mt-16 h-screen"> {/* Add mt-16 to ensure heading is not hidden under the nav bar */}
+    <div className="p-4 h-screen">
       <h1 className="text-2xl font-semibold mb-4">Call Logs</h1>
       {error && <p className="text-red-500">{error}</p>}
       <>
