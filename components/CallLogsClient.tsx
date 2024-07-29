@@ -28,7 +28,7 @@ const CallLogsClient: React.FC = () => {
           }
         });
 
-        const contactsResponse = await axios.get('/api/contacts');
+        const contactsResponse = await axios.get('/api/localcontacts');
         const contacts = contactsResponse.data;
 
         const callLogsData = response.data.map((log: CallLog) => {
@@ -87,7 +87,7 @@ const CallLogsClient: React.FC = () => {
               }
             });
 
-            const contactsResponse = await axios.get('/api/contacts');
+            const contactsResponse = await axios.get('/api/localcontacts');
             const contacts = contactsResponse.data;
 
             const callLogsData = response.data.map((log: CallLog) => {

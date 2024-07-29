@@ -24,6 +24,6 @@
       }
     ]
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Layout.jsx", "components/SMSList.jsx", "src/types/**/*.d.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "components/Layout.jsx", "components/SMSList.jsx", "src/types/**/*.d.ts", "pages/api/contacts.js", "pages/api/upload-contacts.js", "pages/api/upload-contacts.js", "components/SMSList.js", "components/CallLogsList.js", "app/call-logs/page.js", "components/SMSLogs.js"],
   "exclude": ["node_modules"]
 }

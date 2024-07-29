@@ -1,3 +1,4 @@
+// pages/contacts.tsx
 import React from 'react';
 import Contacts from '@/components/ui/Contacts/Contacts';
 import { redirect } from 'next/navigation';
@@ -23,7 +24,7 @@ export default async function ContactsPage() {
           </div>
         </div>
         <div className="p-4">
-          <Contacts />
+          <Contacts userId={user.id} />
         </div>
       </section>
     );

@@ -19,36 +19,39 @@ const SMSLogsClient: React.FC = () => {
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedLog, setSelectedLog] = useState<SMSLog | null>(null);
-  const [totalLogs, setTotalLogs] = useState(0); // State to store total number of logs
+  const [totalLogs, setTotalLogs] = useState(0);
+  const [pageToken, setPageToken] = useState<string | null>(null);
   const logsPerPage = 30;
 
-  const fetchSMSLogs = async (page: number) => {
+  const fetchSMSLogs = async (page: number, token: string | null = null) => {
     try {
       setLoading(true);
       const response = await axios.get('/api/get-sms-logs', {
-        params: { page, pageSize: logsPerPage }
+        params: { page, pageSize: logsPerPage, pageToken: token }
       });
 
-      const { messages, totalCount } = response.data;
+      const { messages, nextPageToken, totalCount } = response.data;
 
       setSmsLogs(messages);
-      setTotalLogs(totalCount); // Set the total number of logs
-      setError(''); // Reset error state if successful
+      setTotalLogs(totalCount);
+      setPageToken(nextPageToken);
+      setError('');
     } catch (error) {
       console.error('Error fetching SMS logs:', error);
       setError('Failed to fetch SMS logs');
-      setSmsLogs([]); // Ensure smsLogs is set to an empty array on error
+      setSmsLogs([]);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchSMSLogs(currentPage);
+    fetchSMSLogs(currentPage, pageToken);
   }, [currentPage]);
 
   const paginate = (pageNumber: number) => {
     setCurrentPage(pageNumber);
+    fetchSMSLogs(pageNumber, pageToken);
   };
 
   const handleRowClick = (log: SMSLog) => {
@@ -73,7 +76,7 @@ const SMSLogsClient: React.FC = () => {
             onRowClick={handleRowClick}
             currentPage={currentPage}
             logsPerPage={logsPerPage}
-            totalLogs={totalLogs} // Pass the total number of logs
+            totalLogs={totalLogs}
             paginate={paginate}
           />
         </div>

@@ -10,21 +10,19 @@ const formatPhoneNumber = (phoneNumber) => {
 
 export default async function handler(req, res) {
   if (req.method === 'POST') {
-    const { contact, reason, twilioNumber } = req.body;
+    const { campaignId, contacts, schedule, reason } = req.body;
 
-    const formattedPhoneNumber = formatPhoneNumber(contact.phone);
-
-    const callData = {
+    const calls = contacts.map(contact => ({
       customer: {
-        number: formattedPhoneNumber,
+        number: formatPhoneNumber(contact.phone),
         name: contact.first_name,
       },
       phoneNumber: {
         fallbackDestination: {
           type: 'number',
-          number: formattedPhoneNumber,
+          number: formatPhoneNumber(contact.phone),
         },
-        twilioPhoneNumber: twilioNumber,
+        twilioPhoneNumber: '+19014102020',
         twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
         twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       },
@@ -45,13 +43,13 @@ export default async function handler(req, res) {
           name: contact.first_name,
         }
       }
-    };
+    }));
 
     try {
-      console.log('Sending request to VAPI API with data:', callData);
+      console.log('Scheduling calls:', calls);
       const response = await axios.post(
-        'https://api.vapi.ai/call',
-        callData,
+        'https://api.vapi.ai/schedule',
+        { calls, schedule },
         {
           headers: {
             'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
@@ -60,10 +58,10 @@ export default async function handler(req, res) {
         }
       );
       console.log('Response from VAPI API:', response.data);
-      res.status(200).json({ message: 'Call initiated successfully', data: response.data });
+      res.status(200).json({ message: 'Campaign scheduled successfully', data: response.data });
     } catch (error) {
-      console.error('Error initiating call:', error.response?.data || error.message);
-      res.status(500).json({ message: 'Failed to initiate call', error: error.response?.data || error.message });
+      console.error('Error scheduling campaign:', error.response?.data || error.message);
+      res.status(500).json({ message: 'Failed to schedule campaign', error: error.response?.data || error.message });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });

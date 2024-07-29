@@ -10,18 +10,24 @@ export default async function handler(req, res) {
 
     try {
       const { data, error } = await supabase
-        .from('contacts')
-        .select('*')
+        .from('lists')
+        .select('id, name, contacts (id)')
         .eq('user_id', user_id);
 
       if (error) {
         throw error;
       }
 
-      res.status(200).json(data);
+      const lists = data.map((list) => ({
+        id: list.id,
+        name: list.name,
+        contactsCount: list.contacts.length,
+      }));
+
+      res.status(200).json(lists);
     } catch (error) {
-      console.error('Error fetching contacts:', error.message);
-      res.status(500).json({ message: 'Failed to fetch contacts', error: error.message });
+      console.error('Error fetching lists:', error.message);
+      res.status(500).json({ message: 'Failed to fetch lists', error: error.message });
     }
   } else {
     res.status(405).json({ message: 'Method Not Allowed' });

@@ -7,7 +7,7 @@ import { handleRequest } from '@/utils/auth-helpers/client';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-export default function NameForm({ userName }: { userName: string }) {
+export default function NameForm({ userName, userId }: { userName: string, userId: string }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -52,6 +52,9 @@ export default function NameForm({ userName }: { userName: string }) {
             maxLength={64}
           />
         </form>
+      </div>
+      <div className="mt-4 text-white">
+        <p>User ID: {userId}</p>
       </div>
     </Card>
   );

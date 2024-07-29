@@ -1,53 +1,101 @@
-"use client"; // Add this line at the top
+'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
-import { ClipLoader } from 'react-spinners'; // Import a spinner component
+import { ClipLoader } from 'react-spinners';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/utils/supabaseClient';
+import { useUser } from '@/context/UserContext';
 
 interface Contact {
-  'First-name': string;
-  'Last-name': string;
-  'Phone': string;
-  'Email': string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email_address: string;
+  user_id?: string;
 }
 
 const UploadContacts = () => {
+  const { userId, loading } = useUser();
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+  const router = useRouter();
+
+  useEffect(() => {
+    console.log('User ID from context:', userId);
+  }, [userId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setCsvFile(e.target.files[0]);
+      parseCSV(e.target.files[0]);
     }
   };
 
-  const handleFileUpload = () => {
-    if (!csvFile) return;
-    setLoading(true);
+  const parseCSV = (file: File) => {
+    if (!userId) {
+      setError('User ID is missing. Please try again later.');
+      return;
+    }
 
-    Papa.parse<Contact>(csvFile, {
+    Papa.parse<Contact>(file, {
       header: true,
       complete: (results) => {
-        console.log('Parsed Results:', results.data); // Debugging: Log parsed results
+        console.log('Parsed Results:', results.data);
         const parsedContacts = results.data.map(contact => ({
-          'First-name': contact['First-name'] || '',
-          'Last-name': contact['Last-name'] || '',
-          'Phone': contact['Phone'] ? (contact['Phone'].startsWith('+') ? contact['Phone'] : `+${contact['Phone'].replace(/[^0-9]/g, '')}`) : '',
-          'Email': contact['Email'] || ''
+          first_name: contact.first_name || '',
+          last_name: contact.last_name || '',
+          phone: contact.phone ? (contact.phone.startsWith('+') ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+          email_address: contact.email_address || '',
+          user_id: userId // Add user_id to each contact
         }));
-        console.log('Parsed Contacts:', parsedContacts); // Debugging: Log parsed contacts
         setContacts(parsedContacts);
-        setLoading(false);
+        console.log('Parsed contacts with user ID:', parsedContacts);
       },
       error: (error: Error) => {
         console.error('Error parsing CSV:', error);
         setError('Error parsing CSV file.');
-        setLoading(false);
       }
     });
   };
+
+  const handleFileUpload = async () => {
+    if (!csvFile) return;
+    setUploading(true);
+    setError('');
+    setSuccess(false);
+
+    try {
+      const response = await fetch('/api/upload-contacts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ contacts }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log('Upload successful:', data);
+      setSuccess(true);
+      setContacts([]); // Clear the contacts after successful upload
+    } catch (error) {
+      console.error('Error uploading contacts:', error);
+      setError('Error uploading contacts.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
@@ -59,30 +107,39 @@ const UploadContacts = () => {
           <p>Upload a CSV file with contacts to make your agents happy.</p>
         </div>
         <input type="file" accept=".csv" onChange={handleFileChange} className="mb-4" />
-        <button onClick={handleFileUpload} className="px-6 py-3 bg-blue-600 text-white rounded-lg mb-8">Import Contacts</button>
-        {loading && <ClipLoader color={"#ffffff"} loading={loading} size={50} />}
-        {error && <p className="text-red-500">{error}</p>}
-        {!loading && contacts.length > 0 && (
-          <table className="table-auto w-full text-left">
-            <thead>
-              <tr>
-                <th className="px-4 py-2">First Name</th>
-                <th className="px-4 py-2">Last Name</th>
-                <th className="px-4 py-2">Phone</th>
-                <th className="px-4 py-2">Email</th>
-              </tr>
-            </thead>
-            <tbody>
-              {contacts.map((contact, index) => (
-                <tr key={index} className="border-t">
-                  <td className="px-4 py-2">{contact['First-name']}</td>
-                  <td className="px-4 py-2">{contact['Last-name']}</td>
-                  <td className="px-4 py-2">{contact['Phone']}</td>
-                  <td className="px-4 py-2">{contact['Email']}</td>
+        {contacts.length > 0 && (
+          <>
+            <button onClick={handleFileUpload} className="px-6 py-3 bg-blue-600 text-white rounded-lg mb-8">
+              {uploading ? <ClipLoader color={"#ffffff"} loading={uploading} size={20} /> : 'Upload'}
+            </button>
+            {success && <p className="text-green-500">Upload successful!</p>}
+            {error && <p className="text-red-500">{error}</p>}
+            <table className="table-auto w-full text-left">
+              <thead>
+                <tr>
+                  <th className="px-4 py-2">First Name</th>
+                  <th className="px-4 py-2">Last Name</th>
+                  <th className="px-4 py-2">Phone</th>
+                  <th className="px-4 py-2">Email</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {contacts.map((contact, index) => (
+                  <tr key={index} className="border-t">
+                    <td className="px-4 py-2">{contact.first_name}</td>
+                    <td className="px-4 py-2">{contact.last_name}</td>
+                    <td className="px-4 py-2">{contact.phone}</td>
+                    <td className="px-4 py-2">{contact.email_address}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+        {!contacts.length && (
+          <button disabled className="px-6 py-3 bg-gray-600 text-white rounded-lg mb-8">
+            Import Contacts
+          </button>
         )}
       </div>
     </div>

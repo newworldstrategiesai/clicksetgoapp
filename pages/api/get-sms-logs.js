@@ -5,18 +5,26 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
 export default async function handler(req, res) {
-  const { page = 1, pageSize = 30 } = req.query;
+  const { pageSize = 30, pageToken } = req.query;
   const limit = parseInt(pageSize);
-  const offset = (page - 1) * limit;
 
   try {
     // Fetch the messages for the current page
-    const messages = await client.messages.list({
+    const params = {
       limit,
-      offset,
-    });
+    };
 
-    const formattedMessages = messages.map((msg) => ({
+    if (pageToken) {
+      params.pageToken = pageToken;
+    }
+
+    const messagesPage = await client.messages.list(params);
+
+    if (!messagesPage || !Array.isArray(messagesPage)) {
+      throw new Error('Invalid response from Twilio API');
+    }
+
+    const formattedMessages = messagesPage.map((msg) => ({
       id: msg.sid,
       from: msg.from,
       to: msg.to,
@@ -24,15 +32,13 @@ export default async function handler(req, res) {
       dateSent: msg.dateSent.toISOString(),
     }));
 
-    // Set a high total count for simplicity
-    const totalCount = 120; // Adjust this number based on your typical usage
-
     res.status(200).json({
       messages: formattedMessages,
-      totalCount,
+      nextPageToken: messagesPage.nextPageUri ? new URLSearchParams(messagesPage.nextPageUri).get('PageToken') : null,
+      totalCount: 120, // Adjust this number based on your typical usage
     });
   } catch (error) {
-    console.error('Error fetching SMS logs:', error);
+    console.error('Error fetching SMS logs:', error.message);
     res.status(500).json({ error: 'Failed to fetch SMS logs' });
   }
 }

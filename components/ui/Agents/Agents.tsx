@@ -1,7 +1,8 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import OutboundCallModal from 'components/OutboundCallModal';
 
 interface Assistant {
   id: string;
@@ -15,6 +16,8 @@ const Agents = () => {
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<Assistant | null>(null);
 
   const fetchAssistants = async () => {
     try {
@@ -30,6 +33,16 @@ const Agents = () => {
   useEffect(() => {
     fetchAssistants();
   }, []);
+
+  const openModal = (agent: Assistant) => {
+    setSelectedAgent(agent);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setSelectedAgent(null);
+    setIsModalOpen(false);
+  };
 
   return (
     <div className="p-4">
@@ -51,7 +64,7 @@ const Agents = () => {
           </thead>
           <tbody>
             {assistants.map((assistant) => (
-              <tr key={assistant.id} className="hover:bg-gray-800">
+              <tr key={assistant.id} className="hover:bg-gray-800 cursor-pointer" onClick={() => openModal(assistant)}>
                 <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.name}</td>
                 <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.description}</td>
                 <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.type}</td>
@@ -61,6 +74,14 @@ const Agents = () => {
             ))}
           </tbody>
         </table>
+      )}
+      {selectedAgent && (
+        <OutboundCallModal
+          agentName={selectedAgent.name}
+          agentId={selectedAgent.id}
+          isOpen={isModalOpen}
+          onClose={closeModal}
+        />
       )}
     </div>
   );
