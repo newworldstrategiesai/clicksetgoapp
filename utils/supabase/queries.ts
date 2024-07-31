@@ -1,5 +1,7 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
+// Existing functions
+
 export async function getUser(supabase: SupabaseClient) {
   const { data: { user }, error } = await supabase.auth.getUser();
   if (error) throw error;
@@ -71,4 +73,20 @@ export async function getContacts(supabase: SupabaseClient) {
 
   if (error) throw error;
   return contacts;
+}
+
+// New function to get contact's first name by phone number
+export async function getContactFirstName(supabase: SupabaseClient, phoneNumber: string): Promise<string | null> {
+  const { data: contacts, error } = await supabase
+    .from('contacts')
+    .select('first_name')
+    .eq('phone_number', phoneNumber)
+    .single(); // Use single() for a single expected result
+
+  if (error) {
+    console.error('Error fetching contact:', error);
+    return null; // Or handle the error as appropriate
+  }
+
+  return contacts?.first_name || null;
 }

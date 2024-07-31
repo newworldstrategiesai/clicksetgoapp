@@ -1,14 +1,28 @@
-// pages/api/vapi-webhook.ts
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { parseCookies } from 'nookies';
+import { createClient } from '@supabase/supabase-js';
+import { getContactFirstName } from 'utils/supabase/queries'; // Adjust the path as necessary
+
+// Initialize Supabase client
+const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    // Access cookies within the request context
-    const cookies = parseCookies({ req });
-    const firstName = cookies.firstName || '';
+  // Ensure the request method is POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
-    // Construct the response payload
+  try {
+    const { phoneNumber } = req.body;
+
+    // Validate phoneNumber
+    if (!phoneNumber) {
+      return res.status(400).json({ error: 'Phone number is required' });
+    }
+
+    // Fetch contact's first name
+    const firstName = await getContactFirstName(supabase, phoneNumber);
+
+    // Generate response payload
     const responsePayload = {
       assistant: {
         name: 'Benny 65',
@@ -20,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           style: 0.7,
         },
         model: {
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
@@ -32,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               4. Confirm all details with the caller, including the date and time of the event.
               - Be sure to be kind of funny and witty!
               - Keep all your responses short and simple. Use casual language, phrases like 'Umm...', 'Well...', and 'I mean' are preferred.
-              - This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long. If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: {{9.callTime}}. Here is the contact information we have for the caller: Phone number they are calling from is {{1.message.call.customer.number}}. If their name is on file, it is: {{3.2}} {{3.1}} . If we have notes to give you more context about the customer, it is: {{3.44}}. As Ben's AI voice assistant for M10 DJ Company, a DJ business based in Memphis, TN, your tasks include answering questions about the business, collecting details for DJ event inquiries, and scheduling event consultations. Use the following approach:
+              - This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long. If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: {{9.callTime}}. Here is the contact information we have for the caller: Phone number they are calling from is {{1.message.call.customer.number}}. If their name is on file, it is: {{3.2}} {{3.1}}. If we have notes to give you more context about the customer, it is: {{3.44}}. As Ben's AI voice assistant for M10 DJ Company, a DJ business based in Memphis, TN, your tasks include answering questions about the business, collecting details for DJ event inquiries, and scheduling event consultations. Use the following approach:
               1. **Greeting and Identification**:
                  - Greet the caller warmly.
                  - If the caller's name and phone number are included, address them by their first name.
@@ -92,9 +106,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
               - Be kind of funny and witty!
               - Keep responses short and simple. Use casual language with phrases like "Umm...", "Well...", and "I mean..."
               - This is a voice conversation, so keep your responses short, like in a real conversation. Don't ramble for too long. Remember, you don't have the ability to finalize a booking for an event. Your primary purpose is to collect details about DJ event inquiries, place tentative events on the M10 DJ Calendar, and send customers links to schedule event consultations. To book events officially, a member of the M10 DJ team will reach out and close the deal. Engage in event relevant small talk during and after collecting all details. For example, How's your day going? or Sounds like a fun event! Do you have any special music requests? **Rules**:
-              -Never verbally read URL web addresses aloud to the user.
-              -URL's are intended to be sent to the user via SMS and email only
-              Spell out any numbers responses to ensure clarity during vocal delivery.`
+              - Never verbally read URL web addresses aloud to the user.
+              - URLs are intended to be sent to the user via SMS and email only.
+              - Spell out any numbers responses to ensure clarity during vocal delivery.`
             }
           ],
           provider: 'openai',
@@ -109,11 +123,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 properties: {
                   callerName: {
                     type: 'string',
-                    description: 'The end user\'s first name to be used with dynamic fields.'
-                  },
-                  smsMessage: {
-                    type: 'string',
-                    description: 'The SMS message content containing requested info.'
+                    description: 'The name of the person receiving the SMS message.'
                   },
                   callerNumber: {
                     type: 'string',
@@ -127,44 +137,126 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             {
               name: 'addEventInquiry',
               async: false,
-              serverUrl: 'https://hook.us1.make.com/ogr1wb6xux69y7y73xq2jd1pjhrq2xg7',
+              serverUrl: 'https://hook.us1.make.com/ogr5fl5qpry9nn1e5h7ud9h0wemlb9p1',
+              description: 'This function allows the user to add a tentative event date to our calendar as an inquiry to be reviewed by the M10 staff.',
               parameters: {
                 type: 'object',
-                required: ['customerName', 'eventType', 'eventDate', 'venueName'],
                 properties: {
-                  customerName: {
+                  name: {
                     type: 'string',
-                    description: 'The name of the customer'
+                    description: 'The name of the customer that is booking the event.'
+                  },
+                  event_date_and_time: {
+                    type: 'string',
+                    description: 'The date and time of the event or party in ISO 8601 format. The event date will always be in the future and never before the current date and time.'
                   },
                   eventType: {
                     type: 'string',
-                    description: 'Type of event being planned'
+                    description: 'The type of event the user would like to book a DJ for.'
                   },
-                  eventDate: {
+                  phoneNumber: {
                     type: 'string',
-                    description: 'Date and time of the event in ISO 8601 format'
-                  },
-                  venueName: {
-                    type: 'string',
-                    description: 'Name of the venue for the event'
+                    description: 'The phone number of the customer making the inquiry.'
                   }
-                }
-              },
-              description: 'Add event inquiry details to M10 DJ Company calendar.',
-              serverUrlSecret: '777333777'
+                },
+                required: ['name', 'eventType', 'phoneNumber', 'event_date_and_time']
+              }
+            },
+            {
+              name: 'captureContact',
+              async: false,
+              serverUrl: 'https://hook.us1.make.com/4dvxlg88eqla8dii9v3fyqrbuhtm3oja',
+              description: 'This function allows the user to capture contact information including First Name, Last Name, Email Address, and Phone Number, and save it to the leads database.',
+              parameters: {
+                type: 'object',
+                properties: {
+                  FirstName: {
+                    type: 'string',
+                    description: 'The first name of the contact.'
+                  },
+                  LastName: {
+                    type: 'string',
+                    description: 'The last name of the contact.'
+                  },
+                  emailAddress: {
+                    type: 'string',
+                    description: 'The email address of the contact.'
+                  },
+                  phoneNumber: {
+                    type: 'string',
+                    description: 'The phone number of the contact.'
+                  }
+                },
+                required: ['FirstName', 'LastName', 'emailAddress', 'phoneNumber']
+              }
             }
-          ]
-        }
-      },
-      status: 'success',
-      firstMessage: firstName ? `Hello ${firstName}, this Ben's AI assistant. How can I help?` : `Hello, this Ben's AI assistant. How can I help?`,
-      voicemailMessage: 'You\'ve reached our voicemail. Please leave a message after the beep, and we\'ll get back to you as soon as possible.',
-      endCallMessage: 'Thank you for contacting us. Have a great day!',
+          ],
+          maxTokens: 250,
+          temperature: 0.7
+        },
+        recordingEnabled: true,
+        firstMessage: firstName ? `Hello ${firstName}, this is Ben's AI assistant. How can I help you today?` : `Hello, this is Ben's AI assistant. How can I help you today?`,
+        voicemailMessage: 'You\'ve reached our voicemail. Please leave a message after the beep, and we\'ll get back to you as soon as possible.',
+        endCallMessage: 'Thank you for contacting us. Have a great day!',
+        transcriber: {
+          model: 'general',
+          language: 'en',
+          provider: 'deepgram'
+        },
+        clientMessages: [
+          'transcript',
+          'hang',
+          'function-call',
+          'speech-update',
+          'metadata',
+          'conversation-update'
+        ],
+        serverMessages: [
+          'end-of-call-report'
+        ],
+        serverUrl: 'https://hook.us1.make.com/q7iyohghqrtholk87uzlfxpjsn12c13m',
+        endCallPhrases: ['goodbye'],
+        analysisPlan: {
+          summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',
+          structuredDataPrompt: '## Key Performance Indicators (KPIs) for Support Call Success Evaluation\n\nTo effectively measure the success of our support calls, we focus on the following five critical KPIs. You will be given a transcript of a call and the system prompt of the Al participant.\n\n1. **First Call Resolution (FCR)**:\n   - **Notation**: Percentage (%)\n   - **Measurement**: High (≥ 80%) / Medium (60-79%) / Low (< 60%)\n   - **Importance**: Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.\n\n2. **Customer Satisfaction (CSAT)**:\n   - **Notation**: Score (out of 10)\n   - **Measurement**: High (≥ 9/10) / Medium (7-8.9/10) / Low (< 7/10)\n   - **Importance**: Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.\n\n3. **Average Handle Time (AHT)**:\n   - **Notation**: Optimal|Long|Short\n   - **Measurement**: Optimal (typically 4-6 minutes) / Long (> optimal range) / Short (< optimal range)\n   - **Importance**: Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.\n\n4. **Net Promoter Score (NPS)**:\n   - **Notation**: Score (range from -100 to 100)\n   - **Measurement**: High (≥ 50) / Medium (0-49) / Low (< 0)\n   - **Importance**: Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.\n\n5. **Resolution Time (RT)**:\n   - **Notation**: Time (hours or days)\n   - **Measurement**: Fast (< 24 hours) / Moderate (24-48 hours) / Slow (> 48 hours)\n   - **Importance**: Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
+          structuredDataSchema: {
+            type: 'object',
+            properties: {
+              RT: {
+                description: 'Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
+                type: 'string'
+              },
+              AHT: {
+                description: 'Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.',
+                type: 'string'
+              },
+              FCR: {
+                description: 'Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.',
+                type: 'string'
+              },
+              NPS: {
+                description: 'Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.',
+                type: 'string'
+              },
+              CSAT: {
+                description: 'Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.',
+                type: 'string'
+              }
+            }
+          },
+          successEvaluationPrompt: 'You are an expert call evaluator. You will be given a transcript of a call and the system prompt of the Al participant. Based on the objectives inferred from the system prompt, determine if the call was successful. **Goal:** To inform potential and customers about M10 DJ Company and the services we provide and answer any questions related to the business. The secondary goal is to send pricing info, consultation schedule links, and to put event inquiries on our calendar.',
+          successEvaluationRubric: 'PassFail'
+        },
+        hipaaEnabled: false,
+        maxDurationSeconds: 793,
+        voicemailDetectionEnabled: false,
+        backgroundSound: 'office'
+      }
     };
 
     res.status(200).json(responsePayload);
   } catch (error) {
-    console.error('Error handling webhook request:', error);
+    console.error('Error handling request:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
