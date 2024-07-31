@@ -110,6 +110,9 @@ dependencies:
   ngrok:
     specifier: ^5.0.0-beta.2
     version: 5.0.0-beta.2
+  nookies:
+    specifier: ^2.5.2
+    version: 2.5.2
   openai:
     specifier: ^4.52.7
     version: 4.52.7
@@ -4774,6 +4777,13 @@ packages:
   /node-releases@2.0.14:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
     dev: true
+
+  /nookies@2.5.2:
+    resolution: {integrity: sha512-x0TRSaosAEonNKyCrShoUaJ5rrT5KHRNZ5DwPCuizjgrnkpE5DRf3VL7AyyQin4htict92X1EQ7ejDbaHDVdYA==}
+    dependencies:
+      cookie: 0.4.2
+      set-cookie-parser: 2.6.0
+    dev: false
 
   /normalize-path@3.0.0:
     resolution: {integrity: sha512-6eZs5Ls3WtCisHWp9S2GUy8dqkpGi4BVSz3GaqiE6ezub0512ESztXUwUB6C6IKbQkY2Pnb/mD4WYojCRwcwLA==}
