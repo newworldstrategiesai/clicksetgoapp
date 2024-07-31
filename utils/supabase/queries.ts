@@ -63,3 +63,12 @@ export async function sendMessage(supabase: SupabaseClient, messageText: string)
   if (error) throw error;
   return data;
 }
+
+export const getContacts = cache(async (supabase: SupabaseClient) => {
+  const { data: contacts, error } = await supabase
+    .from('contacts')
+    .select('*');
+
+  if (error) throw error;
+  return contacts;
+});
