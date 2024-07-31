@@ -9,12 +9,6 @@
       "api/**": {
         "maxDuration": 10
       }
-    },
-    "middleware": [
-      {
-        "source": "/",
-        "middleware": "middleware.ts"
-      }
-    ]
+    }
   }
   
