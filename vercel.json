@@ -1,0 +1,21 @@
+{
+    "middleware": [
+      {
+        "source": "/vapi-webhook",
+        "destination": "/api/vapi-webhook" // Adjust as necessary for your setup
+      }
+    ],
+    "builds": [
+      {
+        "src": "next.config.js",
+        "use": "@vercel/next"
+      }
+    ],
+    "rewrites": [
+      {
+        "source": "/vapi-webhook",
+        "destination": "/api/vapi-webhook" // Adjust as necessary for your setup
+      }
+    ]
+  }
+  
