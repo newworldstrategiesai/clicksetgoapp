@@ -1,28 +1,10 @@
-import type { NextApiRequest, NextApiResponse } from 'next';
-import { parse } from 'papaparse';
-import fs from 'fs';
-import path from 'path';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/utils/supabaseClient'; // Ensure this import points to your Supabase client
 
 const AUTH_TOKEN = process.env.WEBHOOK_AUTH_TOKEN;
 
-const parseCSV = (): Promise<any[]> => {
-  return new Promise((resolve, reject) => {
-    const filePath = path.join(process.cwd(), 'data', 'Corrected_Contacts.csv');
-    const fileContents = fs.readFileSync(filePath, 'utf8');
-
-    parse(fileContents, {
-      header: true,
-      complete: (results) => {
-        resolve(results.data);
-      },
-      error: (error) => {
-        reject(error);
-      },
-    });
-  });
-};
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -35,22 +17,35 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const data = req.body;
   const phoneNumber = data.message?.customer?.number?.replace(/\D/g, '');
 
-  try {
-    const contacts = await parseCSV();
-    const contact = contacts.find(
-      (contact: any) => contact.phone.replace(/\D/g, '') === phoneNumber
-    );
+  console.log('Received data:', data);
+  console.log('Extracted phone number:', phoneNumber);
 
+  try {
+    const { data: contacts, error } = await supabase
+      .from('contacts')
+      .select('first_name, phone')
+      .eq('phone', phoneNumber);
+
+    if (error) throw error;
+
+    const contact = contacts.length > 0 ? contacts[0] : null;
     const firstName = contact ? contact.first_name : 'Unknown';
+
+    console.log('Determined first name:', firstName);
+
+    // Emit the new message to all connected clients (if using Socket.IO)
+    // io.emit('newMessage', { firstName, phoneNumber });
 
     const responsePayload = {
       status: 'success',
-      received: { firstName, phoneNumber },
+      received: { firstName, phoneNumber }
     };
 
     res.status(200).json(responsePayload);
   } catch (error) {
-    console.error('Error reading or parsing CSV:', error);
-    res.status(500).json({ error: 'Error reading or parsing CSV' });
+    console.error('Error fetching contact from Supabase:', error);
+    res.status(500).json({ error: 'Failed to fetch contact' });
   }
-}
+};
+
+export default handler;
