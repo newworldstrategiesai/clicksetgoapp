@@ -4,11 +4,6 @@
         "source": "/vapi-webhook",
         "destination": "/api/vapi-webhook"
       }
-    ],
-    "functions": {
-      "api/**": {
-        "maxDuration": 10
-      }
-    }
+    ]
   }
   
