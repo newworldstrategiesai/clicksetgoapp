@@ -1,8 +1,10 @@
-'use client';
+"use client"; // Add this line at the top
 
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import { useRouter } from 'next/navigation';
+import { supabase } from 'utils/supabaseClient'; // Adjust the import based on your project structure
+import AddContactModal from 'components/AddContactModal'; // Adjust the import based on your project structure
 
 interface Contact {
   id: string;
@@ -65,6 +67,7 @@ const Contacts = ({ userId }: { userId: string }) => {
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [newListModalIsOpen, setNewListModalIsOpen] = useState(false);
+  const [newContactModalIsOpen, setNewContactModalIsOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>('');
   const [callReason, setCallReason] = useState('');
@@ -128,6 +131,15 @@ const Contacts = ({ userId }: { userId: string }) => {
     setNewListModalIsOpen(false);
     setNewListName('');
     setSelectedContacts(new Set());
+    setError('');
+  };
+
+  const openNewContactModal = () => {
+    setNewContactModalIsOpen(true);
+  };
+
+  const closeNewContactModal = () => {
+    setNewContactModalIsOpen(false);
     setError('');
   };
 
@@ -218,12 +230,18 @@ const Contacts = ({ userId }: { userId: string }) => {
     });
   };
 
+  const handleContactAdded = (contact: Contact) => {
+    setContacts((prevContacts) => [...prevContacts, contact]);
+  };
+
   const filteredContacts = contacts.filter(
     (contact) =>
       contact.user_id === userId &&
-      (contact.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.phone.includes(searchQuery))
+      (
+        (contact.first_name && contact.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        (contact.last_name && contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+        contact.phone.includes(searchQuery)
+      )
   );
 
   return (
@@ -253,9 +271,9 @@ const Contacts = ({ userId }: { userId: string }) => {
           />
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-            onClick={activeTab === 'contacts' ? () => router.push('/upload-contacts') : openNewListModal}
+            onClick={activeTab === 'contacts' ? openNewContactModal : openNewListModal}
           >
-            {activeTab === 'contacts' ? 'Import Contacts' : 'New List'}
+            {activeTab === 'contacts' ? 'Add Contact' : 'New List'}
           </button>
         </div>
       </div>
@@ -401,6 +419,12 @@ const Contacts = ({ userId }: { userId: string }) => {
           {loading ? 'Saving...' : 'Save List'}
         </button>
       </Modal>
+      <AddContactModal
+        isOpen={newContactModalIsOpen}
+        onRequestClose={closeNewContactModal}
+        userId={userId}
+        onContactAdded={handleContactAdded}
+      />
     </div>
   );
 };

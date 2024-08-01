@@ -77,10 +77,10 @@ export async function getContacts(supabase: SupabaseClient) {
 
 // New function to get contact's first name by phone number
 export async function getContactFirstName(supabase: SupabaseClient, phoneNumber: string): Promise<string | null> {
-  const { data: contacts, error } = await supabase
+  const { data, error } = await supabase
     .from('contacts')
     .select('first_name')
-    .eq('phone_number', phoneNumber)
+    .eq('phone', phoneNumber)
     .single(); // Use single() for a single expected result
 
   if (error) {
@@ -88,5 +88,5 @@ export async function getContactFirstName(supabase: SupabaseClient, phoneNumber:
     return null; // Or handle the error as appropriate
   }
 
-  return contacts?.first_name || null;
+  return data?.first_name || null;
 }

@@ -12,7 +12,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { phoneNumber } = req.body;
+    // Extract the phone number from the nested structure
+    const phoneNumber = req.body.message?.call?.customer?.number;
 
     // Validate phoneNumber
     if (!phoneNumber) {
@@ -116,147 +117,149 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             {
               name: 'SendSMS',
               async: false,
-              serverUrl: 'https://hook.us1.make.com/ia2pkj63hrc4jy4lco0efyqlyukydm47',
+              serverUrl: 'https://clicksetgo.app/api/send-sms',
               parameters: {
                 type: 'object',
                 required: ['callerNumber', 'callerName'],
                 properties: {
-                  callerName: {
-                    type: 'string',
-                    description: 'The name of the person receiving the SMS message.'
+                    callerName: {
+                        type: 'string',
+                        description: 'The name of the person receiving the SMS message.'
+                      },
+                      callerNumber: {
+                        type: 'string',
+                        description: 'The end user\'s phone number to be used with SMS messaging.'
+                      }
+                    }
                   },
-                  callerNumber: {
-                    type: 'string',
-                    description: 'The end user\'s phone number to be used with SMS messaging.'
+                  description: 'Sends requested info to the caller\'s phone number',
+                  serverUrlSecret: '777333777'
+                },
+                {
+                  name: 'addEventInquiry',
+                  async: false,
+                  serverUrl: 'https://hook.us1.make.com/ogr5fl5qpry9nn1e5h7ud9h0wemlb9p1',
+                  description: 'This function allows the user to add a tentative event date to our calendar as an inquiry to be reviewed by the M10 staff.',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      name: {
+                        type: 'string',
+                        description: 'The name of the customer that is booking the event.'
+                      },
+                      event_date_and_time: {
+                        type: 'string',
+                        description: 'The date and time of the event or party in ISO 8601 format. The event date will always be in the future and never before the current date and time.'
+                      },
+                      eventType: {
+                        type: 'string',
+                        description: 'The type of event the user would like to book a DJ for.'
+                      },
+                      phoneNumber: {
+                        type: 'string',
+                        description: 'The phone number of the customer making the inquiry.'
+                      }
+                    },
+                    required: ['name', 'eventType', 'phoneNumber', 'event_date_and_time']
+                  }
+                },
+                {
+                  name: 'captureContact',
+                  async: false,
+                  serverUrl: 'https://hook.us1.make.com/4dvxlg88eqla8dii9v3fyqrbuhtm3oja',
+                  description: 'This function allows the user to capture contact information including First Name, Last Name, Email Address, and Phone Number, and save it to the leads database.',
+                  parameters: {
+                    type: 'object',
+                    properties: {
+                      FirstName: {
+                        type: 'string',
+                        description: 'The first name of the contact.'
+                      },
+                      LastName: {
+                        type: 'string',
+                        description: 'The last name of the contact.'
+                      },
+                      emailAddress: {
+                        type: 'string',
+                        description: 'The email address of the contact.'
+                      },
+                      phoneNumber: {
+                        type: 'string',
+                        description: 'The phone number of the contact.'
+                      }
+                    },
+                    required: ['FirstName', 'LastName', 'emailAddress', 'phoneNumber']
+                  }
+                }
+              ],
+              maxTokens: 250,
+              temperature: 0.7
+            },
+            recordingEnabled: true,
+            firstMessageMode: 'assistant-speaks-first',
+            firstMessage: firstName ? `Hello ${firstName}, this is Ben's AI assistant. How can I help you today?` : `Hello, this is Ben's AI assistant. How can I help you today?`,
+            voicemailMessage: 'You\'ve reached our voicemail. Please leave a message after the beep, and we\'ll get back to you as soon as possible.',
+            endCallMessage: 'Thank you for contacting us. Have a great day!',
+            transcriber: {
+              model: 'general',
+              language: 'en',
+              provider: 'deepgram'
+            },
+            clientMessages: [
+              'transcript',
+              'hang',
+              'function-call',
+              'speech-update',
+              'metadata',
+              'conversation-update'
+            ],
+            serverMessages: [
+              'end-of-call-report'
+            ],
+            serverUrl: 'https://hook.us1.make.com/q7iyohghqrtholk87uzlfxpjsn12c13m',
+            endCallPhrases: ['goodbye'],
+            analysisPlan: {
+              summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',
+              structuredDataPrompt: '## Key Performance Indicators (KPIs) for Support Call Success Evaluation\n\nTo effectively measure the success of our support calls, we focus on the following five critical KPIs. You will be given a transcript of a call and the system prompt of the Al participant.\n\n1. **First Call Resolution (FCR)**:\n   - **Notation**: Percentage (%)\n   - **Measurement**: High (≥ 80%) / Medium (60-79%) / Low (< 60%)\n   - **Importance**: Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.\n\n2. **Customer Satisfaction (CSAT)**:\n   - **Notation**: Score (out of 10)\n   - **Measurement**: High (≥ 9/10) / Medium (7-8.9/10) / Low (< 7/10)\n   - **Importance**: Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.\n\n3. **Average Handle Time (AHT)**:\n   - **Notation**: Optimal|Long|Short\n   - **Measurement**: Optimal (typically 4-6 minutes) / Long (> optimal range) / Short (< optimal range)\n   - **Importance**: Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.\n\n4. **Net Promoter Score (NPS)**:\n   - **Notation**: Score (range from -100 to 100)\n   - **Measurement**: High (≥ 50) / Medium (0-49) / Low (< 0)\n   - **Importance**: Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.\n\n5. **Resolution Time (RT)**:\n   - **Notation**: Time (hours or days)\n   - **Measurement**: Fast (< 24 hours) / Moderate (24-48 hours) / Slow (> 48 hours)\n   - **Importance**: Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
+              structuredDataSchema: {
+                type: 'object',
+                properties: {
+                  RT: {
+                    description: 'Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
+                    type: 'string'
+                  },
+                  AHT: {
+                    description: 'Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.',
+                    type: 'string'
+                  },
+                  FCR: {
+                    description: 'Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.',
+                    type: 'string'
+                  },
+                  NPS: {
+                    description: 'Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.',
+                    type: 'string'
+                  },
+                  CSAT: {
+                    description: 'Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.',
+                    type: 'string'
                   }
                 }
               },
-              description: 'Sends requested info to the caller\'s phone number',
-              serverUrlSecret: '777333777'
+              successEvaluationPrompt: 'You are an expert call evaluator. You will be given a transcript of a call and the system prompt of the Al participant. Based on the objectives inferred from the system prompt, determine if the call was successful. **Goal:** To inform potential and customers about M10 DJ Company and the services we provide and answer any questions related to the business. The secondary goal is to send pricing info, consultation schedule links, and to put event inquiries on our calendar.',
+              successEvaluationRubric: 'PassFail'
             },
-            {
-              name: 'addEventInquiry',
-              async: false,
-              serverUrl: 'https://hook.us1.make.com/ogr5fl5qpry9nn1e5h7ud9h0wemlb9p1',
-              description: 'This function allows the user to add a tentative event date to our calendar as an inquiry to be reviewed by the M10 staff.',
-              parameters: {
-                type: 'object',
-                properties: {
-                  name: {
-                    type: 'string',
-                    description: 'The name of the customer that is booking the event.'
-                  },
-                  event_date_and_time: {
-                    type: 'string',
-                    description: 'The date and time of the event or party in ISO 8601 format. The event date will always be in the future and never before the current date and time.'
-                  },
-                  eventType: {
-                    type: 'string',
-                    description: 'The type of event the user would like to book a DJ for.'
-                  },
-                  phoneNumber: {
-                    type: 'string',
-                    description: 'The phone number of the customer making the inquiry.'
-                  }
-                },
-                required: ['name', 'eventType', 'phoneNumber', 'event_date_and_time']
-              }
-            },
-            {
-              name: 'captureContact',
-              async: false,
-              serverUrl: 'https://hook.us1.make.com/4dvxlg88eqla8dii9v3fyqrbuhtm3oja',
-              description: 'This function allows the user to capture contact information including First Name, Last Name, Email Address, and Phone Number, and save it to the leads database.',
-              parameters: {
-                type: 'object',
-                properties: {
-                  FirstName: {
-                    type: 'string',
-                    description: 'The first name of the contact.'
-                  },
-                  LastName: {
-                    type: 'string',
-                    description: 'The last name of the contact.'
-                  },
-                  emailAddress: {
-                    type: 'string',
-                    description: 'The email address of the contact.'
-                  },
-                  phoneNumber: {
-                    type: 'string',
-                    description: 'The phone number of the contact.'
-                  }
-                },
-                required: ['FirstName', 'LastName', 'emailAddress', 'phoneNumber']
-              }
-            }
-          ],
-          maxTokens: 250,
-          temperature: 0.7
-        },
-        recordingEnabled: true,
-        firstMessage: firstName ? `Hello ${firstName}, this is Ben's AI assistant. How can I help you today?` : `Hello, this is Ben's AI assistant. How can I help you today?`,
-        voicemailMessage: 'You\'ve reached our voicemail. Please leave a message after the beep, and we\'ll get back to you as soon as possible.',
-        endCallMessage: 'Thank you for contacting us. Have a great day!',
-        transcriber: {
-          model: 'general',
-          language: 'en',
-          provider: 'deepgram'
-        },
-        clientMessages: [
-          'transcript',
-          'hang',
-          'function-call',
-          'speech-update',
-          'metadata',
-          'conversation-update'
-        ],
-        serverMessages: [
-          'end-of-call-report'
-        ],
-        serverUrl: 'https://hook.us1.make.com/q7iyohghqrtholk87uzlfxpjsn12c13m',
-        endCallPhrases: ['goodbye'],
-        analysisPlan: {
-          summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',
-          structuredDataPrompt: '## Key Performance Indicators (KPIs) for Support Call Success Evaluation\n\nTo effectively measure the success of our support calls, we focus on the following five critical KPIs. You will be given a transcript of a call and the system prompt of the Al participant.\n\n1. **First Call Resolution (FCR)**:\n   - **Notation**: Percentage (%)\n   - **Measurement**: High (≥ 80%) / Medium (60-79%) / Low (< 60%)\n   - **Importance**: Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.\n\n2. **Customer Satisfaction (CSAT)**:\n   - **Notation**: Score (out of 10)\n   - **Measurement**: High (≥ 9/10) / Medium (7-8.9/10) / Low (< 7/10)\n   - **Importance**: Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.\n\n3. **Average Handle Time (AHT)**:\n   - **Notation**: Optimal|Long|Short\n   - **Measurement**: Optimal (typically 4-6 minutes) / Long (> optimal range) / Short (< optimal range)\n   - **Importance**: Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.\n\n4. **Net Promoter Score (NPS)**:\n   - **Notation**: Score (range from -100 to 100)\n   - **Measurement**: High (≥ 50) / Medium (0-49) / Low (< 0)\n   - **Importance**: Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.\n\n5. **Resolution Time (RT)**:\n   - **Notation**: Time (hours or days)\n   - **Measurement**: Fast (< 24 hours) / Moderate (24-48 hours) / Slow (> 48 hours)\n   - **Importance**: Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
-          structuredDataSchema: {
-            type: 'object',
-            properties: {
-              RT: {
-                description: 'Tracks the total time taken to resolve an issue from the first contact. Faster resolution times typically lead to higher customer satisfaction and lower operational costs.',
-                type: 'string'
-              },
-              AHT: {
-                description: 'Represents the average duration of a call, balancing efficiency and effectiveness. Optimal AHT ensures that issues are resolved efficiently without compromising quality.',
-                type: 'string'
-              },
-              FCR: {
-                description: 'Indicates the percentage of customer issues resolved on the first contact, reducing the need for follow-up calls. High FCR leads to increased customer satisfaction and reduced operational costs.',
-                type: 'string'
-              },
-              NPS: {
-                description: 'Gauges customer loyalty and their likelihood to recommend our company. A high NPS indicates strong customer relationships and potential for business growth.',
-                type: 'string'
-              },
-              CSAT: {
-                description: 'Directly measures how satisfied customers are with the service they received. High CSAT scores reflect strong customer happiness and loyalty.',
-                type: 'string'
-              }
-            }
-          },
-          successEvaluationPrompt: 'You are an expert call evaluator. You will be given a transcript of a call and the system prompt of the Al participant. Based on the objectives inferred from the system prompt, determine if the call was successful. **Goal:** To inform potential and customers about M10 DJ Company and the services we provide and answer any questions related to the business. The secondary goal is to send pricing info, consultation schedule links, and to put event inquiries on our calendar.',
-          successEvaluationRubric: 'PassFail'
-        },
-        hipaaEnabled: false,
-        maxDurationSeconds: 793,
-        voicemailDetectionEnabled: false,
-        backgroundSound: 'office'
+            hipaaEnabled: false,
+            maxDurationSeconds: 793,
+            voicemailDetectionEnabled: false,
+            backgroundSound: 'office'
+          }
+        };
+    
+        res.status(200).json(responsePayload);
+      } catch (error) {
+        console.error('Error handling request:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
       }
-    };
-
-    res.status(200).json(responsePayload);
-  } catch (error) {
-    console.error('Error handling request:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-}
+    }
+    
