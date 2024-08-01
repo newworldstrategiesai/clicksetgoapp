@@ -1,16 +1,33 @@
-"use client"; // Add this line at the top
+"use client";
 
-import React, { useState, useEffect } from 'react';
-import Modal from 'react-modal';
-import { useRouter } from 'next/navigation';
-import { supabase } from 'utils/supabaseClient'; // Adjust the import based on your project structure
-import AddContactModal from 'components/AddContactModal'; // Adjust the import based on your project structure
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "utils/supabaseClient";
+import AddContactModal from "components/AddContactModal";
+import ContactDetailsModal from "components/ContactDetailsModal";
+import CallModal from "components/CallModal";
+import Modal from "react-modal";
 
 interface Contact {
   id: string;
   first_name: string;
   last_name: string;
   phone: string;
+  email_address?: string;
+  linkedin?: string;
+  position?: string;
+  company?: string;
+  company_phone?: string;
+  website?: string;
+  domain?: string;
+  facebook?: string;
+  twitter?: string;
+  linkedin_company_page?: string;
+  country?: string;
+  state?: string;
+  vertical?: string;
+  sub_category?: string;
+  notes?: string;
   user_id: string;
 }
 
@@ -46,18 +63,18 @@ interface FetchTwilioNumbersResponse {
 
 const customStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%',
-    maxWidth: '500px',
-    padding: '20px',
-    borderRadius: '10px',
-    backgroundColor: 'black',
-    color: 'white',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    width: "90%",
+    maxWidth: "500px",
+    padding: "20px",
+    borderRadius: "10px",
+    backgroundColor: "black",
+    color: "white",
   },
 };
 
@@ -65,17 +82,18 @@ const Contacts = ({ userId }: { userId: string }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [lists, setLists] = useState<List[]>([]);
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [detailsModalIsOpen, setDetailsModalIsOpen] = useState(false);
+  const [callModalIsOpen, setCallModalIsOpen] = useState(false);
   const [newListModalIsOpen, setNewListModalIsOpen] = useState(false);
   const [newContactModalIsOpen, setNewContactModalIsOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>('');
-  const [callReason, setCallReason] = useState('');
+  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>("");
+  const [callReason, setCallReason] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeTab, setActiveTab] = useState('contacts');
-  const [newListName, setNewListName] = useState('');
+  const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("contacts");
+  const [newListName, setNewListName] = useState("");
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
 
   const router = useRouter();
@@ -88,7 +106,7 @@ const Contacts = ({ userId }: { userId: string }) => {
         const contactsData: FetchContactsResponse[] = await responseContacts.json();
         const parsedContacts = contactsData.map((contact) => ({
           ...contact,
-          phone: contact.phone.startsWith('+') ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, '')}`,
+          phone: contact.phone.startsWith("+") ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
 
@@ -98,29 +116,37 @@ const Contacts = ({ userId }: { userId: string }) => {
         setLists(listsData);
 
         // Fetch Twilio numbers
-        const responseTwilioNumbers = await fetch('/api/get-twilio-numbers');
+        const responseTwilioNumbers = await fetch("/api/get-twilio-numbers");
         const twilioNumbersData: FetchTwilioNumbersResponse[] = await responseTwilioNumbers.json();
         setTwilioNumbers(twilioNumbersData);
-
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Error fetching data.');
+        console.error("Error fetching data:", error);
+        setError("Error fetching data.");
       }
     };
 
     fetchData();
   }, [userId]);
 
-  const openModal = (contact: Contact) => {
+  const openContactDetailsModal = (contact: Contact) => {
     setSelectedContact(contact);
-    setModalIsOpen(true);
+    setDetailsModalIsOpen(true);
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
-    setCallReason('');
-    setSelectedTwilioNumber('');
-    setError('');
+  const closeContactDetailsModal = () => {
+    setDetailsModalIsOpen(false);
+  };
+
+  const openCallModal = (contact: Contact) => {
+    setSelectedContact(contact);
+    setCallModalIsOpen(true);
+  };
+
+  const closeCallModal = () => {
+    setCallModalIsOpen(false);
+    setCallReason("");
+    setSelectedTwilioNumber("");
+    setError("");
   };
 
   const openNewListModal = () => {
@@ -129,9 +155,9 @@ const Contacts = ({ userId }: { userId: string }) => {
 
   const closeNewListModal = () => {
     setNewListModalIsOpen(false);
-    setNewListName('');
+    setNewListName("");
     setSelectedContacts(new Set());
-    setError('');
+    setError("");
   };
 
   const openNewContactModal = () => {
@@ -140,21 +166,21 @@ const Contacts = ({ userId }: { userId: string }) => {
 
   const closeNewContactModal = () => {
     setNewContactModalIsOpen(false);
-    setError('');
+    setError("");
   };
 
   const handleCallNow = async () => {
     if (!selectedContact || !callReason || !selectedTwilioNumber) {
-      setError('Please provide all required information.');
+      setError("Please provide all required information.");
       return;
     }
 
     try {
       setLoading(true);
-      const response = await fetch('/api/make-call', {
-        method: 'POST',
+      const response = await fetch("/api/make-call", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           contact: selectedContact,
@@ -165,24 +191,24 @@ const Contacts = ({ userId }: { userId: string }) => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('Call initiated:', data);
-        alert('Call initiated successfully!');
+        console.log("Call initiated:", data);
+        alert("Call initiated successfully!");
       } else {
-        console.error('Failed to initiate call:', data);
-        setError('Failed to initiate call.');
+        console.error("Failed to initiate call:", data);
+        setError("Failed to initiate call.");
       }
     } catch (error) {
-      console.error('Error initiating call:', error);
-      setError('Failed to initiate call.');
+      console.error("Error initiating call:", error);
+      setError("Failed to initiate call.");
     } finally {
       setLoading(false);
-      closeModal();
+      closeCallModal();
     }
   };
 
   const handleSaveList = async () => {
     if (!newListName || selectedContacts.size === 0) {
-      setError('Please provide a list name and select at least one contact.');
+      setError("Please provide a list name and select at least one contact.");
       return;
     }
 
@@ -190,10 +216,10 @@ const Contacts = ({ userId }: { userId: string }) => {
 
     try {
       setLoading(true);
-      const response = await fetch('/api/create-list', {
-        method: 'POST',
+      const response = await fetch("/api/create-list", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: newListName,
@@ -203,16 +229,16 @@ const Contacts = ({ userId }: { userId: string }) => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log('List created:', data);
+        console.log("List created:", data);
         setLists((prevLists) => [...prevLists, { id: data.id, name: newListName, contactsCount: selectedContactArray.length }]);
         closeNewListModal();
       } else {
-        console.error('Failed to create list:', data);
-        setError('Failed to create list.');
+        console.error("Failed to create list:", data);
+        setError("Failed to create list.");
       }
     } catch (error) {
-      console.error('Error creating list:', error);
-      setError('Failed to create list.');
+      console.error("Error creating list:", error);
+      setError("Failed to create list.");
     } finally {
       setLoading(false);
     }
@@ -234,50 +260,58 @@ const Contacts = ({ userId }: { userId: string }) => {
     setContacts((prevContacts) => [...prevContacts, contact]);
   };
 
+  const handleContactDeleted = (contactId: string) => {
+    setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));
+  };
+
   const filteredContacts = contacts.filter(
     (contact) =>
       contact.user_id === userId &&
-      (
-        (contact.first_name && contact.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      ((contact.first_name && contact.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
         (contact.last_name && contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        contact.phone.includes(searchQuery)
-      )
+        contact.phone.includes(searchQuery))
   );
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 md:px-0">
-      <div className="flex justify-between w-full max-w-5xl mb-4">
-        <div className="flex space-x-4">
+      <div className="flex flex-col md:flex-row justify-between w-full max-w-5xl mb-4">
+        <div className="flex flex-col md:flex-row md:space-x-4">
           <button
-            className={`px-4 py-2 ${activeTab === 'contacts' ? 'bg-white text-black' : 'bg-gray-700 text-gray-400'}`}
-            onClick={() => setActiveTab('contacts')}
+            className={`px-4 py-2 ${activeTab === "contacts" ? "bg-white text-black" : "bg-gray-700 text-gray-400"}`}
+            onClick={() => setActiveTab("contacts")}
           >
             Contacts
           </button>
           <button
-            className={`px-4 py-2 ${activeTab === 'lists' ? 'bg-white text-black' : 'bg-gray-700 text-gray-400'}`}
-            onClick={() => setActiveTab('lists')}
+            className={`px-4 py-2 ${activeTab === "lists" ? "bg-white text-black" : "bg-gray-700 text-gray-400"}`}
+            onClick={() => setActiveTab("lists")}
           >
             Lists
           </button>
         </div>
-        <div className="flex items-center space-x-2">
-          <input
-            type="text"
-            placeholder={activeTab === 'contacts' ? 'Search Contacts' : 'Search Lists'}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="p-2 border rounded-lg text-black"
-          />
+        <div className="flex flex-col md:flex-row md:space-x-2 mt-2 md:mt-0">
           <button
             className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-            onClick={activeTab === 'contacts' ? openNewContactModal : openNewListModal}
+            onClick={openNewContactModal}
           >
-            {activeTab === 'contacts' ? 'Add Contact' : 'New List'}
+            Upload Contacts
           </button>
+          <button
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+            onClick={openNewContactModal}
+          >
+            Add Contact
+          </button>
+          <input
+            type="text"
+            placeholder={activeTab === "contacts" ? "Search Contacts" : "Search Lists"}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="mt-2 md:mt-0 p-2 border rounded-lg text-black"
+          />
         </div>
       </div>
-      {activeTab === 'contacts' && (
+      {activeTab === "contacts" && (
         <div className="flex flex-col items-center w-full max-w-5xl">
           <div className="w-full overflow-x-auto">
             <table className="table-auto w-full text-left">
@@ -289,15 +323,19 @@ const Contacts = ({ userId }: { userId: string }) => {
               </thead>
               <tbody>
                 {filteredContacts.map((contact, index) => (
-                  <tr
-                    key={index}
-                    className="border-t cursor-pointer hover:bg-gray-700"
-                    onClick={() => openModal(contact)}
-                  >
-                    <td className="px-4 md:px-6 py-2">
+                  <tr key={index} className="border-t cursor-pointer hover:bg-gray-700">
+                    <td
+                      className="px-4 md:px-6 py-2"
+                      onClick={() => openContactDetailsModal(contact)}
+                    >
                       {contact.first_name} {contact.last_name}
                     </td>
-                    <td className="px-4 md:px-6 py-2">{contact.phone}</td>
+                    <td
+                      className="px-4 md:px-6 py-2"
+                      onClick={() => openCallModal(contact)}
+                    >
+                      {contact.phone}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -305,7 +343,7 @@ const Contacts = ({ userId }: { userId: string }) => {
           </div>
         </div>
       )}
-      {activeTab === 'lists' && (
+      {activeTab === "lists" && (
         <div className="flex flex-col items-center w-full max-w-5xl">
           <div className="w-full overflow-x-auto">
             <table className="table-auto w-full text-left">
@@ -327,57 +365,25 @@ const Contacts = ({ userId }: { userId: string }) => {
           </div>
         </div>
       )}
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        style={customStyles}
-        contentLabel="Contact Modal"
-      >
-        <h2 className="text-xl font-bold mb-4">Call Contact</h2>
-        {selectedContact && (
-          <div>
-            <p>
-              <strong>Name:</strong> {selectedContact.first_name} {selectedContact.last_name}
-            </p>
-            <p>
-              <strong>Phone:</strong> {selectedContact.phone}
-            </p>
-            <div className="mt-4">
-              <label className="block mb-2">
-                <span className="block text-gray-400">Twilio Number:</span>
-                <select
-                  value={selectedTwilioNumber}
-                  onChange={(e) => setSelectedTwilioNumber(e.target.value)}
-                  className="p-2 border rounded-lg w-full"
-                >
-                  <option value="">Select Twilio Number</option>
-                  {twilioNumbers.map((number) => (
-                    <option key={number.sid} value={number.phoneNumber}>
-                      {number.phoneNumber}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label className="block mb-2">
-                <span className="block text-gray-400">Call Reason:</span>
-                <textarea
-                  value={callReason}
-                  onChange={(e) => setCallReason(e.target.value)}
-                  className="p-2 border rounded-lg w-full"
-                />
-              </label>
-              {error && <p className="text-red-500">{error}</p>}
-              <button
-                onClick={handleCallNow}
-                className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-                disabled={loading}
-              >
-                {loading ? 'Calling...' : 'Call Now'}
-              </button>
-            </div>
-          </div>
-        )}
-      </Modal>
+      <ContactDetailsModal
+        isOpen={detailsModalIsOpen}
+        onRequestClose={closeContactDetailsModal}
+        contact={selectedContact}
+        onContactDeleted={handleContactDeleted}
+      />
+      <CallModal
+        isOpen={callModalIsOpen}
+        onRequestClose={closeCallModal}
+        selectedContact={selectedContact}
+        selectedTwilioNumber={selectedTwilioNumber}
+        setSelectedTwilioNumber={setSelectedTwilioNumber}
+        callReason={callReason}
+        setCallReason={setCallReason}
+        handleCallNow={handleCallNow}
+        error={error}
+        loading={loading}
+        twilioNumbers={twilioNumbers}
+      />
       <Modal
         isOpen={newListModalIsOpen}
         onRequestClose={closeNewListModal}
@@ -416,7 +422,7 @@ const Contacts = ({ userId }: { userId: string }) => {
           className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
           disabled={loading}
         >
-          {loading ? 'Saving...' : 'Save List'}
+          {loading ? "Saving..." : "Save List"}
         </button>
       </Modal>
       <AddContactModal

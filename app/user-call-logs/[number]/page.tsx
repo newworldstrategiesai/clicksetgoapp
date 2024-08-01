@@ -44,7 +44,7 @@ const UserCallLogs: React.FC = () => {
         const response = await axios.get(`/api/get-call-logs-by-number`, {
           params: { number },
         });
-        
+
         const contactsResponse = await axios.get('/api/contacts');
         const contacts = contactsResponse.data;
         const contact = contacts.find((contact: any) => contact.phone.replace(/\D/g, '') === number.replace(/\D/g, ''));
