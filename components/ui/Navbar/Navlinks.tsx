@@ -35,6 +35,12 @@ export default function Navlinks({ user }: NavlinksProps) {
           <Link href="/contacts" className={s.link}>
             Contacts
           </Link>
+          <Link href="/voice-library" className={s.link}>
+            Voice Library
+          </Link>
+          <Link href="/dialer" className={s.link}>
+            Dialer
+          </Link>
           <Link href="/account" className={s.link}>
             Account
           </Link>

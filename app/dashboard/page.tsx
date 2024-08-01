@@ -1,24 +1,21 @@
-import Pricing from '@/components/ui/Pricing/Pricing';
-import { createClient } from '@/utils/supabase/server';
-import {
-  getProducts,
-  getSubscription,
-  getUser
-} from '@/utils/supabase/queries';
+'use client';
 
-export default async function PricingPage() {
-  const supabase = createClient();
-  const [user, products, subscription] = await Promise.all([
-    getUser(supabase),
-    getProducts(supabase),
-    getSubscription(supabase)
-  ]);
+import React from 'react';
+import CallChart from 'components/ui/Charts/CallChart';
+import SMSChart from 'components/ui/Charts/SmsChart';
 
+const OverviewPage = () => {
   return (
-    <Pricing
-      user={user}
-      products={products ?? []}
-      subscription={subscription}
-    />
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Overview</h1>
+      <div className="mb-8">
+        <CallChart />
+      </div>
+      <div>
+        <SMSChart />
+      </div>
+    </div>
   );
-}
+};
+
+export default OverviewPage;
