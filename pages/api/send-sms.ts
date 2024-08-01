@@ -14,15 +14,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const authToken = process.env.TWILIO_AUTH_TOKEN as string;
   const client = twilio(accountSid, authToken);
 
-  // Destructure the request body
-  const { callerName, smsMessage, callerNumber }: SendSmsRequest = req.body;
-
-  // Input validation
-  if (!callerName || !smsMessage || !callerNumber) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  // Ensure the request method is POST
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
   }
 
   try {
+    // Extract the necessary fields from the request body
+    const { callerName, smsMessage, callerNumber }: SendSmsRequest = req.body.message.functionCall.parameters;
+
+    // Input validation
+    if (!callerName || !smsMessage || !callerNumber) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
     // Send SMS using Twilio
     const message = await client.messages.create({
       body: `${callerName}, ${smsMessage}`, // Include caller's name in the SMS body
