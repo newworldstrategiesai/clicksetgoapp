@@ -25,6 +25,7 @@ const Dialer = () => {
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [callReason, setCallReason] = useState(''); // New state for call reason
 
   useEffect(() => {
     const fetchTwilioNumbers = async () => {
@@ -67,8 +68,8 @@ const Dialer = () => {
   };
 
   const handleCall = async () => {
-    if (!selectedTwilioNumber || !input) {
-      setError('Please enter a number and select a Twilio number.');
+    if (!selectedTwilioNumber || !input || !callReason) {
+      setError('Please enter a number, select a Twilio number, and provide a reason for the call.');
       return;
     }
 
@@ -80,13 +81,11 @@ const Dialer = () => {
       return;
     }
 
-    const callReason = 'testing';
-
     try {
       setLoading(true);
       const response = await axios.post('/api/make-call', {
         contact,
-        reason: callReason,
+        reason: callReason, // Include the call reason here
         twilioNumber: selectedTwilioNumber,
       });
       alert('Call initiated successfully!');
@@ -157,6 +156,16 @@ const Dialer = () => {
               </option>
             ))}
           </select>
+        </label>
+        <label className="block mt-4">
+          <span className="block text-gray-400">Reason for Call:</span>
+          <input
+            type="text"
+            value={callReason}
+            onChange={(e) => setCallReason(e.target.value)}
+            className="p-2 border rounded-lg w-full bg-gray-800 text-white"
+            placeholder="Enter reason for the call"
+          />
         </label>
       </div>
     </div>

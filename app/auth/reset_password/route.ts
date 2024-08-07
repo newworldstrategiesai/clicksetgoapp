@@ -1,4 +1,4 @@
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import { NextResponse } from 'next/server';
 import { NextRequest } from 'next/server';
 import { getErrorRedirect, getStatusRedirect } from '@/utils/helpers';

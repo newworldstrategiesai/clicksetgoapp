@@ -159,7 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         serverMessages: [
           'end-of-call-report'
         ],
-        serverUrl: 'https://hook.us1.make.com/q7iyohghqrtholk87uzlfxpjsn12c13m',
+        serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
         endCallPhrases: ['goodbye'],
         analysisPlan: {
           summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',

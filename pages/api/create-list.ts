@@ -1,58 +1,41 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@supabase/supabase-js';
-
-// Ensure environment variables are defined
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_KEY = process.env.SUPABASE_KEY;
-
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  throw new Error('Missing Supabase environment variables.');
-}
-
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+import { NextApiRequest, NextApiResponse } from "next";
+import { supabase } from "utils/supabaseClient";
+import { validate as uuidValidate } from 'uuid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'POST') {
-    res.status(405).json({ message: 'Method Not Allowed' });
-    return;
-  }
+  if (req.method === "POST") {
+    console.log(req.body); // Debug: Log the incoming request body
 
-  const { name, contacts } = req.body;
+    const { name, contacts, user_id } = req.body;
 
-  if (!name || !contacts || contacts.length === 0) {
-    res.status(400).json({ message: 'Invalid input' });
-    return;
-  }
-
-  try {
-    const { data: list, error: listError } = await supabase
-      .from('lists')
-      .insert([{ name }])
-      .select()
-      .single();
-
-    if (listError) {
-      throw listError;
+    // Validate input
+    if (!name || !user_id) {
+      return res.status(400).json({ error: "Name and user_id are required." });
     }
 
-    const listId = list.id;
-
-    const contactListData = contacts.map((contactId: string) => ({
-      list_id: listId,
-      contact_id: contactId,
-    }));
-
-    const { error: contactListError } = await supabase
-      .from('contact_lists')
-      .insert(contactListData);
-
-    if (contactListError) {
-      throw contactListError;
+    // Validate UUID format
+    if (!uuidValidate(user_id)) {
+      return res.status(400).json({ error: "Invalid user_id format." });
     }
 
-    res.status(200).json({ id: listId, message: 'List created successfully' });
-  } catch (error) {
-    console.error('Error creating list:', error instanceof Error ? error.message : 'Unknown error');
-    res.status(500).json({ message: 'Failed to create list', error: error instanceof Error ? error.message : 'Unknown error' });
+    try {
+      // Insert the new list into Supabase
+      const { data, error } = await supabase
+        .from("lists")
+        .insert([{ name, user_id, contacts_count: contacts.length }])
+        .single();
+
+      if (error) {
+        throw error;
+      }
+
+      res.status(200).json(data);
+    } catch (error) {
+      console.error("Error creating list:", error);
+      res.status(500).json({ error: "Error creating list." });
+    }
+  } else {
+    res.setHeader("Allow", ["POST"]);
+    res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }

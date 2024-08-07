@@ -1,6 +1,6 @@
 import { UserProvider } from '@/context/UserContext';
 import UploadContacts from 'components/ui/UploadContacts/UploadContacts';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
 import { redirect } from 'next/navigation';
 

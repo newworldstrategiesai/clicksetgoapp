@@ -3,25 +3,41 @@ import { useRouter } from 'next/router';
 import { UserProvider } from '@/context/UserContext';
 import type { AppProps } from 'next/app';
 import Modal from 'react-modal';
-import { supabase } from 'utils/supabaseClient'; // Adjust the path as needed
+import { supabase } from '@/utils/supabaseClient'; // Adjust the path as needed
 
 const MyApp = ({ Component, pageProps }: AppProps) => {
   const router = useRouter();
 
   useEffect(() => {
-    Modal.setAppElement('#__next');
+    // Set the app element for modal accessibility
+    Modal.setAppElement('#__next'); // Ensure this matches your root element
 
-    // Start listening to auth changes
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw new Error(error.message);
+        if (!session) {
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        router.push('/login');
+      }
+    };
+
+    checkSession();
+
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
         router.push('/overview');
+      } else if (event === 'SIGNED_OUT') {
+        router.push('/login');
       }
     });
 
-    // Cleanup function to unsubscribe from the listener
     return () => {
       if (authListener && typeof authListener === 'object' && 'subscription' in authListener) {
-        authListener.subscription?.unsubscribe();  // Check if subscription exists and call unsubscribe
+        authListener.subscription?.unsubscribe();
       }
     };
   }, [router]);

@@ -2,7 +2,7 @@
 import React from 'react';
 import Contacts from '@/components/ui/Contacts/Contacts';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
 
 export default async function ContactsPage() {

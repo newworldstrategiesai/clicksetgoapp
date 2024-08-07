@@ -1,4 +1,5 @@
-'use client';
+// context/UserContext.tsx
+'use client'; // Add this line to specify that this file is a client component
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { supabase } from '@/utils/supabaseClient';

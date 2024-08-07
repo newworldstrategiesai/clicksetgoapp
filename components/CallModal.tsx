@@ -56,7 +56,7 @@ const CallModal: React.FC<CallModalProps> = ({
   handleCallNow,
   error,
   loading,
-  twilioNumbers,
+  twilioNumbers = [],
 }) => (
   <Modal
     isOpen={isOpen}
@@ -82,11 +82,15 @@ const CallModal: React.FC<CallModalProps> = ({
               className="p-2 border rounded-lg w-full"
             >
               <option value="">Select Twilio Number</option>
-              {twilioNumbers.map((number) => (
-                <option key={number.sid} value={number.phoneNumber}>
-                  {number.phoneNumber}
-                </option>
-              ))}
+              {twilioNumbers.length > 0 ? (
+                twilioNumbers.map((number) => (
+                  <option key={number.sid} value={number.phoneNumber}>
+                    {number.phoneNumber}
+                  </option>
+                ))
+              ) : (
+                <option value="" disabled>No Twilio Numbers Available</option>
+              )}
             </select>
           </label>
           <label className="block mb-2">

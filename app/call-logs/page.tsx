@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
 import CallLogsClient from '@/components/CallLogsClient';
 

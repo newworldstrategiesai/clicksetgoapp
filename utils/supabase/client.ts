@@ -1,8 +1,12 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createPagesBrowserClient, createPagesServerClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '@/types_db';
 
-export const createClient = () =>
-  createBrowserClient<Database>(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
+export const createClient = (req?: any, res?: any) => {
+  if (typeof window === 'undefined') {
+    // Server-side
+    return createPagesServerClient<Database>({ req, res });
+  } else {
+    // Client-side
+    return createPagesBrowserClient<Database>();
+  }
+};

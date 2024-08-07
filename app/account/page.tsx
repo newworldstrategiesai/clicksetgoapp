@@ -3,7 +3,7 @@ import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';
 import ApiKeysForm from '@/components/ui/AccountForms/ApiKeysForm';
 import { redirect } from 'next/navigation';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import {
   getUserDetails,
   getSubscription,

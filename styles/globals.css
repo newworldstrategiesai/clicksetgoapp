@@ -53,3 +53,8 @@ body {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+/* styles/global.css or styles.module.css */
+.main-content {
+  padding-top: 4rem; /* Adjust based on the height of your navbar */
+}

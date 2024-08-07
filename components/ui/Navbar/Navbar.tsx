@@ -5,11 +5,11 @@ import { createClient } from '@/utils/supabase/client';
 import s from './Navbar.module.css';
 import Navlinks from './Navlinks';
 import { useRouter, usePathname } from 'next/navigation';
-import { User } from '@supabase/supabase-js'; // Import the User type from supabase-js
+import { User } from '@supabase/supabase-js';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null); // Define the user state with User type or null
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const pathname = usePathname();
 

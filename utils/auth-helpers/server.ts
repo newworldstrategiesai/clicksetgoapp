@@ -1,6 +1,6 @@
 'use server';
 
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/server';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getURL, getErrorRedirect, getStatusRedirect } from 'utils/helpers';
