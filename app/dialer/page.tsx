@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { supabase } from 'utils/supabaseClient';
+import { parsePhoneNumberFromString } from 'libphonenumber-js'; // Import the library
 
 interface Contact {
   id: string;
   first_name: string;
   last_name: string;
   phone: string;
-  user_id: string;
 }
 
 interface TwilioNumber {
@@ -17,22 +17,37 @@ interface TwilioNumber {
   phoneNumber: string;
 }
 
+const DEFAULT_TWILIO_NUMBER = '+19014102020';
+
+// Utility function to format phone numbers in E.164 format
+const formatPhoneNumber = (phoneNumber: string) => {
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US'); // You can set the default region if needed
+  return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
+};
+
 const Dialer = () => {
   const [input, setInput] = useState('');
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
-  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>('');
+  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>(DEFAULT_TWILIO_NUMBER);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [newFirstName, setNewFirstName] = useState('');
+  const [newLastName, setNewLastName] = useState('');
+  const [callReason, setCallReason] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'existing' | 'new'>('existing');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [callReason, setCallReason] = useState(''); // New state for call reason
+  const [notification, setNotification] = useState('');
 
   useEffect(() => {
+    // Fetch Twilio numbers and contacts on component mount
     const fetchTwilioNumbers = async () => {
       try {
         const response = await axios.get('/api/get-twilio-numbers');
         setTwilioNumbers(response.data);
-        setSelectedTwilioNumber(response.data[0]?.phoneNumber || '');
+        if (response.data.length > 0) {
+          setSelectedTwilioNumber(response.data[0].phoneNumber);
+        }
       } catch (error) {
         console.error('Error fetching Twilio numbers:', error);
       }
@@ -53,48 +68,70 @@ const Dialer = () => {
   }, []);
 
   const handleButtonClick = (value: string) => {
-    setInput(input + value);
+    setInput(prevInput => prevInput + value);
   };
 
   const handleBackspace = () => {
-    setInput(input.slice(0, -1));
-  };
-
-  const formatPhoneNumber = (phoneNumber: string) => {
-    if (!phoneNumber.startsWith('+')) {
-      return `+1${phoneNumber.replace(/[^0-9]/g, '')}`;
-    }
-    return phoneNumber;
+    setInput(prevInput => prevInput.slice(0, -1));
   };
 
   const handleCall = async () => {
-    if (!selectedTwilioNumber || !input || !callReason) {
-      setError('Please enter a number, select a Twilio number, and provide a reason for the call.');
+    if (!input) {
+      setNotification('Please enter a number.');
       return;
     }
 
     const formattedPhoneNumber = formatPhoneNumber(input);
     const contact = contacts.find(contact => formatPhoneNumber(contact.phone) === formattedPhoneNumber);
 
-    if (!contact) {
-      setError('Contact not found.');
+    if (contact) {
+      setSelectedContact(contact);
+      setModalMode('existing');
+      setCallReason('');
+      setIsModalOpen(true);
+    } else {
+      setSelectedContact(null);
+      setModalMode('new');
+      setNewFirstName('');
+      setNewLastName('');
+      setCallReason('');
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleModalSubmit = async () => {
+    if (modalMode === 'existing' && !callReason) {
+      setNotification('Please fill in the reason for calling.');
       return;
     }
+    if (modalMode === 'new' && (!newFirstName || !newLastName)) {
+      setNotification('Please fill in all fields.');
+      return;
+    }
+
+    const formattedPhoneNumber = formatPhoneNumber(input);
+    const twilioNumberToUse = selectedTwilioNumber || DEFAULT_TWILIO_NUMBER;
 
     try {
       setLoading(true);
       const response = await axios.post('/api/make-call', {
-        contact,
-        reason: callReason, // Include the call reason here
-        twilioNumber: selectedTwilioNumber,
+        contact: {
+          id: selectedContact?.id || '',
+          first_name: selectedContact?.first_name || newFirstName,
+          last_name: selectedContact?.last_name || newLastName,
+          phone: formattedPhoneNumber, // Use formatted phone number here
+        },
+        reason: callReason,
+        twilioNumber: twilioNumberToUse,
       });
-      alert('Call initiated successfully!');
+      setNotification(`Call to ${selectedContact?.first_name || newFirstName} ${selectedContact?.last_name || newLastName} initialized.`);
       console.log('Response from API:', response.data);
     } catch (error) {
       console.error('Error initiating call:', error);
-      setError('Failed to initiate call.');
+      setNotification('Failed to initiate call.');
     } finally {
       setLoading(false);
+      setIsModalOpen(false);
     }
   };
 
@@ -141,7 +178,7 @@ const Dialer = () => {
           {loading ? 'Calling...' : '📞'}
         </button>
       </div>
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {notification && <p className="text-red-500 mt-4">{notification}</p>}
       <div className="mt-6 w-64">
         <label className="block mb-2">
           <span className="block text-gray-400">Select Twilio Number:</span>
@@ -157,17 +194,79 @@ const Dialer = () => {
             ))}
           </select>
         </label>
-        <label className="block mt-4">
-          <span className="block text-gray-400">Reason for Call:</span>
-          <input
-            type="text"
-            value={callReason}
-            onChange={(e) => setCallReason(e.target.value)}
-            className="p-2 border rounded-lg w-full bg-gray-800 text-white"
-            placeholder="Enter reason for the call"
-          />
-        </label>
       </div>
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+          <div className="bg-gray-800 p-6 rounded-lg max-w-sm w-full">
+            <h3 className="text-xl font-semibold mb-4">
+              {modalMode === 'existing' ? 'Update Contact' : 'Add New Contact'}
+            </h3>
+            {modalMode === 'existing' && selectedContact ? (
+              <>
+                <p className="text-gray-400">Contact:</p>
+                <p className="text-white text-lg">{`${selectedContact.first_name} ${selectedContact.last_name}`}</p>
+                <label className="block mb-2 mt-4">
+                  <span className="block text-gray-400">Reason for Calling:</span>
+                  <input
+                    type="text"
+                    value={callReason}
+                    onChange={(e) => setCallReason(e.target.value)}
+                    className="p-2 border rounded-lg w-full bg-gray-700 text-white"
+                  />
+                </label>
+                <button
+                  onClick={handleModalSubmit}
+                  className="bg-green-600 p-2 rounded-lg text-white mt-4 w-full"
+                >
+                  Call Now
+                </button>
+              </>
+            ) : (
+              <>
+                <label className="block mb-2">
+                  <span className="block text-gray-400">First Name:</span>
+                  <input
+                    type="text"
+                    value={newFirstName}
+                    onChange={(e) => setNewFirstName(e.target.value)}
+                    className="p-2 border rounded-lg w-full bg-gray-700 text-white"
+                  />
+                </label>
+                <label className="block mb-2 mt-4">
+                  <span className="block text-gray-400">Last Name:</span>
+                  <input
+                    type="text"
+                    value={newLastName}
+                    onChange={(e) => setNewLastName(e.target.value)}
+                    className="p-2 border rounded-lg w-full bg-gray-700 text-white"
+                  />
+                </label>
+                <label className="block mb-2 mt-4">
+                  <span className="block text-gray-400">Reason for Calling:</span>
+                  <input
+                    type="text"
+                    value={callReason}
+                    onChange={(e) => setCallReason(e.target.value)}
+                    className="p-2 border rounded-lg w-full bg-gray-700 text-white"
+                  />
+                </label>
+                <button
+                  onClick={handleModalSubmit}
+                  className="bg-green-600 p-2 rounded-lg text-white mt-4 w-full"
+                >
+                  Call Now
+                </button>
+              </>
+            )}
+            <button
+              onClick={() => setIsModalOpen(false)}
+              className="bg-red-600 p-2 rounded-lg text-white mt-4 w-full"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

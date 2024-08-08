@@ -33,7 +33,7 @@ interface TwilioNumber {
 
 interface CallModalProps {
   isOpen: boolean;
-  onRequestClose: () => void;
+  onClose: () => void;
   selectedContact: Contact | null;
   selectedTwilioNumber: string;
   setSelectedTwilioNumber: (value: string) => void;
@@ -47,7 +47,7 @@ interface CallModalProps {
 
 const CallModal: React.FC<CallModalProps> = ({
   isOpen,
-  onRequestClose,
+  onClose,
   selectedContact,
   selectedTwilioNumber,
   setSelectedTwilioNumber,
@@ -60,7 +60,7 @@ const CallModal: React.FC<CallModalProps> = ({
 }) => (
   <Modal
     isOpen={isOpen}
-    onRequestClose={onRequestClose}
+    onRequestClose={onClose}
     style={customStyles}
     contentLabel="Call Modal"
   >

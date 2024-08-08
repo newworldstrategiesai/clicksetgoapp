@@ -1,140 +1,123 @@
-import React, { useState } from 'react';
-import Modal from 'react-modal';
-import { supabase } from '@/utils/supabaseClient';
+"use client";
 
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '90%',
-    maxWidth: '600px',
-    padding: '20px',
-    borderRadius: '10px',
-    backgroundColor: 'black',
-    color: 'white',
-  },
-};
+import React, { useState } from "react";
 
 interface Contact {
   id: string;
   first_name: string;
   last_name: string;
   phone: string;
+  email_address?: string;
   user_id: string;
 }
 
 interface AddContactModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddContacts: (listId: string, contacts: Contact[]) => void; // Added onAddContacts prop
-  listId: string; // Added listId prop
+  onContactAdded: (contact: Contact) => void; // Add this line
 }
 
-const AddContactModal: React.FC<AddContactModalProps> = ({
-  isOpen,
-  onClose,
-  onAddContacts,
-  listId,
-}) => {
-  const [contact, setContact] = useState<Contact>({
-    id: '',
-    first_name: '',
-    last_name: '',
-    phone: '',
-    user_id: '', // Ensure user_id is properly handled
-  });
-  const [contacts, setContacts] = useState<Contact[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setContact({
-      ...contact,
-      [e.target.name]: e.target.value,
-    });
-  };
+const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onContactAdded }) => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleAddContact = async () => {
-    if (!contact.first_name || !contact.phone) return; // Validate required fields
+    if (!firstName || !lastName || !phone) {
+      alert("Please fill in all required fields.");
+      return;
+    }
 
-    setLoading(true);
+    const newContact = {
+      id: "new-id", // Replace with actual logic for generating ID
+      first_name: firstName,
+      last_name: lastName,
+      phone: phone,
+      email_address: email,
+      user_id: "current-user-id", // Replace with actual user ID
+    };
 
     try {
-      const { error } = await supabase
-        .from('contacts')
-        .insert([contact]);
+      // Call API to add contact if needed
+      // const response = await fetch('/api/add-contact', { ... });
 
-      if (error) throw error;
-
-      setContacts((prevContacts) => [...prevContacts, contact]);
-      setContact({ id: '', first_name: '', last_name: '', phone: '', user_id: '' });
+      onContactAdded(newContact);
+      onClose();
     } catch (error) {
-      console.error('Error adding contact:', error);
-    } finally {
-      setLoading(false);
+      console.error("Failed to add contact:", error);
     }
   };
 
-  const handleSaveContacts = () => {
-    onAddContacts(listId, contacts); // Notify parent component about the added contacts
-    onClose(); // Close the modal
-  };
+  if (!isOpen) return null;
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles} contentLabel="Add Contact Modal">
-      <h2 className="text-xl font-bold mb-4">Add Contacts to List</h2>
-      <div>
-        <label className="block mb-4">
-          <span className="block text-gray-400">First Name:</span>
-          <input
-            type="text"
-            name="first_name"
-            value={contact.first_name}
-            onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
-            placeholder="First Name"
-          />
-        </label>
-        <label className="block mb-4">
-          <span className="block text-gray-400">Last Name:</span>
-          <input
-            type="text"
-            name="last_name"
-            value={contact.last_name}
-            onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
-            placeholder="Last Name"
-          />
-        </label>
-        <label className="block mb-4">
-          <span className="block text-gray-400">Phone:</span>
-          <input
-            type="text"
-            name="phone"
-            value={contact.phone}
-            onChange={handleChange}
-            className="p-2 border rounded-lg w-full"
-            placeholder="Phone"
-          />
-        </label>
-        <button
-          onClick={handleAddContact}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
-          disabled={loading}
+    <div className="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
+        <h2 className="text-lg font-semibold mb-4">Add New Contact</h2>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleAddContact();
+          }}
         >
-          {loading ? 'Adding...' : 'Add Contact'}
-        </button>
-        <button
-          onClick={handleSaveContacts}
-          className="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg"
-        >
-          Save Contacts
-        </button>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">First Name</label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Last Name</label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Phone</label>
+            <input
+              type="text"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            />
+          </div>
+          <div className="flex gap-4">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-500 text-white rounded-md"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md"
+            >
+              Add Contact
+            </button>
+          </div>
+        </form>
       </div>
-    </Modal>
+    </div>
   );
 };
 

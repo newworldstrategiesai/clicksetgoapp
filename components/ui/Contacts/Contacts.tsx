@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "utils/supabaseClient";
 import AddContactModal from "components/AddContactModal";
 import ContactDetailsModal from "components/ContactDetailsModal";
 import CallModal from "components/CallModal";
@@ -246,7 +245,7 @@ const Contacts = ({ userId }: { userId: string }) => {
         {activeTab === "contacts" && (
           <div className="flex flex-col items-center w-full max-w-5xl">
             <ContactsTable
-              contacts={contacts}
+              contacts={filteredContacts}
               onContactClick={openContactDetailsModal}
               onPhoneClick={openCallModal}
               searchQuery={searchQuery}
@@ -255,66 +254,47 @@ const Contacts = ({ userId }: { userId: string }) => {
         )}
         {activeTab === "lists" && (
           <div className="flex flex-col items-center w-full max-w-5xl">
-            <button
-              onClick={openCreateListModal}
-              className="mb-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-            >
-              Create List
-            </button>
             <ListsTable
               lists={lists}
               onSelectList={handleSelectList}
-              onOpenNewContactModal={openNewContactModal}
-              onSelectContact={handleSelectContact}
               onAddContacts={handleAddContacts}
+              onOpenNewContactModal={openNewContactModal}
+              userId={userId}
             />
+            <button
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              onClick={openCreateListModal}
+            >
+              Create New List
+            </button>
           </div>
         )}
       </div>
 
-      {detailsModalIsOpen && selectedContact && (
-        <ContactDetailsModal
-          contact={selectedContact}
-          isOpen={detailsModalIsOpen}
-          onClose={closeContactDetailsModal}
-          onContactDeleted={handleContactDeleted}
-        />
-      )}
+      <AddContactModal isOpen={newContactModalIsOpen} onClose={closeNewContactModal} onContactAdded={handleContactAdded} />
+      <ContactDetailsModal isOpen={detailsModalIsOpen} onClose={closeContactDetailsModal} contact={selectedContact} onContactDeleted={handleContactDeleted} />
+      <CallModal
+  isOpen={callModalIsOpen}
+  onClose={closeCallModal}
+  selectedContact={selectedContact}
+  selectedTwilioNumber={selectedTwilioNumber}
+  setSelectedTwilioNumber={setSelectedTwilioNumber}
+  callReason={callReason}
+  setCallReason={setCallReason}
+  handleCallNow={handleCallNow} // Ensure this matches the prop name
+  error={error}
+  loading={loading}
+  twilioNumbers={twilioNumbers}
+/>
 
-      {callModalIsOpen && (
-        <CallModal
-          isOpen={callModalIsOpen}
-          onRequestClose={closeCallModal}
-          selectedContact={selectedContact}
-          selectedTwilioNumber={selectedTwilioNumber}
-          setSelectedTwilioNumber={setSelectedTwilioNumber}
-          callReason={callReason}
-          setCallReason={setCallReason}
-          handleCallNow={handleCallNow}
-          error={error}
-          loading={loading}
-          twilioNumbers={twilioNumbers}
-        />
-      )}
+<CreateListModal
+  isOpen={createListModalIsOpen}
+  onClose={closeCreateListModal}
+  onSave={handleSaveList} // Updated prop name to onSave
+  selectedContacts={selectedContacts}
+  userId={userId} // Ensure this is correctly passed
+/>
 
-      {createListModalIsOpen && (
-        <CreateListModal
-          isOpen={createListModalIsOpen}
-          onClose={closeCreateListModal}
-          onSave={handleSaveList}
-          selectedContacts={selectedContacts}
-          userId={userId}
-        />
-      )}
-
-      {newContactModalIsOpen && (
-        <AddContactModal
-          isOpen={newContactModalIsOpen}
-          onClose={closeNewContactModal}
-          onAddContacts={handleAddContacts}
-          listId={selectedContacts.size > 0 ? Array.from(selectedContacts)[0] : ""} // Use an appropriate listId or update logic as needed
-        />
-      )}
     </div>
   );
 };
