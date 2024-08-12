@@ -1,6 +1,6 @@
-// components/ui/Contacts/AddContactModal.tsx
-
 import React, { useState } from 'react';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { supabase } from '@/utils/supabaseClient';
 
 interface Contact {
   id: string;
@@ -23,6 +23,12 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
   const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+
+  const formatPhoneNumber = (phoneNumber: string) => {
+    const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
+    return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
+  };
 
   const handleAddContact = async () => {
     if (!firstName || !lastName || !phone) {
@@ -30,23 +36,40 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
       return;
     }
 
-    const newContactId = crypto.randomUUID(); // or use another ID generation method
+    const formattedPhone = formatPhoneNumber(phone);
+    if (!formattedPhone) {
+      setError("Invalid phone number format.");
+      return;
+    }
+
+    const newContactId = crypto.randomUUID();
 
     const newContact: Contact = {
       id: newContactId,
       first_name: firstName,
       last_name: lastName,
-      phone: phone,
-      email_address: email,
+      phone: formattedPhone,
+      email_address: email || "",
       user_id: userId,
     };
 
     try {
-      // Call API to add contact if needed
+      const { error: supabaseError } = await supabase
+        .from('contacts')
+        .insert([newContact]);
+
+      if (supabaseError) {
+        setError("Failed to add contact to database.");
+        console.error("Failed to add contact:", supabaseError);
+        return;
+      }
+
+      // Call the parent callback to add the contact to the local state if needed
       onContactAdded(newContact);
       onClose();
     } catch (error) {
-      console.error("Failed to add contact:", error);
+      setError("Unexpected error occurred.");
+      console.error("Unexpected error:", error);
     }
   };
 
@@ -101,6 +124,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
               className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm bg-gray-900 text-white focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
+          {error && <div className="text-red-500 mb-4">{error}</div>}
           <div className="flex gap-4">
             <button
               type="button"

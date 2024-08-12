@@ -5,6 +5,8 @@ import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import VoiceDropdown from './VoiceDropdown'; // Adjust the import path as needed
+import { ToastContainer, toast } from 'react-toastify'; // Import Toast components
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 
 interface Contact {
   id: string;
@@ -58,19 +60,19 @@ const DialerComponent = () => {
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
   const [callReason, setCallReason] = useState('');
+  const [firstMessage, setFirstMessage] = useState(''); // Initialize as an empty string
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'existing' | 'new'>('existing');
   const [loading, setLoading] = useState(false);
-  const [notification, setNotification] = useState('');
-  const [voices, setVoices] = useState<Voice[]>([]);
+  const [voices, setVoices] = useState<Voice[]>([]); // Initialize the voices state
   const [selectedVoice, setSelectedVoice] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // Fetch Twilio numbers and contacts on component mount
     const fetchTwilioNumbers = async () => {
       try {
         const response = await axios.get('/api/get-twilio-numbers');
-        console.log('Twilio Numbers Response:', response.data); // Debugging line
         setTwilioNumbers(response.data.allNumbers || []);
         if (response.data.allNumbers && response.data.allNumbers.length > 0) {
           setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
@@ -117,7 +119,7 @@ const DialerComponent = () => {
 
   const handleCall = async () => {
     if (!input) {
-      setNotification('Please enter a number.');
+      toast.error('Please enter a number.');
       return;
     }
 
@@ -126,26 +128,21 @@ const DialerComponent = () => {
 
     if (contact) {
       setSelectedContact(contact);
+      setNewFirstName(contact.first_name); // Pre-populate first name
+      setNewLastName(contact.last_name);   // Pre-populate last name
       setModalMode('existing');
-      setCallReason('');
-      setIsModalOpen(true);
     } else {
       setSelectedContact(null);
-      setModalMode('new');
       setNewFirstName('');
       setNewLastName('');
-      setCallReason('');
-      setIsModalOpen(true);
+      setModalMode('new');
     }
+    setIsModalOpen(true);
   };
 
   const handleModalSubmit = async () => {
-    if (modalMode === 'existing' && !callReason) {
-      setNotification('Please fill in the reason for calling.');
-      return;
-    }
-    if (modalMode === 'new' && (!newFirstName || !newLastName)) {
-      setNotification('Please fill in the first name and optionally the last name.');
+    if (!newFirstName || !callReason || !input) {
+      toast.error('Please fill in the first name, phone number, and reason for calling.');
       return;
     }
 
@@ -158,25 +155,45 @@ const DialerComponent = () => {
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,
-          last_name: newLastName || '',
+          last_name: newLastName || '', // Optional field
           phone: formattedPhoneNumber,
         },
         reason: callReason,
+        firstMessage: firstMessage || undefined, // Optional field
         twilioNumber: twilioNumberToUse,
-        voice: {
-          voice_id: selectedVoice, // Pass the voice ID as an object
-        },
+        voice: selectedVoice ? { voice_id: selectedVoice } : undefined, // Optional field
       });
-      setNotification(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
-      console.log('Response from API:', response.data);
+      toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
     } catch (error) {
       console.error('Error initiating call:', error);
-      setNotification('Failed to initiate call.');
+      toast.error('Failed to initiate call.');
     } finally {
       setLoading(false);
       setIsModalOpen(false);
     }
   };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleContactClick = (contact: Contact) => {
+    const formattedPhoneNumber = formatPhoneNumber(contact.phone);
+    setInput(formattedPhoneNumber || '');
+    setNewFirstName(contact.first_name);
+    setNewLastName(contact.last_name);
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
+  };
+
+  const filteredContacts = contacts.filter(
+    (contact) =>
+      (contact.first_name?.toLowerCase().includes(searchQuery) || '') ||
+      (contact.last_name?.toLowerCase().includes(searchQuery) || '') ||
+      contact.phone.includes(searchQuery)
+  );
 
   const buttons = [
     { value: '1', letters: '' },
@@ -194,107 +211,149 @@ const DialerComponent = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white">
-      <div className="mb-4 text-3xl font-mono">{input || 'Enter Number'}</div>
-      <div className="grid grid-cols-3 gap-4 w-64">
-        {buttons.map((button) => (
+    <div className="min-h-screen flex flex-col md:flex-row bg-gray-900 text-white">
+      <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={true} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
+
+      <div className="flex flex-col items-center justify-center md:w-1/2">
+        <div className="mb-4 text-3xl font-mono">{input || 'Enter Number'}</div>
+        <div className="grid grid-cols-3 gap-4 w-64">
+          {buttons.map((button) => (
+            <button
+              key={button.value}
+              onClick={() => handleButtonClick(button.value)}
+              className="flex flex-col items-center justify-center h-20 w-20 bg-gray-800 rounded-full text-2xl focus:outline-none"
+            >
+              {button.value}
+              <span className="text-xs">{button.letters}</span>
+            </button>
+          ))}
           <button
-            key={button.value}
-            onClick={() => handleButtonClick(button.value)}
+            onClick={handleBackspace}
             className="flex flex-col items-center justify-center h-20 w-20 bg-gray-800 rounded-full text-2xl focus:outline-none"
           >
-            {button.value}
-            <span className="text-xs">{button.letters}</span>
+            ⌫
           </button>
-        ))}
-        <button
-          onClick={handleBackspace}
-          className="flex flex-col items-center justify-center h-20 w-20 bg-gray-800 rounded-full text-2xl focus:outline-none"
-        >
-          ⌫
-        </button>
-        <button
-          onClick={handleCall}
-          className="flex flex-col items-center justify-center h-20 w-20 bg-green-600 rounded-full text-2xl focus:outline-none"
-          disabled={loading}
-        >
-          {loading ? 'Calling...' : '📞'}
-        </button>
-      </div>
-      {notification && <p className="text-red-500 mt-4">{notification}</p>}
-      <div className="mt-6 w-64">
-        <label className="block mb-2">
-          <span className="block text-gray-400">Select Twilio Number:</span>
-          <select
-            value={selectedTwilioNumber}
-            onChange={(e) => setSelectedTwilioNumber(e.target.value)}
-            className="w-full mt-1 p-2 bg-gray-800 rounded border border-gray-700"
+          <button
+            onClick={handleCall}
+            className="flex flex-col items-center justify-center h-20 w-20 bg-green-600 rounded-full text-2xl focus:outline-none"
+            disabled={loading}
           >
-            {twilioNumbers.map((twilioNumber) => (
-              <option key={twilioNumber.sid} value={twilioNumber.phoneNumber}>
-                {twilioNumber.phoneNumber}
-              </option>
-            ))}
-          </select>
-        </label>
-        <VoiceDropdown voices={voices} selectedVoice={selectedVoice} setSelectedVoice={setSelectedVoice} />
+            {loading ? 'Calling...' : '📞'}
+          </button>
+        </div>
+        <div className="mt-6 w-64">
+          <label className="block mb-2">
+            <span className="block text-gray-400">Select Twilio Number:</span>
+            <select
+              value={selectedTwilioNumber}
+              onChange={(e) => setSelectedTwilioNumber(e.target.value)}
+              className="w-full mt-1 p-2 bg-gray-800 rounded border border-gray-700"
+            >
+              {twilioNumbers.map((twilioNumber) => (
+                <option key={twilioNumber.sid} value={twilioNumber.phoneNumber}>
+                  {twilioNumber.phoneNumber}
+                </option>
+              ))}
+            </select>
+          </label>
+          <VoiceDropdown voices={voices} selectedVoice={selectedVoice} setSelectedVoice={setSelectedVoice} />
+        </div>
       </div>
+
+      {/* Address Book Panel */}
+      <div className="flex flex-col md:w-1/2 p-4 bg-gray-800 h-screen overflow-y-auto">
+        <input
+          type="text"
+          placeholder="Search contacts"
+          value={searchQuery}
+          onChange={handleSearchChange}
+          className="p-2 mb-4 border rounded-lg w-full bg-gray-700 text-white"
+        />
+        {filteredContacts.length > 0 ? (
+          <ul>
+            {filteredContacts.map((contact) => (
+              <li
+                key={contact.id}
+                onClick={() => handleContactClick(contact)}
+                className="p-2 mb-2 cursor-pointer hover:bg-gray-700 rounded"
+              >
+                {contact.first_name} {contact.last_name} - {contact.phone}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No contacts found.</p>
+        )}
+      </div>
+
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-gray-800 p-6 rounded w-80">
             <h2 className="text-lg font-bold mb-4">
               {modalMode === 'existing' ? `Calling ${selectedContact?.first_name} ${selectedContact?.last_name}` : 'New Contact'}
             </h2>
-            {modalMode === 'existing' ? (
-              <>
-                <div className="mb-4">
-                  <label className="block mb-1">Reason for Calling:</label>
-                  <input
-                    type="text"
-                    value={callReason}
-                    onChange={(e) => setCallReason(e.target.value)}
-                    className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  />
+            <>
+              <div className="mb-4">
+                <label className="block mb-1">First Name:</label>
+                <input
+                  type="text"
+                  value={newFirstName}
+                  onChange={(e) => setNewFirstName(e.target.value)}
+                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1">Last Name (Optional):</label>
+                <input
+                  type="text"
+                  value={newLastName}
+                  onChange={(e) => setNewLastName(e.target.value)}
+                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1">Phone Number:</label>
+                <div className="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                  {input || 'Enter Number'}
                 </div>
-              </>
-            ) : (
-              <>
-                <div className="mb-4">
-                  <label className="block mb-1">First Name:</label>
-                  <input
-                    type="text"
-                    value={newFirstName}
-                    onChange={(e) => setNewFirstName(e.target.value)}
-                    className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Last Name:</label>
-                  <input
-                    type="text"
-                    value={newLastName}
-                    onChange={(e) => setNewLastName(e.target.value)}
-                    className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block mb-1">Reason for Calling:</label>
-                  <input
-                    type="text"
-                    value={callReason}
-                    onChange={(e) => setCallReason(e.target.value)}
-                    className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  />
-                </div>
-              </>
-            )}
-            <button
-              onClick={handleModalSubmit}
-              className="w-full bg-blue-600 p-2 rounded text-white"
-              disabled={loading}
-            >
-              {loading ? 'Submitting...' : 'Call Now'}
-            </button>
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1">Reason for Calling:</label>
+                <input
+                  type="text"
+                  value={callReason}
+                  onChange={(e) => setCallReason(e.target.value)}
+                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
+                  required
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1">First Message (Optional):</label>
+                <input
+                  type="text"
+                  value={firstMessage}
+                  onChange={(e) => setFirstMessage(e.target.value)}
+                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
+                  placeholder="Enter your first message"
+                />
+              </div>
+            </>
+            <div className="flex justify-between">
+              <button
+                onClick={handleModalSubmit}
+                className="w-full bg-blue-600 p-2 rounded text-white mr-2"
+                disabled={loading}
+              >
+                {loading ? 'Submitting...' : 'Call Now'}
+              </button>
+              <button
+                onClick={handleCancel}
+                className="w-full bg-gray-600 p-2 rounded text-white ml-2"
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}

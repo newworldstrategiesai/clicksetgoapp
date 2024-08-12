@@ -16,6 +16,8 @@ const customStyles = {
     borderRadius: '10px',
     backgroundColor: 'black',
     color: 'white',
+    maxHeight: '80vh', // Limit the modal's height
+    overflowY: 'auto' as const, // Specify overflowY type as 'auto'
   },
 };
 
@@ -49,14 +51,14 @@ interface List {
 
 interface ContactDetailsModalProps {
   isOpen: boolean;
-  onClose: () => void; // Renamed from onRequestClose
+  onClose: () => void;
   contact: Contact | null;
   onContactDeleted: (contactId: string) => void;
 }
 
 const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   isOpen,
-  onClose, // Renamed from onRequestClose
+  onClose,
   contact,
   onContactDeleted,
 }) => {
@@ -66,6 +68,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   const [deleteSuccess, setDeleteSuccess] = useState(false);
   const [lists, setLists] = useState<List[]>([]);
   const [selectedList, setSelectedList] = useState<string | null>(null);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   useEffect(() => {
     const fetchLists = async () => {
@@ -112,7 +115,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
     if (!editedContact) return;
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('contacts')
         .update({
           first_name: editedContact.first_name,
@@ -138,7 +141,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
 
       if (error) throw error;
 
-      onClose(); // Renamed from onRequestClose
+      onClose();
     } catch (error) {
       console.error('Error updating contact:', error);
     }
@@ -159,7 +162,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
       onContactDeleted(contact.id);
       setTimeout(() => {
         setDeleteSuccess(false);
-        onClose(); // Renamed from onRequestClose
+        onClose();
       }, 2000);
     } catch (error) {
       console.error('Error deleting contact:', error);
@@ -181,6 +184,10 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
     } catch (error) {
       console.error('Error adding contact to list:', error);
     }
+  };
+
+  const toggleAdvancedSection = () => {
+    setIsAdvancedOpen(!isAdvancedOpen);
   };
 
   return (
@@ -232,8 +239,174 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
                   className="p-2 border rounded-lg w-full"
                 />
               </label>
-              {/* Add more fields here as needed */}
-              
+
+              {/* Advanced Section */}
+              <div className="mt-4">
+                <button
+                  className="text-blue-500 text-sm flex items-center"
+                  onClick={toggleAdvancedSection}
+                >
+                  <span>Advanced</span>
+                  <svg
+                    className={`ml-2 transform transition-transform ${isAdvancedOpen ? 'rotate-180' : 'rotate-0'}`}
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    width="16"
+                    height="16"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {isAdvancedOpen && (
+                  <div className="mt-4 space-y-4">
+                    {/* Add additional fields here */}
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">LinkedIn:</span>
+                      <input
+                        type="text"
+                        name="linkedin"
+                        value={editedContact.linkedin || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Position:</span>
+                      <input
+                        type="text"
+                        name="position"
+                        value={editedContact.position || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Company:</span>
+                      <input
+                        type="text"
+                        name="company"
+                        value={editedContact.company || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Company Phone:</span>
+                      <input
+                        type="text"
+                        name="company_phone"
+                        value={editedContact.company_phone || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Website:</span>
+                      <input
+                        type="text"
+                        name="website"
+                        value={editedContact.website || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Domain:</span>
+                      <input
+                        type="text"
+                        name="domain"
+                        value={editedContact.domain || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Facebook:</span>
+                      <input
+                        type="text"
+                        name="facebook"
+                        value={editedContact.facebook || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Twitter:</span>
+                      <input
+                        type="text"
+                        name="twitter"
+                        value={editedContact.twitter || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">LinkedIn Company Page:</span>
+                      <input
+                        type="text"
+                        name="linkedin_company_page"
+                        value={editedContact.linkedin_company_page || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Country:</span>
+                      <input
+                        type="text"
+                        name="country"
+                        value={editedContact.country || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">State:</span>
+                      <input
+                        type="text"
+                        name="state"
+                        value={editedContact.state || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Vertical:</span>
+                      <input
+                        type="text"
+                        name="vertical"
+                        value={editedContact.vertical || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Sub-Category:</span>
+                      <input
+                        type="text"
+                        name="sub_category"
+                        value={editedContact.sub_category || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w-full"
+                      />
+                    </label>
+                    <label className="block mb-2">
+                      <span className="block text-gray-400">Notes:</span>
+                      <input
+                        type="text"
+                        name="notes"
+                        value={editedContact.notes || ''}
+                        onChange={handleChange}
+                        className="p-2 border rounded-lg w/full"
+                      />
+                    </label>
+                  </div>
+                )}
+              </div>
+
               <div className="mt-4">
                 <h3 className="text-lg font-bold mb-2">Add to List:</h3>
                 <select

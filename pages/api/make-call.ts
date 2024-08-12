@@ -11,7 +11,7 @@ const formatPhoneNumber = (phoneNumber: string): string | null => {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { contact, reason, twilioNumber } = req.body;
+    const { contact, reason, twilioNumber, firstMessage } = req.body;
 
     // Check for required fields
     if (!contact || !contact.first_name || !contact.phone || !reason || !twilioNumber) {
@@ -26,6 +26,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (!formattedContactNumber || !formattedTwilioNumber) {
       return res.status(400).json({ message: 'Invalid phone number format' });
     }
+
+    // Use the custom firstMessage if provided, otherwise default to a standard message
+    const customizedFirstMessage = firstMessage || `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`;
 
     const callData = {
       customer: {
@@ -43,13 +46,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
       assistantOverrides: {
-        firstMessage: `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`,
+        firstMessage: customizedFirstMessage, // Use the customized message here
         voice: {
-          "voiceId": "EXAVITQu4vr4xnSDxMaL",
-          "provider": "11labs",
-          "stability": 0.5,
-          "similarityBoost": 0.75,
-          "style": 0.7
+          voiceId: "EXAVITQu4vr4xnSDxMaL",
+          provider: "11labs",
+          stability: 0.5,
+          similarityBoost: 0.75,
+          style: 0.7
         },
         model: {
           provider: 'openai',
@@ -64,7 +67,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         variableValues: {
           name: contact.first_name,
         }
-
       }
     };
 

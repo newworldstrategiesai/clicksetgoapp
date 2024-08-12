@@ -8,11 +8,12 @@ import CallModal from "@/components/CallModal";
 import ListsTable from "@/components/ListsTable";
 import CreateListModal from "@/components/CreateListModal";
 import ContactsTable from "@/components/ContactsTable";
+import { supabase } from "@/utils/supabaseClient";
 
 interface Contact {
   id: string;
-  first_name: string;
-  last_name: string;
+  first_name: string; // Removed null from the type
+  last_name: string;  // Removed null from the type
   phone: string;
   email_address?: string;
   user_id: string;
@@ -54,30 +55,52 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchContacts = async () => {
       try {
-        const responseContacts = await fetch(`/api/contacts?userId=${userId}`);
-        const contactsData = await responseContacts.json();
-        const parsedContacts = contactsData.map((contact: Contact) => ({
+        const { data, error } = await supabase.from('contacts').select('*').eq('user_id', userId);
+        if (error) {
+          throw error;
+        }
+        const parsedContacts = data.map((contact: Contact) => ({
           ...contact,
+          first_name: contact.first_name || '',  // Ensure it's a string
+          last_name: contact.last_name || '',    // Ensure it's a string
           phone: contact.phone.startsWith("+") ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
-
-        const responseLists = await fetch(`/api/lists?userId=${userId}`);
-        const listsData = await responseLists.json();
-        setLists(listsData);
-
-        const responseTwilioNumbers = await fetch("/api/get-twilio-numbers");
-        const twilioNumbersData = await responseTwilioNumbers.json();
-        setTwilioNumbers(twilioNumbersData);
       } catch (error) {
-        console.error("Error fetching data:", error);
-        setError("Error fetching data.");
+        console.error("Error fetching contacts:", error);
+        setError("Error fetching contacts.");
       }
     };
 
-    fetchData();
+    const fetchLists = async () => {
+      try {
+        const { data, error } = await supabase.from('lists').select('*').eq('user_id', userId);
+        if (error) {
+          throw error;
+        }
+        setLists(data);
+      } catch (error) {
+        console.error("Error fetching lists:", error);
+        setError("Error fetching lists.");
+      }
+    };
+
+    const fetchTwilioNumbers = async () => {
+      try {
+        const response = await fetch("/api/get-twilio-numbers");
+        const twilioNumbersData = await response.json();
+        setTwilioNumbers(twilioNumbersData.allNumbers || []);
+      } catch (error) {
+        console.error("Error fetching Twilio numbers:", error);
+        setError("Error fetching Twilio numbers.");
+      }
+    };
+
+    fetchContacts();
+    fetchLists();
+    fetchTwilioNumbers();
   }, [userId]);
 
   const openContactDetailsModal = (contact: Contact) => {
@@ -176,10 +199,6 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     router.push(`/lists/${listId}`);
   };
 
-  const handleAddContact = (contact: Contact) => {
-    setContacts((prevContacts) => [...prevContacts, contact]);
-  };
-
   const handleDelete = async (contactId: string) => {
     try {
       setLoading(true);
@@ -208,8 +227,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
   const filteredContacts = contacts.filter(
     (contact) =>
-      contact.first_name.toLowerCase().includes(searchQuery) ||
-      contact.last_name.toLowerCase().includes(searchQuery) ||
+      (contact.first_name?.toLowerCase().includes(searchQuery) || '') ||
+      (contact.last_name?.toLowerCase().includes(searchQuery) || '') ||
       contact.phone.includes(searchQuery)
   );
 
@@ -262,15 +281,15 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
       <AddContactModal 
         isOpen={newContactModalIsOpen} 
         onClose={closeNewContactModal} 
-        onContactAdded={handleAddContact} 
+        onContactAdded={(newContact) => setContacts((prevContacts) => [...prevContacts, newContact])}
         userId={userId} 
       />
 
-<ContactDetailsModal 
+      <ContactDetailsModal 
         isOpen={detailsModalIsOpen} 
         onClose={closeContactDetailsModal} 
         contact={selectedContact} 
-        onContactDeleted={handleDelete} // Pass the correct handler
+        onContactDeleted={handleDelete} 
       />
 
       <CallModal
@@ -281,7 +300,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         setSelectedTwilioNumber={setSelectedTwilioNumber}
         callReason={callReason}
         setCallReason={setCallReason}
-        handleCallNow={handleCallNow}  // Ensure this prop is passed
+        handleCallNow={handleCallNow}
         error={error}
         loading={loading}
         twilioNumbers={twilioNumbers}
