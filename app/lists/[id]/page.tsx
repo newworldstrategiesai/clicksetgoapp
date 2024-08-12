@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -15,13 +15,14 @@ interface Contact {
 const ListPage = ({ params }: { params: { id: string } }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [listName, setListName] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
   const { id } = params;
 
   useEffect(() => {
     const fetchContacts = async () => {
+      setLoading(true);
       try {
         const response = await fetch(`/api/lists/${id}/contacts`);
         if (!response.ok) {
@@ -50,6 +51,16 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     console.log('Phone clicked:', contact);
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
+  // Filter contacts based on search query
+  const filteredContacts = contacts.filter(contact =>
+    contact.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <section className="mb-32 bg-black text-white">
       <div className="fixed top-0 left-0 w-full bg-black text-white py-4 z-10">
@@ -63,18 +74,25 @@ const ListPage = ({ params }: { params: { id: string } }) => {
         <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
           <div className="sm:align-center sm:flex sm:flex-col">
             <h2 className="text-3xl font-bold">Contacts</h2>
+            <input
+              type="text"
+              placeholder="Search contacts..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="mt-4 p-2 rounded border border-gray-600 bg-gray-900 text-white"
+            />
           </div>
         </div>
         <div className="p-4">
           {loading ? (
             <p>Loading...</p>
           ) : error ? (
-            <p>{error}</p>
+            <p className="text-red-500">{error}</p>
           ) : (
             <ContactsTable
-              contacts={contacts}
+              contacts={filteredContacts} // Use filtered contacts
               onContactClick={handleContactClick}
-              onPhoneClick={handlePhoneClick}
+              onCallClick={handlePhoneClick}
               searchQuery={searchQuery}
             />
           )}

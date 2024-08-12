@@ -44,6 +44,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
       assistantOverrides: {
         firstMessage: `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`,
+        voice: {
+          "voiceId": "EXAVITQu4vr4xnSDxMaL",
+          "provider": "11labs",
+          "stability": 0.5,
+          "similarityBoost": 0.75,
+          "style": 0.7
+        },
         model: {
           provider: 'openai',
           model: 'gpt-4-turbo',
@@ -57,6 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         variableValues: {
           name: contact.first_name,
         }
+
       }
     };
 

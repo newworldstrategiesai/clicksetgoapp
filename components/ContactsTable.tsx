@@ -1,5 +1,4 @@
 // components/ContactsTable.tsx
-
 import React from "react";
 
 interface Contact {
@@ -10,25 +9,37 @@ interface Contact {
   user_id: string;
 }
 
+
 interface ContactsTableProps {
   contacts: Contact[];
   onContactClick: (contact: Contact) => void;
-  onPhoneClick: (contact: Contact) => void;
+  onCallClick: (contact: Contact) => void;
   searchQuery: string;
+  onSelectContact?: (contactId: string) => void; // Optional prop
+  selectedContacts?: Set<string>; // Optional prop
 }
 
 const ContactsTable: React.FC<ContactsTableProps> = ({
   contacts,
   onContactClick,
-  onPhoneClick,
-  searchQuery,
+  onCallClick,
+  searchQuery = "",
+  onSelectContact, // Add optional prop
+  selectedContacts = new Set(), // Add optional prop
 }) => {
-  const filteredContacts = contacts.filter(
-    (contact) =>
-      contact.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      contact.phone.includes(searchQuery)
-  );
+  const lowercasedQuery = searchQuery.toLowerCase();
+
+  const filteredContacts = contacts.filter((contact) => {
+    const firstName = contact.first_name || "";
+    const lastName = contact.last_name || "";
+    const phone = contact.phone || "";
+
+    return (
+      firstName.toLowerCase().includes(lowercasedQuery) ||
+      lastName.toLowerCase().includes(lowercasedQuery) ||
+      phone.includes(lowercasedQuery)
+    );
+  });
 
   return (
     <div className="w-full overflow-x-auto">
@@ -41,7 +52,10 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         </thead>
         <tbody>
           {filteredContacts.map((contact) => (
-            <tr key={contact.id} className="border-t cursor-pointer hover:bg-gray-700">
+            <tr
+              key={contact.id}
+              className={`border-t cursor-pointer hover:bg-gray-700 ${selectedContacts?.has(contact.id) ? "bg-gray-800" : ""}`}
+            >
               <td
                 className="px-4 md:px-6 py-2"
                 onClick={() => onContactClick(contact)}
@@ -50,7 +64,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
               </td>
               <td
                 className="px-4 md:px-6 py-2"
-                onClick={() => onPhoneClick(contact)}
+                onClick={() => onCallClick(contact)}
               >
                 {contact.phone}
               </td>

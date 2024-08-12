@@ -90,3 +90,14 @@ export async function getContactFirstName(supabase: SupabaseClient, phoneNumber:
 
   return data?.first_name || null;
 }
+
+// New function to get lists
+export async function getLists(supabase: SupabaseClient, userId: string) {
+  const { data: lists, error } = await supabase
+    .from('lists')
+    .select('*')
+    .eq('user_id', userId); // Filter lists by user_id
+
+  if (error) throw error;
+  return lists;
+}

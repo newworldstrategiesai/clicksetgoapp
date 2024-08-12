@@ -1,24 +1,46 @@
-import Pricing from '@/components/ui/Pricing/Pricing';
+import React from 'react';
+import ListsTable from '@/components/ListsTable'; // Ensure this path is correct
+import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
-import {
-  getProducts,
-  getSubscription,
-  getUser
-} from '@/utils/supabase/queries';
+import { getUser, getLists } from '@/utils/supabase/queries';
 
-export default async function PricingPage() {
-  const supabase = createClient();
-  const [user, products, subscription] = await Promise.all([
-    getUser(supabase),
-    getProducts(supabase),
-    getSubscription(supabase)
-  ]);
+export default async function ListsPage() {
+    const supabase = createClient();
 
-  return (
-    <Pricing
-      user={user}
-      products={products ?? []}
-      subscription={subscription}
-    />
-  );
+    try {
+        const user = await getUser(supabase);
+
+        if (!user) {
+            return redirect('/signin');
+        }
+
+        // Fetch lists for the current user by passing user.id
+        const lists = await getLists(supabase, user.id);
+
+        return (
+            <div className="pt-8 p-4"> {/* Added padding for top */}
+                <section className="bg-black">
+                    <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
+                        <div className="sm:align-center sm:flex sm:flex-col">
+                            <h1 className="text-4xl font-extrabold text-white sm:text-center sm:text-6xl">
+                                Lists
+                            </h1>
+                        </div>
+                    </div>
+                    <div className="p-4">
+                        <ListsTable 
+                            lists={lists || []}
+                            onSelectList={() => {}}
+                            onOpenNewContactModal={() => {}}
+                            userId={user.id}
+                            contacts={[]} // Pass an empty array or fetch contacts as needed
+                        />
+                    </div>
+                </section>
+            </div>
+        );
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return redirect('/signin');
+    }
 }

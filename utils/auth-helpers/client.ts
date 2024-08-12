@@ -19,10 +19,10 @@ export async function handleRequest(
 
   if (router) {
     // If client-side router is provided, use it to redirect
-    return router.push(redirectUrl || '/dashboard');
+    return router.push(redirectUrl || '/overview');
   } else {
     // Otherwise, redirect server-side
-    return await redirectToPath(redirectUrl || '/dashboard');
+    return await redirectToPath(redirectUrl || '/overview');
   }
 }
 

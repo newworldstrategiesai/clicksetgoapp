@@ -39,7 +39,7 @@ interface CallModalProps {
   setSelectedTwilioNumber: (value: string) => void;
   callReason: string;
   setCallReason: (value: string) => void;
-  handleCallNow: () => void;
+  handleCallNow: () => void;  // Ensure this is included
   error: string;
   loading: boolean;
   twilioNumbers: TwilioNumber[];

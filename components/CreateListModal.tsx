@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import { supabase } from '@/utils/supabaseClient';
 
 const customStyles = {
   content: {
@@ -21,17 +20,17 @@ const customStyles = {
 
 interface CreateListModalProps {
   isOpen: boolean;
-  onClose: () => void; // Updated prop name to onClose
-  onSave: (name: string, selectedContacts: Set<string>) => Promise<void>; // Added onSave prop
-  selectedContacts: Set<string>; // Added selectedContacts prop
-  userId: string; // Ensure userId is included if needed
+  onClose: () => void;
+  onSave: (name: string, selectedContactsForList: Set<string>) => Promise<void>;
+  selectedContactsForList: Set<string>;
+  userId: string;
 }
 
 const CreateListModal: React.FC<CreateListModalProps> = ({
   isOpen,
   onClose,
   onSave,
-  selectedContacts,
+  selectedContactsForList,
   userId
 }) => {
   const [listName, setListName] = useState('');
@@ -53,7 +52,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
         return;
       }
 
-      await onSave(listName, selectedContacts); // Call onSave with the current listName and selectedContacts
+      await onSave(listName, selectedContactsForList); // Call onSave with the current listName and selectedContactsForList
 
       setSuccessMessage('List created successfully!');
       setListName(''); // Clear input field

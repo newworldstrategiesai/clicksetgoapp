@@ -2,12 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import AddContactModal from "components/AddContactModal";
-import ContactDetailsModal from "components/ContactDetailsModal";
-import CallModal from "components/CallModal";
-import ListsTable from "components/ListsTable";
-import CreateListModal from "components/CreateListModal";
-import ContactsTable from "components/ContactsTable";
+import AddContactModal from "@/components/AddContactModal";
+import ContactDetailsModal from "@/components/ContactDetailsModal";
+import CallModal from "@/components/CallModal";
+import ListsTable from "@/components/ListsTable";
+import CreateListModal from "@/components/CreateListModal";
+import ContactsTable from "@/components/ContactsTable";
 
 interface Contact {
   id: string;
@@ -29,7 +29,12 @@ interface TwilioNumber {
   phoneNumber: string;
 }
 
-const Contacts = ({ userId }: { userId: string }) => {
+interface ContactsProps {
+  userId: string;
+  selectedContactsForList?: Set<string>;
+}
+
+const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = new Set() }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [lists, setLists] = useState<List[]>([]);
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
@@ -42,9 +47,9 @@ const Contacts = ({ userId }: { userId: string }) => {
   const [callReason, setCallReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState(""); // Added success message state
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("contacts");
-  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
 
   const router = useRouter();
 
@@ -106,6 +111,7 @@ const Contacts = ({ userId }: { userId: string }) => {
 
     try {
       setLoading(true);
+      setSuccessMessage(""); // Clear previous success messages
       const response = await fetch("/api/make-call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -118,7 +124,8 @@ const Contacts = ({ userId }: { userId: string }) => {
 
       const data = await response.json();
       if (response.ok) {
-        alert("Call initiated successfully!");
+        setSuccessMessage("Call initiated successfully!");
+        setError(""); // Clear any previous errors
       } else {
         setError("Failed to initiate call.");
       }
@@ -131,7 +138,7 @@ const Contacts = ({ userId }: { userId: string }) => {
   };
 
   const handleSaveList = async (name: string, selectedContacts: Set<string>) => {
-    if (!name || selectedContacts.size === 0) {
+    if (!name.trim() || selectedContacts.size === 0) {
       setError("Please provide a list name and select at least one contact.");
       return;
     }
@@ -140,6 +147,7 @@ const Contacts = ({ userId }: { userId: string }) => {
 
     try {
       setLoading(true);
+      setSuccessMessage(""); // Clear previous success messages
       const response = await fetch("/api/create-list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +156,11 @@ const Contacts = ({ userId }: { userId: string }) => {
 
       const data = await response.json();
       if (response.ok) {
-        setLists((prevLists) => [...prevLists, { id: data.id, name, contactsCount: selectedContactArray.length }]);
+        setLists((prevLists) => [
+          ...prevLists,
+          { id: data.id, name, contactsCount: selectedContactArray.length },
+        ]);
+        setSuccessMessage("List created successfully!"); // Use the success message state
         closeCreateListModal();
       } else {
         setError("Failed to create list.");
@@ -160,141 +172,120 @@ const Contacts = ({ userId }: { userId: string }) => {
     }
   };
 
-  const handleSelectContact = (contactId: string) => {
-    setSelectedContacts((prevSelected) => {
-      const updatedSelected = new Set(prevSelected);
-      if (updatedSelected.has(contactId)) {
-        updatedSelected.delete(contactId);
-      } else {
-        updatedSelected.add(contactId);
-      }
-      return updatedSelected;
-    });
-  };
-
-  const handleContactAdded = (contact: Contact) => {
-    setContacts((prevContacts) => [...prevContacts, contact]);
-  };
-
-  const handleContactDeleted = (contactId: string) => {
-    setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));
-  };
-
   const handleSelectList = (listId: string) => {
     router.push(`/lists/${listId}`);
   };
 
-  const handleAddContacts = async (listId: string, contacts: Contact[]) => {
-    if (!listId || contacts.length === 0) {
-      setError("Please provide a valid list ID and contacts.");
-      return;
-    }
+  const handleAddContact = (contact: Contact) => {
+    setContacts((prevContacts) => [...prevContacts, contact]);
+  };
 
+  const handleDelete = async (contactId: string) => {
     try {
       setLoading(true);
-      const response = await fetch("/api/add-contacts-to-list", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ listId, contacts }),
+      setSuccessMessage(""); // Clear previous success messages
+      const response = await fetch(`/api/delete-contact?id=${contactId}`, {
+        method: "DELETE",
       });
 
-      const data = await response.json();
       if (response.ok) {
-        setLists((prevLists) =>
-          prevLists.map((list) =>
-            list.id === listId
-              ? { ...list, contactsCount: list.contactsCount + contacts.length }
-              : list
-          )
-        );
+        setContacts((prevContacts) => prevContacts.filter(contact => contact.id !== contactId));
+        setSuccessMessage("Contact deleted successfully!");
       } else {
-        setError("Failed to add contacts to list.");
+        setError("Failed to delete contact.");
       }
     } catch (error) {
-      setError("Failed to add contacts to list.");
+      setError("Failed to delete contact.");
     } finally {
       setLoading(false);
+      closeContactDetailsModal();
     }
+  };
+
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value.toLowerCase());
   };
 
   const filteredContacts = contacts.filter(
     (contact) =>
-      contact.user_id === userId &&
-      ((contact.first_name && contact.first_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        (contact.last_name && contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())) ||
-        contact.phone.includes(searchQuery))
+      contact.first_name.toLowerCase().includes(searchQuery) ||
+      contact.last_name.toLowerCase().includes(searchQuery) ||
+      contact.phone.includes(searchQuery)
   );
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4 md:px-0">
-      <div className="w-full max-w-5xl">
-        <div className="flex flex-col md:flex-row md:space-x-4 mb-4">
-          <button
-            className={`px-4 py-2 rounded-lg ${activeTab === "contacts" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-400"}`}
-            onClick={() => setActiveTab("contacts")}
-          >
-            Contacts
-          </button>
-          <button
-            className={`px-4 py-2 rounded-lg ${activeTab === "lists" ? "bg-blue-600 text-white" : "bg-gray-700 text-gray-400"}`}
-            onClick={() => setActiveTab("lists")}
-          >
-            Lists
-          </button>
-        </div>
-        {activeTab === "contacts" && (
-          <div className="flex flex-col items-center w-full max-w-5xl">
-            <ContactsTable
-              contacts={filteredContacts}
-              onContactClick={openContactDetailsModal}
-              onPhoneClick={openCallModal}
-              searchQuery={searchQuery}
-            />
-          </div>
-        )}
-        {activeTab === "lists" && (
-          <div className="flex flex-col items-center w-full max-w-5xl">
-            <ListsTable
-              lists={lists}
-              onSelectList={handleSelectList}
-              onAddContacts={handleAddContacts}
-              onOpenNewContactModal={openNewContactModal}
-              userId={userId}
-            />
-            <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
-              onClick={openCreateListModal}
-            >
-              Create New List
-            </button>
-          </div>
-        )}
+    <div className="p-4">
+      {successMessage && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{successMessage}</div>}
+      {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
+      <div className="mb-4">
+        <button onClick={openCreateListModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg mr-2">
+          Create New List
+        </button>
+        <button onClick={openNewContactModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+          Add New Contact
+        </button>
+        <input
+          type="text"
+          placeholder="Search contacts"
+          onChange={handleSearch}
+          className="p-2 border rounded-lg w-full mt-2"
+        />
       </div>
 
-      <AddContactModal isOpen={newContactModalIsOpen} onClose={closeNewContactModal} onContactAdded={handleContactAdded} />
-      <ContactDetailsModal isOpen={detailsModalIsOpen} onClose={closeContactDetailsModal} contact={selectedContact} onContactDeleted={handleContactDeleted} />
+      {activeTab === "contacts" && (
+        <ContactsTable
+          contacts={filteredContacts}
+          onContactClick={openContactDetailsModal}
+          onCallClick={openCallModal}
+          searchQuery={searchQuery}
+          selectedContacts={selectedContactsForList}
+        />
+      )}
+      {activeTab === "lists" && (
+        <ListsTable
+          lists={lists}
+          onSelectList={handleSelectList}
+          onOpenNewContactModal={openNewContactModal}
+          userId={userId}
+          contacts={contacts}
+        />
+      )}
+
+      <CreateListModal
+        isOpen={createListModalIsOpen}
+        onClose={closeCreateListModal}
+        onSave={handleSaveList}
+        selectedContactsForList={selectedContactsForList}
+        userId={userId}
+      />
+
+      <AddContactModal 
+        isOpen={newContactModalIsOpen} 
+        onClose={closeNewContactModal} 
+        onContactAdded={handleAddContact} 
+        userId={userId} 
+      />
+
+<ContactDetailsModal 
+        isOpen={detailsModalIsOpen} 
+        onClose={closeContactDetailsModal} 
+        contact={selectedContact} 
+        onContactDeleted={handleDelete} // Pass the correct handler
+      />
+
       <CallModal
-  isOpen={callModalIsOpen}
-  onClose={closeCallModal}
-  selectedContact={selectedContact}
-  selectedTwilioNumber={selectedTwilioNumber}
-  setSelectedTwilioNumber={setSelectedTwilioNumber}
-  callReason={callReason}
-  setCallReason={setCallReason}
-  handleCallNow={handleCallNow} // Ensure this matches the prop name
-  error={error}
-  loading={loading}
-  twilioNumbers={twilioNumbers}
-/>
-
-<CreateListModal
-  isOpen={createListModalIsOpen}
-  onClose={closeCreateListModal}
-  onSave={handleSaveList} // Updated prop name to onSave
-  selectedContacts={selectedContacts}
-  userId={userId} // Ensure this is correctly passed
-/>
-
+        isOpen={callModalIsOpen}
+        onClose={closeCallModal}
+        selectedContact={selectedContact}
+        selectedTwilioNumber={selectedTwilioNumber}
+        setSelectedTwilioNumber={setSelectedTwilioNumber}
+        callReason={callReason}
+        setCallReason={setCallReason}
+        handleCallNow={handleCallNow}  // Ensure this prop is passed
+        error={error}
+        loading={loading}
+        twilioNumbers={twilioNumbers}
+      />
     </div>
   );
 };

@@ -14,13 +14,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       .from('contact_lists')
       .upsert({ list_id: listId, contact_id: contactId });
 
+    console.log('Supabase Data:', data);
+    console.log('Supabase Error:', error);
+
     if (error) {
       throw error;
     }
 
     res.status(200).json({ message: 'Contact added to list successfully' });
   } catch (error: unknown) {
-    // Type assertion to handle the error type
     const errorMessage = (error as Error).message || 'An unknown error occurred';
     res.status(500).json({ error: errorMessage });
   }

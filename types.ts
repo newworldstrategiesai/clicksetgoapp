@@ -15,3 +15,22 @@ export interface CallLog {
     createdAt: string;
   }
   
+
+  export interface Contact {
+    id: string;
+    first_name: string;
+    last_name: string;
+    phone: string;
+    user_id: string;
+  }
+  
+  export interface List {
+    id: string;
+    name: string;
+    contactsCount: number;
+  }
+  
+  export interface TwilioNumber {
+    id: string;
+    number: string;
+  }

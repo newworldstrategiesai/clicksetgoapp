@@ -58,3 +58,37 @@ body {
 .main-content {
   padding-top: 4rem; /* Adjust based on the height of your navbar */
 }
+
+
+/* Add this to your global CSS or Tailwind configuration */
+@media (max-width: 640px) {
+  .table-auto {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .table-auto th, .table-auto td {
+    display: block;
+    width: 100%;
+  }
+
+  .table-auto th {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    text-align: left;
+  }
+
+  .table-auto tr {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table-auto td {
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0.5rem 1rem;
+    text-align: left;
+  }
+}
