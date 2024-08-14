@@ -1,0 +1,37 @@
+/* Sidebar.css */
+
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1a1a;
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.navLink {
+  color: #cccccc;
+  text-decoration: none;
+  font-size: 18px;
+  padding: 10px;
+  border-radius: 4px;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.navLink:hover {
+  background-color: #333333;
+  color: white;
+}
+
+.active {
+  background-color: #333333;
+  color: white;
+}

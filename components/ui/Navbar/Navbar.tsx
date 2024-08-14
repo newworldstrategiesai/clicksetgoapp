@@ -10,6 +10,7 @@ import { User } from '@supabase/supabase-js';
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // Add a loading state
   const router = useRouter();
   const pathname = usePathname();
 
@@ -22,6 +23,7 @@ const Navbar: React.FC = () => {
       const supabase = createClient();
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
+      setLoading(false); // Set loading to false after user data is fetched
     };
 
     getUser();
@@ -32,8 +34,13 @@ const Navbar: React.FC = () => {
     setIsOpen(false);
   }, [pathname]);
 
+  // Render a loading state initially if user data is being fetched
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
-    <nav className="bg-black text-white px-4 py-3 fixed w-full z-10 top-0">
+    <nav className="navbar bg-black text-white px-4 py-3 fixed w-full z-10 top-0">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
