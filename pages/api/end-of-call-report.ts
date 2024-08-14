@@ -26,7 +26,7 @@ type CallReport = {
   timestamp: string;
 };
 
-const TWILIO_PHONE_NUMBER = '+19014202020'; // Twilio phone number
+const TWILIO_PHONE_NUMBER = '+19014102020'; // Twilio phone number
 const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
 
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
@@ -84,11 +84,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   - Type: ${callReport.type}
   - Status: ${callReport.status}
   - Ended Reason: ${callReport.ended_reason}
-  - Transcript: ${callReport.transcript}
   - Summary: ${callReport.summary}
-  - Analysis: ${callReport.analysis}
-  - Recording URL: ${callReport.recording_url}
-  - Stereo Recording URL: ${callReport.stereo_recording_url}
+\  - Stereo Recording URL: ${callReport.stereo_recording_url}
   - Customer Number: ${callReport.customer_number}
   - Assistant Name: ${callReport.assistant_name}
   - Assistant Model: ${callReport.assistant_model}
