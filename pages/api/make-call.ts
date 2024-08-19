@@ -62,17 +62,40 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         model: {
           provider: 'openai',
-          model: 'gpt-4-turbo',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
-              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n`
+              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}.`
+            }
+          ],
+          functions: [
+            {
+              name: 'SendSMS',
+              description: "Sends requested info to the caller's phone number",
+              parameters: {
+                type: 'object',
+                required: ['callerNumber', 'callerName', 'smsMessage'],
+                properties: {
+                  callerName: {
+                    type: 'string',
+                    description: 'The name of the person receiving the SMS message.'
+                  },
+                  callerNumber: {
+                    type: 'string',
+                    description: "The end user's phone number to be used with SMS messaging."
+                  },
+                  smsMessage: {
+                    type: 'string',
+                    description: 'The SMS message content containing requested info.'
+                  }
+                }
+              }
             }
           ]
         },
-        variableValues: {
-          name: contact.first_name,
-        }
+        serverUrl: 'https://clicksetgo.app/api/send-sms',
+        serverUrlSecret: '777333777',
       }
     };
 
