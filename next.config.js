@@ -1,9 +1,7 @@
-// next.config.js
 const { NextConfig } = require('next');
 
 module.exports = {
   webpack: (config, { isServer }) => {
-    // This will ignore 'child_process' module in the frontend code
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -14,6 +12,18 @@ module.exports = {
   },
   async redirects() {
     return [
+      {
+        source: '/',
+        has: [
+          {
+            type: 'query',
+            key: 'status',
+            value: 'Success!',
+          },
+        ],
+        destination: '/confirm-email', // Redirect to your custom confirmation page
+        permanent: false,
+      },
       {
         source: '/',
         destination: '/index.html',

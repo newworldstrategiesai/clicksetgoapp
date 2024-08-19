@@ -1,22 +1,28 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
-import { parsePhoneNumberFromString } from 'libphonenumber-js'; // Import the library
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string): string | null => {
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US'); // You can set the default region if needed
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { contact, reason, twilioNumber, firstMessage } = req.body;
+    const { contact, reason, twilioNumber, firstMessage, voiceId } = req.body;
+
+    // Default voice ID
+    const defaultVoiceId = 'eY8IecDwkQrpggbzjg5E';
 
     // Check for required fields
     if (!contact || !contact.first_name || !contact.phone || !reason || !twilioNumber) {
       return res.status(400).json({ message: 'Missing required fields' });
     }
+
+    // Use the provided voiceId or default to the specified defaultVoiceId
+    const selectedVoiceId = voiceId || defaultVoiceId;
 
     // Format phone numbers
     const formattedContactNumber = formatPhoneNumber(contact.phone);
@@ -46,10 +52,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       },
       assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
       assistantOverrides: {
-        firstMessage: customizedFirstMessage, // Use the customized message here
+        firstMessage: customizedFirstMessage,
         voice: {
-          voiceId: "EXAVITQu4vr4xnSDxMaL",
-          provider: "11labs",
+          voiceId: selectedVoiceId,
+          provider: '11labs',
           stability: 0.5,
           similarityBoost: 0.75,
           style: 0.7

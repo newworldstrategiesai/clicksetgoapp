@@ -6,7 +6,7 @@ import {
   getAuthTypes,
   getViewTypes,
   getDefaultSignInView,
-  getRedirectMethod
+  getRedirectMethod,
 } from '@/utils/auth-helpers/settings';
 import Card from '@/components/ui/Card/Card';
 import PasswordSignIn from '@/components/ui/AuthForms/PasswordSignIn';
@@ -19,7 +19,7 @@ import SignUp from '@/components/ui/AuthForms/Signup';
 
 export default async function SignIn({
   params,
-  searchParams
+  searchParams,
 }: {
   params: { id: string };
   searchParams: { disable_button: boolean };
@@ -45,13 +45,38 @@ export default async function SignIn({
   const supabase = createClient();
 
   const {
-    data: { user }
+    data: { user },
   } = await supabase.auth.getUser();
 
   if (user && viewProp !== 'update_password') {
     return redirect('/');
   } else if (!user && viewProp === 'update_password') {
     return redirect('/signin');
+  }
+
+  // Handle the confirmation email view
+  if (viewProp === 'confirm_email') {
+    return (
+      <div className="flex justify-center height-screen-helper">
+        <div className="flex flex-col justify-between max-w-lg p-3 m-auto w-80 ">
+          <div className="flex justify-center pb-12 ">
+            <Logo width="64px" height="64px" />
+          </div>
+          <Card title="Check your email">
+            <p>
+              We just sent a verification link to your email. Please check your
+              inbox to confirm your account.
+            </p>
+            <button
+              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              onClick={() => redirect('/signin')}
+            >
+              Go to login
+            </button>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -65,10 +90,10 @@ export default async function SignIn({
             viewProp === 'forgot_password'
               ? 'Reset Password'
               : viewProp === 'update_password'
-                ? 'Update Password'
-                : viewProp === 'signup'
-                  ? 'Sign Up'
-                  : 'Sign In'
+              ? 'Update Password'
+              : viewProp === 'signup'
+              ? 'Sign Up'
+              : 'Sign In'
           }
         >
           {viewProp === 'password_signin' && (
@@ -95,7 +120,10 @@ export default async function SignIn({
             <UpdatePassword redirectMethod={redirectMethod} />
           )}
           {viewProp === 'signup' && (
-            <SignUp allowEmail={allowEmail} redirectMethod={redirectMethod} />
+            <SignUp
+              allowEmail={allowEmail}
+              redirectMethod={redirectMethod}
+            />
           )}
           {viewProp !== 'update_password' &&
             viewProp !== 'signup' &&

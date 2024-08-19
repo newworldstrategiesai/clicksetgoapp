@@ -5,7 +5,6 @@ interface Voice {
   name: string;
   gender: string;
   accent: string;
-  preview_url: string;
 }
 
 interface VoiceDropdownProps {
@@ -27,7 +26,7 @@ const VoiceDropdown: React.FC<VoiceDropdownProps> = ({ voices, selectedVoice, se
           {voices.length > 0 ? (
             voices.map((voice) => (
               <option key={voice.voice_id} value={voice.voice_id}>
-                {voice.name} ({voice.gender}, {voice.accent})
+                {voice.name} ({voice.voice_id}) - {voice.gender}, {voice.accent}
               </option>
             ))
           ) : (

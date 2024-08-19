@@ -51,7 +51,7 @@ const fetchVoices = async (): Promise<Voice[]> => {
   }
 };
 
-const DialerComponent = () => {
+const DialerComponent = ({ userId }: { userId: string }) => {
   const [input, setInput] = useState('');
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>(DEFAULT_TWILIO_NUMBER);
@@ -84,7 +84,7 @@ const DialerComponent = () => {
 
     const fetchContacts = async () => {
       try {
-        const { data, error } = await supabase.from('contacts').select('*');
+        const { data, error } = await supabase.from('contacts').select('*').eq('user_id', userId);
         if (error) throw error;
         setContacts(data);
       } catch (error) {
@@ -107,7 +107,7 @@ const DialerComponent = () => {
     fetchTwilioNumbers();
     fetchContacts();
     fetchVoiceData();
-  }, []);
+  }, [userId]);
 
   const handleButtonClick = (value: string) => {
     setInput(prevInput => prevInput + value);
@@ -161,7 +161,7 @@ const DialerComponent = () => {
         reason: callReason,
         firstMessage: firstMessage || undefined, // Optional field
         twilioNumber: twilioNumberToUse,
-        voice: selectedVoice ? { voice_id: selectedVoice } : undefined, // Optional field
+        voiceId: selectedVoice, // Pass the selected voice ID
       });
       toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
     } catch (error) {
@@ -337,6 +337,12 @@ const DialerComponent = () => {
                   className="w-full p-2 bg-gray-700 rounded border border-gray-600"
                   placeholder="Enter your first message"
                 />
+              </div>
+              <div className="mb-4">
+                <label className="block mb-1">Voice:</label>
+                <div className="w-full p-2 bg-gray-700 rounded border border-gray-600">
+                  {selectedVoice ? voices.find(voice => voice.voice_id === selectedVoice)?.name : 'No voice selected'}
+                </div>
               </div>
             </>
             <div className="flex justify-between">
