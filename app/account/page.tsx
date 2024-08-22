@@ -7,21 +7,25 @@ import { createClient } from '@/server';
 import {
   getUserDetails,
   getSubscription,
-  getUser
+  getUser,
+  getApiKeys,  // Import the function to fetch API keys
 } from '@/utils/supabase/queries';
 
 export default async function Account() {
   try {
     const supabase = createClient();
-    const [user, userDetails, subscription] = await Promise.all([
-      getUser(supabase),
-      getUserDetails(supabase),
-      getSubscription(supabase)
-    ]);
+    const user = await getUser(supabase);
 
     if (!user) {
       return redirect('/signin');
     }
+
+    // Fetch user details, subscription, and API keys after confirming the user is logged in
+    const [userDetails, subscription, apiKeys] = await Promise.all([
+      getUserDetails(supabase),
+      getSubscription(supabase),
+      getApiKeys(supabase, user.id) // Fetch API keys
+    ]);
 
     return (
       <section className="mb-32 bg-black">
@@ -39,7 +43,7 @@ export default async function Account() {
           <CustomerPortalForm subscription={subscription} />
           <NameForm userName={userDetails?.full_name ?? ''} userId={user.id} />
           <EmailForm userEmail={user.email} />
-          <ApiKeysForm userId={user.id} />
+          <ApiKeysForm userId={user.id} apiKeys={apiKeys} /> {/* Pass API keys to the form */}
         </div>
       </section>
     );

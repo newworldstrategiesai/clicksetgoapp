@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       assistant: {
         name: 'Benny 65',
         voice: {
-          voiceId: 'eY8IecDwkQrpggbzjg5E',
+          voiceId: '9c6NBxIEEDowC6QfhIaO',
           provider: '11labs',
           stability: 0.5,
           similarityBoost: 0.75,

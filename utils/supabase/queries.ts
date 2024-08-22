@@ -101,3 +101,57 @@ export async function getLists(supabase: SupabaseClient, userId: string) {
   if (error) throw error;
   return lists;
 }
+
+// Function to get API keys
+export async function getApiKeys(supabase: SupabaseClient, userId: string) {
+  const { data, error } = await supabase
+    .from('api_keys')
+    .select('twilio_sid, twilio_auth_token, eleven_labs_key, vapi_key')
+    .eq('user_id', userId)
+    .single(); // Ensure you get a single row
+
+  if (error) {
+    console.error('Error fetching API keys:', error);
+    return null;
+  }
+
+  return data;
+}
+
+// Function to save API keys
+export async function saveApiKeys(
+  supabase: SupabaseClient,
+  {
+    userId,
+    twilioSid,
+    twilioAuthToken,
+    elevenLabsKey,
+    vapiKey,
+  }: {
+    userId: string;
+    twilioSid: string;
+    twilioAuthToken: string;
+    elevenLabsKey: string;
+    vapiKey: string;
+  }
+) {
+  const { data, error } = await supabase
+    .from('api_keys')
+    .upsert(
+      {
+        user_id: userId,
+        twilio_sid: twilioSid,
+        twilio_auth_token: twilioAuthToken,
+        eleven_labs_key: elevenLabsKey,
+        vapi_key: vapiKey,
+      },
+      { onConflict: 'user_id' } // This ensures that it updates if the record already exists
+    );
+
+  if (error) {
+    console.error('Error saving API keys:', error.message);
+    throw new Error('Error saving API keys: ' + error.message);
+  }
+
+  console.log('API Keys save result:', data);
+}

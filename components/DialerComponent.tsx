@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
-import VoiceDropdown from './VoiceDropdown'; // Adjust the import path as needed
-import { ToastContainer, toast } from 'react-toastify'; // Import Toast components
-import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import VoiceDropdown from './VoiceDropdown';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface Contact {
   id: string;
@@ -36,13 +36,13 @@ const formatPhoneNumber = (phoneNumber: string) => {
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
-// Fetch voices from Eleven Labs API
-const fetchVoices = async (): Promise<Voice[]> => {
+// Fetch voices from Eleven Labs API using the provided API key
+const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
   try {
     const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
       headers: {
         'Content-Type': 'application/json',
-        'xi-api-key': process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
+        'xi-api-key': apiKey,
       },
     });
     return response.data.voices || [];
@@ -60,16 +60,16 @@ const DialerComponent = ({ userId }: { userId: string }) => {
   const [newFirstName, setNewFirstName] = useState('');
   const [newLastName, setNewLastName] = useState('');
   const [callReason, setCallReason] = useState('');
-  const [firstMessage, setFirstMessage] = useState(''); // Initialize as an empty string
+  const [firstMessage, setFirstMessage] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState<'existing' | 'new'>('existing');
   const [loading, setLoading] = useState(false);
-  const [voices, setVoices] = useState<Voice[]>([]); // Initialize the voices state
+  const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Fetch Twilio numbers and contacts on component mount
+    // Fetch Twilio numbers, contacts, and Eleven Labs API key on component mount
     const fetchTwilioNumbers = async () => {
       try {
         const response = await axios.get('/api/get-twilio-numbers');
@@ -92,21 +92,34 @@ const DialerComponent = ({ userId }: { userId: string }) => {
       }
     };
 
-    const fetchVoiceData = async () => {
+    const fetchApiKeyAndVoices = async () => {
       try {
-        const voicesData = await fetchVoices();
+        // Fetch the Eleven Labs API key from Supabase
+        const { data, error } = await supabase
+          .from('api_keys')
+          .select('eleven_labs_key')
+          .eq('user_id', userId)
+          .single();
+
+        if (error || !data?.eleven_labs_key) {
+          throw new Error('Failed to fetch Eleven Labs API key');
+        }
+
+        const apiKey = data.eleven_labs_key;
+        const voicesData = await fetchVoices(apiKey);
         setVoices(voicesData);
         if (voicesData.length > 0) {
           setSelectedVoice(voicesData[0].voice_id);
         }
       } catch (error) {
-        console.error('Error fetching voices:', error);
+        console.error('Error fetching API key or voices:', error);
+        toast.error('Failed to fetch voices. Please try again.');
       }
     };
 
     fetchTwilioNumbers();
     fetchContacts();
-    fetchVoiceData();
+    fetchApiKeyAndVoices();
   }, [userId]);
 
   const handleButtonClick = (value: string) => {
@@ -128,8 +141,8 @@ const DialerComponent = ({ userId }: { userId: string }) => {
 
     if (contact) {
       setSelectedContact(contact);
-      setNewFirstName(contact.first_name); // Pre-populate first name
-      setNewLastName(contact.last_name);   // Pre-populate last name
+      setNewFirstName(contact.first_name);
+      setNewLastName(contact.last_name);
       setModalMode('existing');
     } else {
       setSelectedContact(null);
@@ -155,13 +168,13 @@ const DialerComponent = ({ userId }: { userId: string }) => {
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,
-          last_name: newLastName || '', // Optional field
+          last_name: newLastName || '',
           phone: formattedPhoneNumber,
         },
         reason: callReason,
-        firstMessage: firstMessage || undefined, // Optional field
+        firstMessage: firstMessage || undefined,
         twilioNumber: twilioNumberToUse,
-        voiceId: selectedVoice, // Pass the selected voice ID
+        voiceId: selectedVoice,
       });
       toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
     } catch (error) {
@@ -260,7 +273,6 @@ const DialerComponent = ({ userId }: { userId: string }) => {
         </div>
       </div>
 
-      {/* Address Book Panel */}
       <div className="flex flex-col md:w-1/2 p-4 bg-gray-800 h-screen overflow-y-auto">
         <input
           type="text"

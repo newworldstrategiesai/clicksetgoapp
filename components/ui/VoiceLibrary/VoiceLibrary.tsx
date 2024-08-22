@@ -1,6 +1,7 @@
-"use client"; // Add this line at the top
+'use client';
 
 import React, { useState, useEffect } from 'react';
+import Button from '@/components/ui/Button';
 import axios from 'axios';
 
 interface Voice {
@@ -11,12 +12,12 @@ interface Voice {
   preview_url: string;
 }
 
-const fetchVoices = async (): Promise<Voice[]> => {
+const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
   try {
     const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
       headers: {
         'Content-Type': 'application/json',
-        'xi-api-key': process.env.NEXT_PUBLIC_ELEVENLABS_API_KEY,
+        'xi-api-key': apiKey,
       },
     });
     return response.data.voices || [];
@@ -25,15 +26,14 @@ const fetchVoices = async (): Promise<Voice[]> => {
   }
 };
 
-const VoiceLibrary = () => {
+const VoiceLibrary = ({ apiKey }: { apiKey: string }) => {
   const [voices, setVoices] = useState<Voice[]>([]);
-  const [selectedLibrary, setSelectedLibrary] = useState('my'); // Default to "My Voice Library"
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const voicesData = await fetchVoices();
+        const voicesData = await fetchVoices(apiKey);
         setVoices(voicesData);
       } catch (error) {
         setError((error as Error).message);
@@ -41,27 +41,13 @@ const VoiceLibrary = () => {
     };
 
     fetchData();
-  }, [selectedLibrary]);
+  }, [apiKey]);
 
   return (
     <div className="p-4">
       <h1 className="text-2xl font-semibold mb-4">Voice Library</h1>
-      {error && <p className="text-red-500">Error: {error}</p>}
-      <div className="mb-4">
-        <button
-          className={`px-4 py-2 mr-2 ${selectedLibrary === 'my' ? 'bg-gray-800 text-white' : 'bg-gray-700 text-gray-300'}`}
-          onClick={() => setSelectedLibrary('my')}
-        >
-          My Voice Library
-        </button>
-        <button
-          className={`px-4 py-2 ${selectedLibrary === 'shared' ? 'bg-gray-800 text-white' : 'bg-gray-700 text-gray-300'}`}
-          onClick={() => setSelectedLibrary('shared')}
-        >
-          Shared Voice Library
-        </button>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-screen overflow-y-auto">
+      {error && <p className="text-red-500 mb-4">Error: {error}</p>}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-screen overflow-y-auto mt-4">
         {voices.map((voice) => (
           <div key={voice.voice_id} className="bg-gray-900 p-4 rounded-md shadow-md">
             <div className="flex justify-between items-center mb-2">
@@ -69,7 +55,7 @@ const VoiceLibrary = () => {
               <span className="text-sm text-gray-400">{voice.voice_id}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-white">{voice.gender ? voice.gender : 'Unknown'} | {voice.accent ? voice.accent : 'Unknown'}</span>
+              <span className="text-white">{voice.gender || 'Unknown'} | {voice.accent || 'Unknown'}</span>
             </div>
             <div className="flex items-center">
               <audio controls className="w-full">

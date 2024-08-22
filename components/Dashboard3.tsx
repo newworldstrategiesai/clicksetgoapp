@@ -50,10 +50,14 @@ interface CallData {
 
 // Define the SMSData interface if needed
 interface SMSData {
+  id: string;
+  from: string;
+  to: string;
+  body: string;
+  dateSent: string;
   status: string;
   direction: string;
   responseTime: number;
-  // Add other properties as needed
 }
 
 // Define the props interface
@@ -63,32 +67,36 @@ interface Dashboard3Props {
 
 // Define the Dashboard3 component with the props type
 export const Dashboard3: FC<Dashboard3Props> = ({ userId }) => {
-  const [contacts, setContacts] = useState([]);
   const [smsData, setSmsData] = useState<SMSData[]>([]);
-  const [callData, setCallData] = useState<CallData[]>([]); // Use CallData type here
+  const [callData, setCallData] = useState<CallData[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     async function fetchContacts() {
       try {
         const { data } = await axios.get("/api/supabase/contacts", {
           params: { user_id: userId },
         });
-        setContacts(data);
+        fetchContacts;
       } catch (error) {
         console.error("Error fetching contacts:", error);
       }
     }
-
+  
     async function fetchSMSData() {
       try {
-        const { data } = await axios.get("/api/twilio/sms");
-        setSmsData(data);
+        const response = await axios.get("/api/twilio/sms");
+        if (response.data.messages) {
+          setSmsData(response.data.messages); // Ensure we are setting an array
+        } else {
+          console.error("Invalid SMS data structure", response.data);
+          setSmsData([]); // Set to empty array to avoid errors
+        }
       } catch (error) {
         console.error("Error fetching SMS data:", error);
+        setSmsData([]); // Set to empty array to avoid errors
       }
     }
-
+  
     async function fetchCallData() {
       try {
         const { data } = await axios.get("/api/vapi/calls", {
@@ -99,14 +107,15 @@ export const Dashboard3: FC<Dashboard3Props> = ({ userId }) => {
         console.error("Error fetching call data:", error);
       }
     }
-
+  
     async function fetchData() {
       await Promise.all([fetchContacts(), fetchSMSData(), fetchCallData()]);
       setLoading(false);
     }
-
+  
     fetchData();
   }, [userId]);
+  
 
   if (loading) {
     return <div>Loading...</div>;
@@ -445,24 +454,7 @@ export const Dashboard3: FC<Dashboard3Props> = ({ userId }) => {
                 <CardDescription>Manage your email inbox.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid gap-4">
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">Unread Emails</div>
-                    <div className="text-2xl font-bold">42</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">Sent Emails</div>
-                    <div className="text-2xl font-bold">128</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">Received Emails</div>
-                    <div className="text-2xl font-bold">193</div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="font-medium">Average Response Time</div>
-                    <div className="text-2xl font-bold">4h 32m</div>
-                  </div>
-                </div>
+                {/* Replace with actual email data if needed */}
               </CardContent>
               <CardFooter>
                 <Button>View Email Inbox</Button>
