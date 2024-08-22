@@ -50,7 +50,7 @@ export default function Navlinks({ user }: NavlinksProps) {
         <form onSubmit={(e) => handleRequest(e, SignOut, router)} className="mt-2 md:mt-0">
           <input type="hidden" name="pathName" value={pathname} />
           <button type="submit" className={s.link}>
-            Sign out
+            Signout
           </button>
         </form>
       ) : (
