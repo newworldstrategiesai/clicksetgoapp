@@ -21,12 +21,12 @@ module.exports = {
             value: 'Success!',
           },
         ],
-        destination: '/confirm-email', // Redirect to your custom confirmation page
+        destination: '/home', // Redirect to your custom confirmation page
         permanent: false,
       },
       {
         source: '/',
-        destination: '/index.html',
+        destination: '/index.html', // This may be problematic if not intended
         permanent: true,
       },
     ];

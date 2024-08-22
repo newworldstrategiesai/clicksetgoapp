@@ -23,245 +23,161 @@ export function Home({userId }: HomeProps) {
 
   return (
     <div className="flex h-screen">
-      <aside className="bg-gray-900 text-white flex flex-col items-center lg:items-start lg:w-64 lg:hover:w-64 space-y-4 py-6 transition-all duration-200 ease-in-out">
-        <nav className="flex-1 flex flex-col items-center lg:items-start space-y-6">
-          <Tooltip content="Home">
-            <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
-              <HomeIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Home</span>
+  <aside className="bg-gray-900 text-white flex flex-col items-center lg:items-start w-16 lg:w-64 lg:hover:w-64 space-y-4 py-6 transition-all duration-200 ease-in-out">
+    <nav className="flex-1 flex flex-col items-center lg:items-start space-y-6">
+      <Tooltip content="Home">
+        <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
+          <HomeIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Home</span>
+        </Link>
+      </Tooltip>
+      <Tooltip content="Conversations">
+        <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
+          <MessageCircleIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Conversations</span>
+        </Link>
+      </Tooltip>
+      <Tooltip content="Performance">
+        <button
+          className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
+          onClick={() => setShowPerformanceSubmenu(!showPerformanceSubmenu)}
+        >
+          <BarChartIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Performance</span>
+        </button>
+      </Tooltip>
+      {showPerformanceSubmenu && (
+        <div className="space-y-2 ml-0 lg:ml-4 w-full">
+          <Tooltip content="Topics">
+            <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <DatabaseIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Topics</span>
             </Link>
           </Tooltip>
-          <Tooltip content="Conversations">
-            <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
-              <MessageCircleIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Conversations</span>
+          <Tooltip content="Reports">
+            <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <BookIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Reports</span>
             </Link>
           </Tooltip>
-          <Tooltip content="Performance">
-            <button
-              className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
-              onClick={() => setShowPerformanceSubmenu(!showPerformanceSubmenu)}
-            >
-              <BarChartIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Performance</span>
-            </button>
-          </Tooltip>
-          {showPerformanceSubmenu && (
-            <div className="space-y-2 ml-0 lg:ml-4 w-full">
-              <Tooltip content="Topics">
-                <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <DatabaseIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Topics</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Reports">
-                <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <BookIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Reports</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="CSAT Setup">
-                <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <RepeatIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">CSAT Setup</span>
-                </Link>
-              </Tooltip>
-            </div>
-          )}
-          <Tooltip content="Training">
-            <button
-              className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
-              onClick={() => setShowTrainingSubmenu(!showTrainingSubmenu)}
-            >
-              <BookOpenIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Training</span>
-            </button>
-          </Tooltip>
-          {showTrainingSubmenu && (
-            <div className="space-y-2 ml-0 lg:ml-4 w-full">
-              <Tooltip content="Guidance">
-                <Link href="/guidance" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <BookIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Guidance</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Knowledge">
-                <Link href="/knowledge" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <DatabaseIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Knowledge</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Processes">
-                <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <RepeatIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Processes</span>
-                </Link>
-              </Tooltip>
-            </div>
-          )}
-          <Tooltip content="AI Agent profile">
-            <button
-              className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
-              onClick={() => setShowAIProfileSubmenu(!showAIProfileSubmenu)}
-            >
-              <UserIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">AI Agent profile</span>
-            </button>
-          </Tooltip>
-          {showAIProfileSubmenu && (
-            <div className="space-y-2 ml-0 lg:ml-4 w-full">
-              <Tooltip content="Persona">
-                <Link href="/customization/persona" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <UserIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Persona</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Greeting">
-                <Link href="customization/greeting" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <BookOpenIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Greeting</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Handoffs">
-                <Link href="customization/handoffs" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <RepeatIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Handoffs</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Languages">
-                <Link href="customization/languages" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <DatabaseIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Languages</span>
-                </Link>
-              </Tooltip>
-              <Tooltip content="Variables">
-                <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
-                  <LayersIcon className="w-4 h-4" />
-                  <span className="hidden lg:inline">Variables</span>
-                </Link>
-              </Tooltip>
-            </div>
-          )}
-          <Tooltip content="Channels">
-            <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
-              <LayersIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Channels</span>
+          <Tooltip content="CSAT Setup">
+            <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <RepeatIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">CSAT Setup</span>
             </Link>
           </Tooltip>
-          <Tooltip content="Platform">
-            <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
-              <LayoutGridIcon className="w-6 h-6" />
-              <span className="hidden lg:inline ml-4">Platform</span>
-            </Link>
-          </Tooltip>
-        </nav>
-        <div className="px-4 py-6 space-y-4 w-full">
-          <Button variant="default" className="w-full bg-purple-600">
-            Upgrade
-          </Button>
-          <div className="text-xs text-gray-400 hidden lg:block">Trial ends: September 4, 2024</div>
-          <div className="flex items-center space-x-2 w-full">
-            <Avatar>
-              <AvatarImage src="/placeholder-user.jpg" alt={fullName} />
-              <AvatarFallback>{fullName.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="hidden lg:block">
-              <Link href="/account" className="text-sm font-medium hover:underline">
-                {fullName}
-              </Link>
-            </div>
-          </div>
         </div>
-      </aside>
-      <main className="flex-1 bg-gradient-to-br from-purple-50 to-purple-100 p-8">
-        <header className="mb-8 pt-8">
-          <h1 className="text-2xl font-bold text-gray-800">Welcome, {fullName}!</h1>
-          <p className="text-gray-600">
-            Start onboarding your AI Agent below, or{" "}
-            <Link href="#" className="text-blue-500" prefetch={false}>
-              take a quick tour
-            </Link>{" "}
-            to get oriented.
-          </p>
-        </header>
-        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-8">
-          <div className="lg:w-1/2 bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <Avatar>
-                  <AvatarImage src="/placeholder-user.jpg" alt="Chloe" />
-                  <AvatarFallback>C</AvatarFallback>
-                </Avatar>
-                <span className="text-lg font-semibold">Chloe</span>
-              </div>
-              <MoveHorizontalIcon className="w-5 h-5" />
-            </div>
-            <div className="space-y-4">
-              <div className="flex items-start space-x-2">
-                <div className="flex-shrink-0">
-                  <Avatar>
-                    <AvatarImage src="/placeholder-user.jpg" alt="Chloe" />
-                    <AvatarFallback>C</AvatarFallback>
-                  </Avatar>
-                </div>
-                <div className="bg-blue-500 text-white rounded-lg p-3">
-                  <p>Hey there! I'm an automated assistant. I'm here to help you with any questions you have.</p>
-                  <p>How can I assist you today?</p>
-                </div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="flex items-center border-t border-gray-200 pt-4">
-                <Input
-                  type="text"
-                  placeholder="Type your message..."
-                  className="flex-1 mr-2 rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-black"
-                />
-                <Button className="bg-blue-500 text-white">Send</Button>
-              </div>
-            </div>
-          </div>
-          <div className="lg:w-1/2">
-            <Tabs>
-              <TabsList>
-                <TabsTrigger value="test">Test Chloe</TabsTrigger>
-                <TabsTrigger value="train">Train Chloe</TabsTrigger>
-              </TabsList>
-              <TabsContent value="test">
-                <div className="space-y-4">
-                  <p className="text-gray-800">Test a few sample questions generated from your knowledge content.</p>
-                  <div className="space-y-2">
-                    <Button variant="ghost" className="w-full justify-start text-black">
-                      What types of services does the company offer?
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-black">
-                      Can you explain how the company integrates AI consulting into its business model?
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-black">
-                      What specific events or settings might the company provide DJ services for?
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-black">
-                      How does pressure washing fit into the company's range of services?
-                    </Button>
-                    <Button variant="ghost" className="w-full justify-start text-black">
-                      Are there package deals available that combine these services for clients?
-                    </Button>
-                  </div>
-                  <Button variant="outline" className="w-full text-black">
-                    Get new questions
-                  </Button>
-                </div>
-              </TabsContent>
-              <TabsContent value="train">
-                <div className="space-y-4">
-                  {/* Add content for training Chloe here */}
-                </div>
-              </TabsContent>
-            </Tabs>
-          </div>
+      )}
+      <Tooltip content="Training">
+        <button
+          className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
+          onClick={() => setShowTrainingSubmenu(!showTrainingSubmenu)}
+        >
+          <BookOpenIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Training</span>
+        </button>
+      </Tooltip>
+      {showTrainingSubmenu && (
+        <div className="space-y-2 ml-0 lg:ml-4 w-full">
+          <Tooltip content="Guidance">
+            <Link href="/guidance" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <BookIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Guidance</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Knowledge">
+            <Link href="/knowledge" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <DatabaseIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Knowledge</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Processes">
+            <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <RepeatIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Processes</span>
+            </Link>
+          </Tooltip>
         </div>
-      </main>
+      )}
+      <Tooltip content="AI Agent profile">
+        <button
+          className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
+          onClick={() => setShowAIProfileSubmenu(!showAIProfileSubmenu)}
+        >
+          <UserIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">AI Agent profile</span>
+        </button>
+      </Tooltip>
+      {showAIProfileSubmenu && (
+        <div className="space-y-2 ml-0 lg:ml-4 w-full">
+          <Tooltip content="Persona">
+            <Link href="/customization/persona" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <UserIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Persona</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Greeting">
+            <Link href="customization/greeting" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <BookOpenIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Greeting</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Handoffs">
+            <Link href="customization/handoffs" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <RepeatIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Handoffs</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Languages">
+            <Link href="customization/languages" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <DatabaseIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Languages</span>
+            </Link>
+          </Tooltip>
+          <Tooltip content="Variables">
+            <Link href="#" className="flex items-center space-x-2 text-gray-400 hover:text-white px-2 lg:px-4">
+              <LayersIcon className="w-4 h-4" />
+              <span className="hidden lg:inline">Variables</span>
+            </Link>
+          </Tooltip>
+        </div>
+      )}
+      <Tooltip content="Channels">
+        <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
+          <LayersIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Channels</span>
+        </Link>
+      </Tooltip>
+      <Tooltip content="Platform">
+        <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
+          <LayoutGridIcon className="w-6 h-6" />
+          <span className="hidden lg:inline ml-4">Platform</span>
+        </Link>
+      </Tooltip>
+    </nav>
+    <div className="px-4 py-6 space-y-4 w-full">
+      <Button variant="default" className="w-full bg-purple-600">
+        Upgrade
+      </Button>
+      <div className="text-xs text-gray-400 hidden lg:block">Trial ends: September 4, 2024</div>
+      <div className="flex items-center space-x-2 w-full">
+        <Avatar>
+          <AvatarImage src="/placeholder-user.jpg" alt={fullName} />
+          <AvatarFallback>{fullName.charAt(0)}</AvatarFallback>
+        </Avatar>
+        <div className="hidden lg:block">
+          <Link href="/account" className="text-sm font-medium hover:underline">
+            {fullName}
+          </Link>
+        </div>
+      </div>
     </div>
+  </aside>
+  <main className="flex-1 bg-gradient-to-br from-purple-50 to-purple-100 p-8">
+    {/* Main content */}
+  </main>
+</div>
+
   );
 }
 

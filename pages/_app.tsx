@@ -16,7 +16,12 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
         if (error) throw new Error(error.message);
-        if (!session) {
+
+        if (session) {
+          // Redirect to /home if the user is already logged in
+          router.push('/home');
+        } else {
+          // Redirect to /login if no session exists
           router.push('/login');
         }
       } catch (error) {
