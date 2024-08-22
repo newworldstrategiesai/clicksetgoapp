@@ -157,7 +157,7 @@ export function Home({userId }: HomeProps) {
     </nav>
     <div className="px-4 py-6 space-y-4 w-full">
       <Button variant="default" className="w-full bg-purple-600">
-        Upgrade
+        Subscribe
       </Button>
       <div className="text-xs text-gray-400 hidden lg:block">Trial ends: September 4, 2024</div>
       <div className="flex items-center space-x-2 w-full">
