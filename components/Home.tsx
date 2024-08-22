@@ -157,7 +157,7 @@ export function Home({userId }: HomeProps) {
     </nav>
     <div className="px-4 py-6 space-y-4 w-full">
       <Button variant="default" className="w-full bg-purple-600">
-        Subscribe
+        Sub
       </Button>
       <div className="text-xs text-gray-400 hidden lg:block">Trial ends: September 4, 2024</div>
       <div className="flex items-center space-x-2 w-full">
@@ -174,8 +174,88 @@ export function Home({userId }: HomeProps) {
     </div>
   </aside>
   <main className="flex-1 bg-gradient-to-br from-purple-50 to-purple-100 p-8">
-    {/* Main content */}
-  </main>
+        <header className="mb-8 pt-8">
+          <h1 className="text-2xl font-bold text-gray-800">Welcome, {fullName}!</h1>
+          <p className="text-gray-600">
+            Start onboarding your AI Agent below, or{" "}
+            <Link href="#" className="text-blue-500" prefetch={false}>
+              take a quick tour
+            </Link>{" "}
+            to get oriented.
+          </p>
+        </header>
+        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-8">
+          <div className="lg:w-1/2 bg-white rounded-lg shadow p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center space-x-2">
+                <Avatar>
+                  <AvatarImage src="/placeholder-user.jpg" alt="Chloe" />
+                  <AvatarFallback>C</AvatarFallback>
+                </Avatar>
+                <span className="text-lg font-semibold">Chloe</span>
+              </div>
+              <MoveHorizontalIcon className="w-5 h-5" />
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-start space-x-2">
+                <div className="flex-shrink-0">
+                  <Avatar>
+                    <AvatarImage src="/placeholder-user.jpg" alt="Chloe" />
+                    <AvatarFallback>C</AvatarFallback>
+                  </Avatar>
+                </div>
+                <div className="bg-blue-500 text-white rounded-lg p-3">
+                  <p>Hey there! I'm an automated assistant. I'm here to help you with any questions you have.</p>
+                  <p>How can I assist you today?</p>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4">
+              <div className="flex items-center border-t border-gray-200 pt-4">
+                <Input
+                  type="text"
+                  placeholder="Type your message..."
+                  className="flex-1 mr-2 rounded-md border-gray-300 focus:border-blue-500 focus:ring-blue-500 text-black"
+                />
+                <Button className="bg-blue-500 text-white">Send</Button>
+              </div>
+            </div>
+          </div>
+          <div className="lg:w-1/2">
+          <Tabs>
+              <TabsList className="flex flex-wrap justify-center lg:justify-start">
+                <TabsTrigger value="test" className="text-black">Test Chloe</TabsTrigger>
+                <TabsTrigger value="train" className="text-black">Train Chloe</TabsTrigger>
+              </TabsList>
+              <TabsContent value="test">
+                <div className="space-y-4">
+                  <p className="text-gray-800">Test a few sample questions generated from your knowledge content.</p>
+                  <div className="space-y-2">
+                    <Button variant="ghost" className="w-full justify-start text-black">
+                      What types of services does the company offer?
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-black">
+                      Can you explain how the company integrates AI consulting into its business model?
+                    </Button>
+                    <Button variant="ghost" className="w-full justify-start text-black">
+                      What specific events or settings might the company provide DJ services for?
+                    </Button>
+                    
+                  </div>
+                  <Button variant="outline" className="w-full text-black">
+                    Get new questions
+                  </Button>
+                </div>
+              </TabsContent>
+              <TabsContent value="train">
+                <div className="space-y-4">
+                  {/* Add content for training Chloe here */}
+                </div>
+              </TabsContent>
+            </Tabs>
+          </div>
+        </div>
+      </main>
 </div>
 
   );
@@ -287,3 +367,7 @@ function UserIcon(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   );
 }
+
+
+
+
