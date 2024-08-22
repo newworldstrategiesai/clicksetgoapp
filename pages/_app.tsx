@@ -29,7 +29,7 @@ const MyApp = ({ Component, pageProps }: AppProps) => {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        router.push('/overview');
+        router.push('/home');
       } else if (event === 'SIGNED_OUT') {
         router.push('/login');
       }

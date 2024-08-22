@@ -27,16 +27,16 @@ export default function Navlinks({ user }: NavlinksProps) {
             Overview
           </Link>
           <Link href="/call-logs" className={s.link}>
-            Call Logs
+            Calls
           </Link>
           <Link href="/sms-logs" className={s.link}>
-            SMS Logs
+            Texts
           </Link>
           <Link href="/contacts" className={s.link}>
             Contacts
           </Link>
           <Link href="/voice-library" className={s.link}>
-            Voice Library
+            Voices
           </Link>
           <Link href="/dialer" className={s.link}>
             Dialer
