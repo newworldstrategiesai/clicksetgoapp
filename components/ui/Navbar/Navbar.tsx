@@ -2,15 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
-import s from './Navbar.module.css';
-import Navlinks from './Navlinks';
 import { useRouter, usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
+import Navlinks from './Navlinks';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,24 +22,22 @@ const Navbar: React.FC = () => {
       const supabase = createClient();
       const { data } = await supabase.auth.getUser();
       setUser(data.user);
-      setLoading(false); // Set loading to false after user data is fetched
+      setLoading(false);
     };
 
     getUser();
   }, []);
 
-  // Close the menu when the pathname changes
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
-  // Render a loading state initially if user data is being fetched
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <nav className="navbar bg-black text-white px-4 py-3 fixed w-full z-10 top-0">
+    <nav className="navbar bg-black text-white px-4 py-3 w-full z-10 top-0">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
@@ -75,7 +72,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden mt-2 space-y-2">
+        <div className="md:hidden absolute inset-x-0 top-full bg-black p-4 text-right space-y-2">
           <Navlinks user={user} />
         </div>
       )}

@@ -32,7 +32,7 @@ export function Home({userId }: HomeProps) {
         </Link>
       </Tooltip>
       <Tooltip content="Conversations">
-        <Link href="#" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
+        <Link href="/dialer" className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4">
           <MessageCircleIcon className="w-6 h-6" />
           <span className="hidden lg:inline ml-4">Conversations</span>
         </Link>
@@ -99,7 +99,7 @@ export function Home({userId }: HomeProps) {
           </Tooltip>
         </div>
       )}
-      <Tooltip content="AI Agent profile">
+      <Tooltip content="Agents">
         <button
           className="w-full flex justify-center lg:justify-start py-2 px-2 lg:px-4"
           onClick={() => setShowAIProfileSubmenu(!showAIProfileSubmenu)}
