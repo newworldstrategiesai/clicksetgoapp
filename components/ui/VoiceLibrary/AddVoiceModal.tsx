@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Button } from '@/components/ui/VoiceLibrary/button';
+import  Button  from '@/components/ui/Button';
 import Modal from '@/components/ui/Modal';
 import { ElevenLabsClient } from 'elevenlabs'; // Import the ElevenLabsClient
 
@@ -133,8 +133,8 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button variant="secondary" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
-          <Button variant="secondary" onClick={handleSubmit} loading={isSubmitting}>Add Voice</Button>
+          <Button variant="flat" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+          <Button variant="flat" onClick={handleSubmit} loading={isSubmitting}>Add Voice</Button>
         </div>
       </div>
     </Modal>
