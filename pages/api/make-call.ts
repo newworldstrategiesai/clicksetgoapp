@@ -14,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { contact, reason, twilioNumber, firstMessage, voiceId } = req.body;
 
     // Default voice ID
-    const defaultVoiceId = 'eY8IecDwkQrpggbzjg5E';
+    const defaultVoiceId = '9c6NBxIEEDowC6QfhIaO';
 
     // Check for required fields
     if (!contact || !contact.first_name || !contact.phone || !reason || !twilioNumber) {

@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -32,7 +32,7 @@ const DEFAULT_TWILIO_NUMBER = '+19014102020';
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string) => {
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US'); // Set default region if needed
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -51,7 +51,7 @@ const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
   }
 };
 
-const DialerComponent = ({ userId }: { userId: string }) => {
+const DialerComponent = ({ userId, apiKey }: { userId: string, apiKey: string }) => {
   const [input, setInput] = useState('');
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>(DEFAULT_TWILIO_NUMBER);
@@ -69,7 +69,7 @@ const DialerComponent = ({ userId }: { userId: string }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    // Fetch Twilio numbers, contacts, and Eleven Labs API key on component mount
+    // Fetch Twilio numbers, contacts, and voices on component mount
     const fetchTwilioNumbers = async () => {
       try {
         const response = await axios.get('/api/get-twilio-numbers');
@@ -92,35 +92,23 @@ const DialerComponent = ({ userId }: { userId: string }) => {
       }
     };
 
-    const fetchApiKeyAndVoices = async () => {
+    const fetchVoiceData = async () => {
       try {
-        // Fetch the Eleven Labs API key from Supabase
-        const { data, error } = await supabase
-          .from('api_keys')
-          .select('eleven_labs_key')
-          .eq('user_id', userId)
-          .single();
-
-        if (error || !data?.eleven_labs_key) {
-          throw new Error('Failed to fetch Eleven Labs API key');
-        }
-
-        const apiKey = data.eleven_labs_key;
         const voicesData = await fetchVoices(apiKey);
         setVoices(voicesData);
         if (voicesData.length > 0) {
           setSelectedVoice(voicesData[0].voice_id);
         }
       } catch (error) {
-        console.error('Error fetching API key or voices:', error);
+        console.error('Error fetching voices:', error);
         toast.error('Failed to fetch voices. Please try again.');
       }
     };
 
     fetchTwilioNumbers();
     fetchContacts();
-    fetchApiKeyAndVoices();
-  }, [userId]);
+    fetchVoiceData();
+  }, [userId, apiKey]);
 
   const handleButtonClick = (value: string) => {
     setInput(prevInput => prevInput + value);
@@ -164,7 +152,7 @@ const DialerComponent = ({ userId }: { userId: string }) => {
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/make-call', {
+      await axios.post('/api/make-call', {
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,
@@ -349,12 +337,6 @@ const DialerComponent = ({ userId }: { userId: string }) => {
                   className="w-full p-2 bg-gray-700 rounded border border-gray-600"
                   placeholder="Enter your first message"
                 />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Voice:</label>
-                <div className="w-full p-2 bg-gray-700 rounded border border-gray-600">
-                  {selectedVoice ? voices.find(voice => voice.voice_id === selectedVoice)?.name : 'No voice selected'}
-                </div>
               </div>
             </>
             <div className="flex justify-between">
