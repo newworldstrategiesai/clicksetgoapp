@@ -106,7 +106,7 @@ export async function getLists(supabase: SupabaseClient, userId: string) {
 export async function getApiKeys(supabase: SupabaseClient, userId: string) {
   const { data, error } = await supabase
     .from('api_keys')
-    .select('twilio_sid, twilio_auth_token, eleven_labs_key, vapi_key')
+    .select('twilio_sid, twilio_auth_token, eleven_labs_key, vapi_key, open_ai_api_key') // Include OpenAI API key
     .eq('user_id', userId)
     .single(); // Ensure you get a single row
 
@@ -127,12 +127,14 @@ export async function saveApiKeys(
     twilioAuthToken,
     elevenLabsKey,
     vapiKey,
+    openAiApiKey, // Add OpenAI API key
   }: {
     userId: string;
     twilioSid: string;
     twilioAuthToken: string;
     elevenLabsKey: string;
     vapiKey: string;
+    openAiApiKey: string; // Include OpenAI API key type
   }
 ) {
   const { data, error } = await supabase
@@ -144,6 +146,7 @@ export async function saveApiKeys(
         twilio_auth_token: twilioAuthToken,
         eleven_labs_key: elevenLabsKey,
         vapi_key: vapiKey,
+        open_ai_api_key: openAiApiKey, // Save OpenAI API key
       },
       { onConflict: 'user_id' } // This ensures that it updates if the record already exists
     );
@@ -154,4 +157,7 @@ export async function saveApiKeys(
   }
 
   console.log('API Keys save result:', data);
+
+  // Return the result explicitly
+  return { success: true, data };
 }

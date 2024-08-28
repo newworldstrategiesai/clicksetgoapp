@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card/Card';
 import { saveApiKeys } from '@/utils/supabase/queries';
-import { createClient } from '@/utils/supabase/client'; // Import the Supabase client creation function
+import { createClient } from '@/utils/supabase/client';
 
 interface ApiKeysFormProps {
   userId: string;
@@ -14,6 +14,7 @@ interface ApiKeysFormProps {
     twilio_auth_token: string;
     eleven_labs_key: string;
     vapi_key: string;
+    open_ai_api_key: string;
   } | null;
 }
 
@@ -24,6 +25,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
     twilioAuthToken: '',
     elevenLabsKey: '',
     vapiKey: '',
+    openAiApiKey: '',
   });
 
   useEffect(() => {
@@ -33,6 +35,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
         twilioAuthToken: apiKeys.twilio_auth_token || '',
         elevenLabsKey: apiKeys.eleven_labs_key || '',
         vapiKey: apiKeys.vapi_key || '',
+        openAiApiKey: apiKeys.open_ai_api_key || '',
       });
     }
   }, [apiKeys]);
@@ -50,20 +53,35 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
     setIsSubmitting(true);
 
     try {
-      const supabase = createClient(); // Initialize the Supabase client
+      const supabase = createClient();
 
-      await saveApiKeys(supabase, {
+      console.log('User ID:', userId);
+      console.log('Updating API keys with values:', formValues);
+
+      const result = await saveApiKeys(supabase, {
         userId,
         twilioSid: formValues.twilioSid,
         twilioAuthToken: formValues.twilioAuthToken,
         elevenLabsKey: formValues.elevenLabsKey,
         vapiKey: formValues.vapiKey,
+        openAiApiKey: formValues.openAiApiKey,
       });
 
-      toast.success('API keys saved successfully!');
+      console.log('API Keys save result:', result);
+
+      if (result.success) {
+        toast.success('API keys saved successfully!');
+      } else {
+        throw new Error('Unknown error occurred during saving.');
+      }
     } catch (error) {
-      console.error('Failed to save API keys:', error);
-      toast.error('Failed to save API keys. Please try again.');
+      if (error instanceof Error) {
+        console.error('Error during API key save:', error);
+        toast.error(`Failed to save API keys: ${error.message}`);
+      } else {
+        console.error('Unexpected error:', error);
+        toast.error('Failed to save API keys: An unexpected error occurred.');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -72,7 +90,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
   return (
     <Card
       title="API Keys"
-      description="Manage your API keys for Twilio, ElevenLabs, and VAPI."
+      description="Manage your API keys for Twilio, ElevenLabs, VAPI, and OpenAI."
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -126,6 +144,20 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             name="vapiKey"
             id="vapiKey"
             value={formValues.vapiKey}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            required
+          />
+        </div>
+        <div>
+          <label htmlFor="openAiApiKey" className="block text-sm font-medium text-white">
+            OpenAI API Key
+          </label>
+          <input
+            type="text"
+            name="openAiApiKey"
+            id="openAiApiKey"
+            value={formValues.openAiApiKey}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
             required

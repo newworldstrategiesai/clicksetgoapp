@@ -1,6 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { supabase } from '@/utils/supabaseClient';
+import { getUser } from '@/utils/supabase/queries'; // Import the function to fetch the user
+
+// Define the type for props
+interface IdentityAndCompanyProps {
+  agentName: string;
+  setAgentName: (value: string) => void;
+  companyName: string;
+  setCompanyName: (value: string) => void;
+  companyDescription: string;
+  setCompanyDescription: (value: string) => void;
+  timezone: string;
+  setTimezone: (value: string) => void;
+}
 
 function CustomSwitch({ checked, onChange }: { checked: boolean; onChange: (value: boolean) => void }) {
   return (
@@ -21,10 +36,134 @@ function CustomSwitch({ checked, onChange }: { checked: boolean; onChange: (valu
 
 export default function PersonaPage() {
   const [activeTab, setActiveTab] = useState('identity');
+  const [agentId, setAgentId] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  // Form State
+  const [agentName, setAgentName] = useState('Chloe');
+  const [companyName, setCompanyName] = useState('Ben Spins');
+  const [companyDescription, setCompanyDescription] = useState('');
+  const [timezone, setTimezone] = useState('');
+  const [toneOfVoice, setToneOfVoice] = useState('Friendly');
+  const [emojiUsage, setEmojiUsage] = useState(true);
+  const [emojiLimit, setEmojiLimit] = useState('');
+  const [messageLength, setMessageLength] = useState('Normal');
+  const [multistepInstructions, setMultistepInstructions] = useState('Send multiple steps');
+  const [askForHelp, setAskForHelp] = useState(false);
+  const [noPersonalInfo, setNoPersonalInfo] = useState(false);
+  const [noCompetitors, setNoCompetitors] = useState(false);
+
+  useEffect(() => {
+    // Fetch the logged-in user ID
+    const fetchUserId = async () => {
+      const { data: { user }, error } = await supabase.auth.getUser();
+      if (error) {
+        console.error('Error fetching user:', error);
+      } else {
+        setUserId(user?.id || null);
+      }
+    };
+
+    fetchUserId();
+  }, []);
+
+  useEffect(() => {
+    if (userId) {
+      // Fetch existing agent data on load
+      const fetchAgentData = async () => {
+        const { data: agent, error } = await supabase
+          .from('agents')
+          .select('*')
+          .eq('user_id', userId)
+          .single(); // Assuming one agent per user
+
+        if (error) {
+          console.error('Error fetching agent data:', error);
+        } else if (agent) {
+          setAgentId(agent.id);
+          setAgentName(agent.agent_name);
+          setCompanyName(agent.company_name);
+          setCompanyDescription(agent.company_description);
+          setTimezone(agent.default_timezone);
+          setToneOfVoice(agent.tone_of_voice);
+          setEmojiUsage(agent.allow_emoji_usage);
+          setEmojiLimit(agent.emoji_limit);
+          setMessageLength(agent.message_length);
+          setMultistepInstructions(agent.multistep_instructions);
+          setAskForHelp(agent.ask_for_help);
+          setNoPersonalInfo(agent.no_personal_info);
+          setNoCompetitors(agent.no_competitors);
+        }
+      };
+
+      fetchAgentData();
+    }
+  }, [userId]);
+
+  const handleSave = async () => {
+    if (!userId) {
+      alert('User ID is missing');
+      return;
+    }
+
+    const agentData = {
+      user_id: userId,
+      agent_name: agentName,
+      company_name: companyName,
+      company_description: companyDescription,
+      default_timezone: timezone,
+      tone_of_voice: toneOfVoice,
+      allow_emoji_usage: emojiUsage,
+      emoji_limit: emojiLimit,
+      message_length: messageLength,
+      multistep_instructions: multistepInstructions,
+      ask_for_help: askForHelp,
+      no_personal_info: noPersonalInfo,
+      no_competitors: noCompetitors,
+    };
+
+    let error;
+
+    if (agentId) {
+      const { error: updateError } = await supabase
+        .from('agents')
+        .update(agentData)
+        .eq('id', agentId);
+
+      error = updateError;
+    } else {
+      const { data, error: insertError } = await supabase
+        .from('agents')
+        .insert(agentData)
+        .select();
+
+      if (!insertError) {
+        setAgentId(data[0].id); // Save new agent ID
+      }
+
+      error = insertError;
+    }
+
+    if (error) {
+      console.error('Error saving agent data:', error);
+      alert('There was an error saving the agent data.');
+    } else {
+      alert('Agent data saved successfully!');
+    }
+  };
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Persona</h1>
+
+      {/* Button to view all personas */}
+      <div className="mb-6">
+        <Link href="/customization/personas">
+          <span className="bg-blue-500 text-white py-2 px-4 rounded-md">
+            View All Personas
+          </span>
+        </Link>
+      </div>
 
       {/* Tabs Navigation */}
       <div className="border-b border-gray-700">
@@ -64,27 +203,61 @@ export default function PersonaPage() {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === 'identity' && <IdentityAndCompany />}
-        {activeTab === 'tone' && <ToneAndStyle />}
-        {activeTab === 'manners' && <Manners />}
+        {activeTab === 'identity' && (
+          <IdentityAndCompany
+            agentName={agentName}
+            setAgentName={setAgentName}
+            companyName={companyName}
+            setCompanyName={setCompanyName}
+            companyDescription={companyDescription}
+            setCompanyDescription={setCompanyDescription}
+            timezone={timezone}
+            setTimezone={setTimezone}
+          />
+        )}
+        {activeTab === 'tone' && (
+          <ToneAndStyle
+            toneOfVoice={toneOfVoice}
+            setToneOfVoice={setToneOfVoice}
+            emojiUsage={emojiUsage}
+            setEmojiUsage={setEmojiUsage}
+            emojiLimit={emojiLimit}
+            setEmojiLimit={setEmojiLimit}
+            messageLength={messageLength}
+            setMessageLength={setMessageLength}
+            multistepInstructions={multistepInstructions}
+            setMultistepInstructions={setMultistepInstructions}
+          />
+        )}
+        {activeTab === 'manners' && (
+          <Manners
+            askForHelp={askForHelp}
+            setAskForHelp={setAskForHelp}
+            noPersonalInfo={noPersonalInfo}
+            setNoPersonalInfo={setNoPersonalInfo}
+            noCompetitors={noCompetitors}
+            setNoCompetitors={setNoCompetitors}
+          />
+        )}
+      </div>
+
+      <div className="mt-6">
+        <button
+          onClick={handleSave}
+          className="bg-purple-600 text-white py-2 px-4 rounded-md"
+        >
+          Save Persona
+        </button>
       </div>
     </div>
   );
 }
 
-// Identity and Company Tab Content
-function IdentityAndCompany() {
-  const [agentName, setAgentName] = useState('Chloe');
-  const [companyName, setCompanyName] = useState('Ben Spins');
-  const [companyDescription, setCompanyDescription] = useState('');
-  const [timezone, setTimezone] = useState('');
-
+function IdentityAndCompany({ agentName, setAgentName, companyName, setCompanyName, companyDescription, setCompanyDescription, timezone, setTimezone }: IdentityAndCompanyProps) {
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-300">
-          Agent name
-        </label>
+        <label className="block text-sm font-medium text-gray-300">Agent name</label>
         <input
           type="text"
           value={agentName}
@@ -94,9 +267,7 @@ function IdentityAndCompany() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300">
-          Company name
-        </label>
+        <label className="block text-sm font-medium text-gray-300">Company name</label>
         <input
           type="text"
           value={companyName}
@@ -106,9 +277,7 @@ function IdentityAndCompany() {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300">
-          Company description
-        </label>
+        <label className="block text-sm font-medium text-gray-300">Company description</label>
         <textarea
           value={companyDescription}
           onChange={(e) => setCompanyDescription(e.target.value)}
@@ -116,51 +285,37 @@ function IdentityAndCompany() {
           className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
         />
         <p className="mt-2 text-sm text-gray-500">
-          This provides context for the AI Agent to reply to general questions
-          about your company and its products and services.
+          This provides context for the AI Agent to reply to general questions about your company and its products and services.
         </p>
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300">
-          Default timezone
-        </label>
+        <label className="block text-sm font-medium text-gray-300">Default timezone</label>
         <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
           className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
         >
           <option value="">Time Zone</option>
-          {/* Add timezone options here */}
           <option value="GMT">GMT</option>
           <option value="EST">EST</option>
           <option value="PST">PST</option>
         </select>
         <p className="mt-2 text-sm text-gray-500">
-          Provides a default date and time for the AI Agent to reference when it
-          is unable to retrieve the user's timezone to personalize conversations.
+          Provides a default date and time for the AI Agent to reference when it is unable to retrieve the user's timezone to personalize conversations.
         </p>
       </div>
     </div>
   );
 }
 
-// Tone and Style Tab Content
-function ToneAndStyle() {
-  const [toneOfVoice, setToneOfVoice] = useState('Friendly');
-  const [emojiUsage, setEmojiUsage] = useState(true);
-  const [emojiLimit, setEmojiLimit] = useState('');
-  const [messageLength, setMessageLength] = useState('Normal');
-  const [multistepInstructions, setMultistepInstructions] = useState('Send multiple steps');
-
+function ToneAndStyle({ toneOfVoice, setToneOfVoice, emojiUsage, setEmojiUsage, emojiLimit, setEmojiLimit, messageLength, setMessageLength, multistepInstructions, setMultistepInstructions }: any) {
   return (
     <div className="space-y-8">
       <div>
         <h2 className="text-lg font-semibold">General</h2>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">
-            Tone of voice
-          </label>
+          <label className="block text-sm font-medium text-gray-300">Tone of voice</label>
           <select
             value={toneOfVoice}
             onChange={(e) => setToneOfVoice(e.target.value)}
@@ -173,19 +328,12 @@ function ToneAndStyle() {
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <label className="block text-sm font-medium text-gray-300">
-            Allow emoji usage
-          </label>
-          <CustomSwitch
-            checked={emojiUsage}
-            onChange={(e) => setEmojiUsage(e)}
-          />
+          <label className="block text-sm font-medium text-gray-300">Allow emoji usage</label>
+          <CustomSwitch checked={emojiUsage} onChange={(e) => setEmojiUsage(e)} />
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">
-            Limit emoji usage to these ones:
-          </label>
+          <label className="block text-sm font-medium text-gray-300">Limit emoji usage to these ones:</label>
           <input
             type="text"
             value={emojiLimit}
@@ -194,7 +342,6 @@ function ToneAndStyle() {
           />
           <p className="mt-2 text-sm text-gray-500">
             Find and copy emojis from <a href="#" className="text-blue-400 underline">the Unicode website</a>.
-            Some emojis will still be allowed if they have been chosen for styling lists (below).
           </p>
         </div>
       </div>
@@ -202,9 +349,7 @@ function ToneAndStyle() {
       <div>
         <h2 className="text-lg font-semibold">Messages</h2>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">
-            Message length
-          </label>
+          <label className="block text-sm font-medium text-gray-300">Message length</label>
           <select
             value={messageLength}
             onChange={(e) => setMessageLength(e.target.value)}
@@ -217,9 +362,7 @@ function ToneAndStyle() {
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">
-            Multistep instructions
-          </label>
+          <label className="block text-sm font-medium text-gray-300">Multistep instructions</label>
           <select
             value={multistepInstructions}
             onChange={(e) => setMultistepInstructions(e.target.value)}
@@ -231,32 +374,11 @@ function ToneAndStyle() {
           </select>
         </div>
       </div>
-
-      <div className="mt-8">
-        <h2 className="text-lg font-semibold">Generate Preview</h2>
-        <div className="mt-4 bg-gray-800 p-4 rounded-md">
-          <p className="text-sm text-gray-400">
-            Type an example message to see how it would be phrased:
-          </p>
-          <textarea
-            placeholder="Hi there! I’m the Ben Spins chatbot. How may I help you today?"
-            className="mt-2 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
-          ></textarea>
-          <button className="mt-4 bg-purple-600 text-white py-2 px-4 rounded-md">
-            Generate preview
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
 
-// Manners Tab Content
-function Manners() {
-  const [askForHelp, setAskForHelp] = useState(false);
-  const [noPersonalInfo, setNoPersonalInfo] = useState(false);
-  const [noCompetitors, setNoCompetitors] = useState(false);
-
+function Manners({ askForHelp, setAskForHelp, noPersonalInfo, setNoPersonalInfo, noCompetitors, setNoCompetitors }: any) {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
@@ -266,10 +388,7 @@ function Manners() {
             After attempting to resolve an inquiry, the AI Agent will ask if the customer needs more help.
           </p>
         </div>
-        <CustomSwitch
-          checked={askForHelp}
-          onChange={(e) => setAskForHelp(e)}
-        />
+        <CustomSwitch checked={askForHelp} onChange={(e) => setAskForHelp(e)} />
       </div>
 
       <div className="flex justify-between items-center">
@@ -279,10 +398,7 @@ function Manners() {
             The AI Agent will not mention personal info, such as a customer's name or email, in conversation.
           </p>
         </div>
-        <CustomSwitch
-          checked={noPersonalInfo}
-          onChange={(e) => setNoPersonalInfo(e)}
-        />
+        <CustomSwitch checked={noPersonalInfo} onChange={(e) => setNoPersonalInfo(e)} />
       </div>
 
       <div className="flex justify-between items-center">
@@ -292,10 +408,7 @@ function Manners() {
             The AI Agent will refrain from engaging in conversation about your competitors.
           </p>
         </div>
-        <CustomSwitch
-          checked={noCompetitors}
-          onChange={(e) => setNoCompetitors(e)}
-        />
+        <CustomSwitch checked={noCompetitors} onChange={(e) => setNoCompetitors(e)} />
       </div>
     </div>
   );

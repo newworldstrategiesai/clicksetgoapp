@@ -30,7 +30,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     // Send SMS using Twilio
     const message = await client.messages.create({
-      body: `${callerName}, ${smsMessage}`, // Include caller's name in the SMS body
+      body: `${smsMessage}`, // Include caller's name in the SMS body
       from: process.env.TWILIO_PHONE_NUMBER as string,
       to: callerNumber,
     });

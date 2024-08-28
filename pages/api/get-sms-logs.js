@@ -1,3 +1,4 @@
+//pages/api/get-sms-logs.js
 import twilio from 'twilio';
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -5,7 +6,7 @@ const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
 
 export default async function handler(req, res) {
-  const { pageSize = 30, pageToken } = req.query;
+  const { pageSize = 100, pageToken } = req.query;
   const limit = parseInt(pageSize);
 
   try {

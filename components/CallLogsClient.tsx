@@ -6,6 +6,7 @@ import moment from 'moment';
 import Link from 'next/link';
 import CallLogsList from './CallLogsList'; // Adjust the path based on your project structure
 import { CallLog } from '../types'; // Import the common CallLog type
+import { supabase } from '@/utils/supabaseClient'; // Import the Supabase client
 
 const CallLogsClient: React.FC = () => {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
@@ -21,18 +22,29 @@ const CallLogsClient: React.FC = () => {
       try {
         setLoading(true);
         const lastCreatedAt = callLogs.length ? callLogs[callLogs.length - 1].createdAt : undefined;
+
+        // Fetch call logs from your custom API
         const response = await axios.get('/api/get-call-logs', {
           params: {
             pageSize: 30,
-            lastCreatedAt
-          }
+            lastCreatedAt,
+          },
         });
 
-        const contactsResponse = await axios.get('/api/localcontacts');
-        const contacts = contactsResponse.data;
+        // Fetch contacts from Supabase
+        const { data: contacts, error: contactsError } = await supabase
+          .from('contacts')
+          .select('*');
+
+        if (contactsError) {
+          console.error('Error fetching contacts from Supabase:', contactsError);
+          return;
+        }
 
         const callLogsData = response.data.map((log: CallLog) => {
-          const contact = contacts.find((contact: any) => contact.phone.replace(/\D/g, '') === log.customer?.number.replace(/\D/g, ''));
+          const contact = contacts.find((contact: any) =>
+            contact.phone.replace(/\D/g, '') === log.customer?.number.replace(/\D/g, '')
+          );
           if (contact) {
             log.fullName = `${contact.first_name} ${contact.last_name}`;
           }
@@ -41,7 +53,7 @@ const CallLogsClient: React.FC = () => {
 
         setCallLogs((prevLogs) => {
           const newLogs = [...prevLogs, ...callLogsData];
-          const uniqueLogs = Array.from(new Set(newLogs.map((log) => log.id))).map(id => {
+          const uniqueLogs = Array.from(new Set(newLogs.map((log) => log.id))).map((id) => {
             return newLogs.find((log) => log.id === id);
           });
           return uniqueLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -83,15 +95,23 @@ const CallLogsClient: React.FC = () => {
             const response = await axios.get('/api/get-call-logs', {
               params: {
                 pageSize: 30,
-                lastCreatedAt
-              }
+                lastCreatedAt,
+              },
             });
 
-            const contactsResponse = await axios.get('/api/localcontacts');
-            const contacts = contactsResponse.data;
+            const { data: contacts, error: contactsError } = await supabase
+              .from('contacts')
+              .select('*');
+
+            if (contactsError) {
+              console.error('Error fetching contacts from Supabase:', contactsError);
+              return;
+            }
 
             const callLogsData = response.data.map((log: CallLog) => {
-              const contact = contacts.find((contact: any) => contact.phone.replace(/\D/g, '') === log.customer?.number.replace(/\D/g, ''));
+              const contact = contacts.find((contact: any) =>
+                contact.phone.replace(/\D/g, '') === log.customer?.number.replace(/\D/g, '')
+              );
               if (contact) {
                 log.fullName = `${contact.first_name} ${contact.last_name}`;
               }
@@ -100,7 +120,7 @@ const CallLogsClient: React.FC = () => {
 
             setCallLogs((prevLogs) => {
               const newLogs = [...prevLogs, ...callLogsData];
-              const uniqueLogs = Array.from(new Set(newLogs.map((log) => log.id))).map(id => {
+              const uniqueLogs = Array.from(new Set(newLogs.map((log) => log.id))).map((id) => {
                 return newLogs.find((log) => log.id === id);
               });
               return uniqueLogs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -128,10 +148,7 @@ const CallLogsClient: React.FC = () => {
       <h1 className="text-2xl font-semibold mb-4">Call Logs</h1>
       {error && <p className="text-red-500">{error}</p>}
       <>
-        <CallLogsList
-          logs={callLogs}
-          openModal={openModal}
-        />
+        <CallLogsList logs={callLogs} openModal={openModal} />
         {loading && <p>Loading...</p>}
         <div ref={lastLogElementRef} />
         {isModalOpen && selectedLog && (

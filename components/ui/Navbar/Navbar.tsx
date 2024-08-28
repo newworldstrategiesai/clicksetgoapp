@@ -43,7 +43,7 @@ const Navbar: React.FC = () => {
       </a>
       <div className="max-w-6xl px-6 mx-auto flex items-center justify-between">
         <div className="text-xl font-bold">
-          <a href="/" className="hover:text-gray-300">CLICK SET GO</a>
+          <a href="/home" className="hover:text-gray-300">CLICK SET GO</a>
         </div>
         <div className="hidden md:flex space-x-4">
           <Navlinks user={user} />
