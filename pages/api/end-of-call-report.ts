@@ -110,7 +110,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Send the email with the call report using Resend
       const emailData = await resend.emails.send({
-        from: 'info@clicksetgo.com',
+        from: 'info@clicksetgo.app',
         to: DEFAULT_RECIPIENT_EMAIL,
         subject: 'Call Report',
         html: `
