@@ -94,7 +94,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             }
           ]
         },
-        serverUrl: 'https://clicksetgo.app/api/send-sms',
+        // Add client and server messages, server URL, and end call phrases
+        clientMessages: [
+          'transcript',
+          'hang',
+          'function-call',
+          'speech-update',
+          'metadata',
+          'conversation-update'
+        ],
+        serverMessages: [
+          'end-of-call-report'
+        ],
+        serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
+        endCallPhrases: ['goodbye'],
         serverUrlSecret: '777333777',
       }
     };
