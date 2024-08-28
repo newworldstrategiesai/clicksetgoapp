@@ -12,8 +12,8 @@ import { supabase } from "@/utils/supabaseClient";
 
 interface Contact {
   id: string;
-  first_name: string; // Removed null from the type
-  last_name: string;  // Removed null from the type
+  first_name: string;
+  last_name: string;
   phone: string;
   email_address?: string;
   user_id: string;
@@ -48,7 +48,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
   const [callReason, setCallReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState(""); // Added success message state
+  const [successMessage, setSuccessMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("contacts");
 
@@ -63,8 +63,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         }
         const parsedContacts = data.map((contact: Contact) => ({
           ...contact,
-          first_name: contact.first_name || '',  // Ensure it's a string
-          last_name: contact.last_name || '',    // Ensure it's a string
+          first_name: contact.first_name || '',
+          last_name: contact.last_name || '',
           phone: contact.phone.startsWith("+") ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
@@ -117,9 +117,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     setCallModalIsOpen(true);
   };
 
-  const closeCallModal = () => {
-    setCallModalIsOpen(false);
-  };
+  const closeCallModal = () => setCallModalIsOpen(false);
 
   const openCreateListModal = () => setCreateListModalIsOpen(true);
   const closeCreateListModal = () => setCreateListModalIsOpen(false);
@@ -134,7 +132,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
     try {
       setLoading(true);
-      setSuccessMessage(""); // Clear previous success messages
+      setSuccessMessage("");
       const response = await fetch("/api/make-call", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -148,7 +146,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
       const data = await response.json();
       if (response.ok) {
         setSuccessMessage("Call initiated successfully!");
-        setError(""); // Clear any previous errors
+        setError("");
       } else {
         setError("Failed to initiate call.");
       }
@@ -170,7 +168,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
     try {
       setLoading(true);
-      setSuccessMessage(""); // Clear previous success messages
+      setSuccessMessage("");
       const response = await fetch("/api/create-list", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -183,7 +181,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
           ...prevLists,
           { id: data.id, name, contactsCount: selectedContactArray.length },
         ]);
-        setSuccessMessage("List created successfully!"); // Use the success message state
+        setSuccessMessage("List created successfully!");
         closeCreateListModal();
       } else {
         setError("Failed to create list.");
@@ -202,7 +200,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
   const handleDelete = async (contactId: string) => {
     try {
       setLoading(true);
-      setSuccessMessage(""); // Clear previous success messages
+      setSuccessMessage("");
       const response = await fetch(`/api/delete-contact?id=${contactId}`, {
         method: "DELETE",
       });
@@ -232,22 +230,31 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
       contact.phone.includes(searchQuery)
   );
 
+  const handleUploadRedirect = () => {
+    router.push("/upload-contacts");
+  };
+
   return (
     <div className="p-4">
       {successMessage && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{successMessage}</div>}
       {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
-      <div className="mb-4">
-        <button onClick={openCreateListModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg mr-2">
-          Create New List
-        </button>
-        <button onClick={openNewContactModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-          Add New Contact
-        </button>
+      <div className="mb-4 flex flex-col md:flex-row md:items-center justify-center md:justify-between">
+        <div className="flex flex-row space-x-4 mb-4 md:mb-0">
+          <button onClick={openCreateListModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Create New List
+          </button>
+          <button onClick={openNewContactModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Add New Contact
+          </button>
+          <button onClick={handleUploadRedirect} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
+            Upload
+          </button>
+        </div>
         <input
           type="text"
           placeholder="Search contacts"
           onChange={handleSearch}
-          className="p-2 border rounded-lg w-full mt-2"
+          className="p-2 border rounded-lg w-full md:w-auto"
         />
       </div>
 
