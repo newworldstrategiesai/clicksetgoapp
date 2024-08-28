@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Use the custom firstMessage if provided, otherwise default to a standard message
-    const customizedFirstMessage = firstMessage || `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`;
+    const customizedFirstMessage = firstMessage || `Hello, this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`;
 
     const callData = {
       customer: {
@@ -66,7 +66,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           messages: [
             {
               role: 'system',
-              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf) `
+              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice.\n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\nIf the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URLs are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf).`
             }
           ],
           functions: [
@@ -128,7 +128,33 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
 
       console.log('Response from VAPI API:', response.data);
-      res.status(200).json({ message: 'Call initiated successfully', data: response.data });
+
+      // Send end-of-call report
+      await axios.post(
+        'https://clicksetgo.app/api/end-of-call-report',
+        {
+          message: {
+            call: {
+              customer: {
+                number: formattedContactNumber,
+                name: contact.first_name,
+              },
+              assistant: callData.assistantOverrides,
+              reason,
+              twilioNumber: formattedTwilioNumber,
+              timestamp: new Date().toISOString(),
+            }
+          }
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      res.status(200).json({ message: 'Call initiated and end-of-call report sent successfully', data: response.data });
     } catch (error) {
       if (axios.isAxiosError(error)) {
         console.error('Error initiating call:', error.response?.data || error.message);
