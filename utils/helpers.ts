@@ -131,3 +131,28 @@ export const getErrorRedirect = (
     disableButton,
     arbitraryParams
   );
+
+
+  // utils/helpers.ts
+export const getInitials = (firstName: string, lastName: string) => {
+  const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : '';
+  const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : '';
+  return `${firstInitial}${lastInitial}`;
+};
+
+// Predefined neon colors
+const neonColors = [
+  "#39FF14", // Neon Green
+  "#FF6EC7", // Neon Pink
+  "#F4D03F", // Neon Yellow
+  "#00FFFF", // Neon Cyan
+  "#FF4500", // Neon Orange
+  "#FF00FF", // Neon Magenta
+];
+
+// Function to choose a random neon color
+export const getRandomNeonColor = () => {
+  return neonColors[Math.floor(Math.random() * neonColors.length)];
+};
+
+

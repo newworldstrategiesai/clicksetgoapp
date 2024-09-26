@@ -59,27 +59,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     call,
   } = message;
 
-  // Construct the call report
+  // Construct the call report with fallback values
   const callReport: CallReport = {
     call_id: call.id,
     org_id: call.orgId,
-    type: call.type,
-    status: call.status,
-    ended_reason: endedReason,
-    transcript,
-    summary,
-    messages,
-    analysis,
-    recording_url: recordingUrl,
-    stereo_recording_url: stereoRecordingUrl,
-    customer_number: call.customer.number,
-    assistant_name: call.assistant.name,
-    assistant_model: call.assistant.model.model,
-    assistant_transcriber: call.assistant.transcriber.provider,
-    assistant_voice_provider: call.assistant.voice.provider,
-    assistant_voice_id: call.assistant.voice.voiceId,
-    phone_number: call.phoneNumberId,
-    timestamp: message.timestamp,
+    type: call.type || "Unknown", // Fallback to "Unknown" if the type is missing
+    status: call.status || "Unknown", // Fallback to "Unknown"
+    ended_reason: endedReason || "Unknown", // Fallback to "Unknown"
+    transcript: transcript || "No transcript available",
+    summary: summary || "No summary provided",
+    messages: messages || [],
+    analysis: analysis || "No analysis provided",
+    recording_url: recordingUrl || "No recording URL",
+    stereo_recording_url: stereoRecordingUrl || "No stereo recording URL",
+    customer_number: call.customer?.number || "Unknown",
+    assistant_name: call.assistant?.name || "Unknown", // Fallback for missing assistant name
+    assistant_model: call.assistant?.model?.model || "Unknown", // Fallback for missing assistant model
+    assistant_transcriber: call.assistant?.transcriber?.provider || "Unknown",
+    assistant_voice_provider: call.assistant?.voice?.provider || "Unknown",
+    assistant_voice_id: call.assistant?.voice?.voiceId || "Unknown",
+    phone_number: call.phoneNumberId || "Unknown",
+    timestamp: message.timestamp || new Date().toISOString(), // Fallback to current timestamp
   };
 
   // Asynchronous function to send SMS and Email

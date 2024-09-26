@@ -1,6 +1,6 @@
 import { supabase } from '@/utils/supabaseClient';
 
-export default async (req, res) => {
+export default async function handler(req, res) {
   const { userId } = req.query;
 
   if (!userId) {
@@ -14,14 +14,14 @@ export default async (req, res) => {
       .eq('user_id', userId);
 
     if (error) {
-      console.error('Error fetching lists:', error.message); // Add debugging information
-      return res.status(500).json({ error: error.message });
+      console.error('Error fetching lists:', error.message);
+      return res.status(500).json({ error: 'Failed to fetch lists from Supabase' });
     }
 
-    console.log('Fetched lists data:', data); // Add debugging information
-    res.status(200).json(data);
-  } catch (error) {
-    console.error('Unexpected error:', error); // Add debugging information
-    res.status(500).json({ error: 'An unexpected error occurred' });
+    console.log('Fetched lists data:', data); // Debugging output
+    return res.status(200).json(data);
+  } catch (err) {
+    console.error('Unexpected error:', err);
+    return res.status(500).json({ error: 'An unexpected error occurred' });
   }
-};
+}

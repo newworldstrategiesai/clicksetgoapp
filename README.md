@@ -1,26 +1,148 @@
-# Next.js Subscription Payments Starter
+# Click Set Go - AI Voice Assistant
 
-The all-in-one starter kit for high-performance SaaS applications.
+**Click Set Go** is an AI-powered voice assistant designed to manage phone calls, SMS messaging, and CRM tasks. The assistant provides personalized interactions by checking the contact database and greeting callers by name. Planned features include memory retention, Google Calendar integration, embeddable agents via Vapi Web SDK, and subscription management via Stripe.
 
-## Features
+---
 
-- Secure user management and authentication with [Supabase](https://supabase.io/docs/guides/auth)
-- Powerful data access & management tooling on top of PostgreSQL with [Supabase](https://supabase.io/docs/guides/database)
-- Integration with [Stripe Checkout](https://stripe.com/docs/payments/checkout) and the [Stripe customer portal](https://stripe.com/docs/billing/subscriptions/customer-portal)
-- Automatic syncing of pricing plans and subscription statuses via [Stripe webhooks](https://stripe.com/docs/webhooks)
-- Local development support with Supabase using Docker
+## 🚀 **Current Features**
 
-## Demo
+### Inbound and Outbound Phone Calls
+- Handle inbound and outbound phone calls.
+- The assistant checks the contact database when receiving calls and greets the caller by name.
 
-- [View Demo](https://subscription-payments.vercel.app/)
+### SMS Messaging
+- Send SMS messages, even during active calls.
+- Send end-of-call reports to administrators via SMS.
+- Include calendar links in SMS messages to customers (calendar integration planned).
 
-[![Screenshot of demo](./public/demo.png)](https://subscription-payments.vercel.app/)
+### Email Notifications
+- Sends email notifications, including end-of-call reports, to admins.
+- User email verification for account validation.
 
-## Architecture
+### Call Reporting and Logging
+- Logs each call, including transcripts, call duration, and outcomes.
+- Stores call reports and details, including message logs and call analysis.
 
-![Architecture diagram](./public/architecture_diagram.png)
+### CRM Functions
+- Manage contacts, call logs, SMS logs, and campaigns in an integrated UI.
+- Create and manage contact lists, campaigns, and call tasks.
 
-## Step-by-Step Setup
+### Responsive UI Design
+- iOS-like design for mobile screens.
+- iPad-like design for tablet screens.
+- Fully expanded desktop UI for optimal user experience across all devices.
+
+### Voice Selection
+- Choose from a library of stock voices for the assistant.
+- *Planned*: Upload a voice sample for cloning (powered by Eleven Labs).
+
+### Admin Dashboard
+- Customize the assistant’s tone, message length, emoji usage, and more.
+- Manage API keys for Twilio, Eleven Labs, OpenAI, and other integrations.
+
+### Stripe Payment Integration
+- Secure user management and authentication with Supabase.
+- Integration with Stripe for subscription payments.
+- Stripe Customer Portal for managing billing and subscription status.
+
+---
+
+## 🔧 **Planned Features & Improvements**
+
+### Memory and Context Retention
+- *Planned*: The assistant will retain memory of previous conversations and use this context in future interactions for better personalization.
+
+### Google Calendar Integration
+- *Planned*: Sync with Google Calendar to check availability and create events directly from the assistant.
+
+### Workflow Automation
+- *Planned*: Automate follow-ups after calls or SMS messages, enabling a smooth workflow based on call status and outcomes.
+
+### Embedding the Sales Agent Tool
+- *Planned*: Embed the default sales agent on the homepage using the **Vapi Web SDK**.
+- *Planned*: Offer a product feature where users can embed their personalized AI agent on their own website using an iframe code snippet.
+
+### Multilingual Support
+- *Planned*: Enable the assistant to handle conversations in multiple languages.
+
+### SMS Receiving and Replies
+- *Planned*: Receive SMS messages and respond based on memory of previous interactions.
+
+### Enhanced Call Context
+- *Planned*: Maintain transcripts of previous conversations for seamless future interactions.
+
+### Nicknames for Contacts
+- *Planned*: Users can assign nicknames to phone numbers for quicker recognition during conversations.
+
+### UI Refinements
+- Refine the color scheme and design elements for a more polished look.
+- Replace placeholder logos with the Click Set Go branding.
+
+### Performance Improvements
+- Reduce latency and fix timeout issues in the production environment.
+- Optimize database queries and API responses for faster load times.
+
+---
+
+## 🛠 **Tech Stack**
+
+### **Frontend**
+- **Next.js**: Server-side rendering framework for React.
+- **TypeScript**: Strong typing for enhanced developer experience.
+- **Tailwind CSS**: Utility-first CSS for rapid UI development.
+- **Chart.js / ShadCN**: Visualization libraries for charts and data displays.
+
+### **Backend**
+- **Supabase**: Postgres-based backend and authentication service.
+- **Node.js**: Runtime for server-side API handling.
+- **Resend**: SMTP service for email management (verification and reporting).
+- **Twilio**: SMS and phone call API integration.
+
+### **Voice & AI**
+- **OpenAI (GPT-4 Mini)**: AI-powered conversation engine.
+- **Eleven Labs**: Voice customization and voice cloning technology.
+- **Deepgram**: Speech-to-text and call transcription.
+
+### **Other Tools**
+- **Cursor**: Development environment for team collaboration.
+- **Webflow**: Frontend design for the homepage.
+- **Vercel**: Deployment and hosting for the frontend.
+
+### **Stripe Integration**
+- **Stripe Checkout**: Handles secure payments for subscriptions.
+- **Stripe Webhooks**: Syncs subscription statuses and payment plans.
+
+---
+
+## 📈 **Integrations**
+
+1. **Google Calendar**: Sync availability and create events (planned).
+2. **Twilio**: Manage phone calls and SMS services.
+3. **OpenAI**: Power conversations with GPT-4 Mini.
+4. **Eleven Labs**: Customize assistant voices with synthesized or cloned voices.
+5. **Vapi Web SDK**: Embed the sales agent tool directly on websites (planned).
+6. **Stripe**: Subscription payments and customer billing.
+
+---
+
+## 🎯 **Goals for the Developer Team**
+
+- Ensure app responsiveness across all devices.
+- Implement text message receiving and international calling.
+- Optimize the assistant's memory and call context functionality.
+- Improve code quality and scalability.
+- Integrate the **Vapi Web SDK** for embedding the sales agent tool.
+- Maintain a smooth user experience as new features are rolled out.
+
+---
+
+## 📄 **License**
+
+This project is licensed under the MIT License. See the `LICENSE` file for more details.
+
+---
+
+## 🏗 **Step-by-Step Setup**
 
 ### Initiate Deployment
 
@@ -28,69 +150,19 @@ The all-in-one starter kit for high-performance SaaS applications.
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnextjs-subscription-payments&env=NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,STRIPE_SECRET_KEY&envDescription=Enter%20your%20Stripe%20API%20keys.&envLink=https%3A%2F%2Fdashboard.stripe.com%2Fapikeys&project-name=nextjs-subscription-payments&repository-name=nextjs-subscription-payments&integration-ids=oac_VqOgBHqhEoFTPzGkPd7L0iH6&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnextjs-subscription-payments%2Ftree%2Fmain)
 
-The Vercel Deployment will create a new repository with this template on your GitHub account and guide you through a new Supabase project creation. The [Supabase Vercel Deploy Integration](https://vercel.com/integrations/supabase) will set up the necessary Supabase environment variables and run the [SQL migrations](./supabase/migrations/20230530034630_init.sql) to set up the Database schema on your account. You can inspect the created tables in your project's [Table editor](https://app.supabase.com/project/_/editor).
-
-Should the automatic setup fail, please [create a Supabase account](https://app.supabase.com/projects), and a new project if needed. In your project, navigate to the [SQL editor](https://app.supabase.com/project/_/sql) and select the "Stripe Subscriptions" starter template from the Quick start section.
-
-### Configure Auth
+### Configure Supabase Auth
 
 Follow [this guide](https://supabase.com/docs/guides/auth/social-login/auth-github) to set up an OAuth app with GitHub and configure Supabase to use it as an auth provider.
 
-In your Supabase project, navigate to [auth > URL configuration](https://app.supabase.com/project/_/auth/url-configuration) and set your main production URL (e.g., `https://your-deployment-url.vercel.app`) as the site URL.
-
-Next, in your Vercel deployment settings, add a new **Production** environment variable called `NEXT_PUBLIC_SITE_URL` and set it to the same URL. Make sure to deselect preview and development environments to ensure that preview branches and local development work correctly.
-
-#### [Optional] - Set up Redirect Wildcards for Deploy Previews
-
-If you've deployed this template via the "Deploy to Vercel" button above, you can skip this step. The Supabase Vercel Integration will have set redirect wildcards for you. You can check this by going to your Supabase [auth settings](https://app.supabase.com/project/_/auth/url-configuration) and verifying the list of redirects under "Redirect URLs".
-
-Otherwise, for auth redirects (email confirmations, magic links, OAuth providers) to work correctly in deploy previews, navigate to the [auth settings](https://app.supabase.com/project/_/auth/url-configuration) and add the following wildcard URL to "Redirect URLs": `https://*-username.vercel.app/**`.
-
 ### Configure Stripe
 
-Next, configure [Stripe](https://stripe.com/) to handle test payments. If you don't already have a Stripe account, create one now.
+Next, configure [Stripe](https://stripe.com/) to handle test payments. You can follow the Stripe integration and webhook setup in [Stripe documentation](https://stripe.com/docs/webhooks).
 
-For the following steps, ensure you have the ["Test Mode" toggle](https://stripe.com/docs/testing) switched on.
+Once configured, redeploy your app in Vercel to ensure all environment variables are in place.
 
-#### Create a Webhook
+---
 
-1. Click the "Add Endpoint" button on the [test Endpoints page](https://dashboard.stripe.com/test/webhooks).
-2. Enter your production deployment URL followed by `/api/webhooks` for the endpoint URL (e.g., `https://your-deployment-url.vercel.app/api/webhooks`).
-3. Click `Select events` under the `Select events to listen to` heading.
-4. Click `Select all events` in the `Select events to send` section.
-5. Copy `Signing secret` as we'll need that in the next step (e.g., `whsec_xxx`).
+## 🙌 **Thanks**
 
-In addition to the `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` and the `STRIPE_SECRET_KEY`, add the webhook secret as `STRIPE_WEBHOOK_SECRET` in your environment variables.
+Thanks to all contributors and partners who make this project possible. Let's build something great together!
 
-#### Redeploy with New Env Vars
-
-To apply the newly set environment variables, redeploy your app in Vercel. In your Vercel Dashboard, navigate to deployments, click the overflow menu button, and select "Redeploy" (do NOT enable the "Use existing Build Cache" option). Once Vercel has rebuilt and redeployed your app, you're ready to set up your products and prices.
-
-#### Create Product and Pricing Information
-
-Create your product and pricing information in the [Stripe Dashboard](https://dashboard.stripe.com/test/products). For complex pricing models, such as different tiers or seats, Stripe Checkout supports predefined amounts at specific intervals.
-
-Optionally, use the [fixtures file](fixtures/stripe-fixtures.json) to bootstrap test product and pricing data in your Stripe account. The [Stripe CLI](https://stripe.com/docs/stripe-cli#install) `fixtures` command executes a series of API requests defined in this JSON file. Simply run `stripe fixtures fixtures/stripe-fixtures.json`.
-
-**Important:** Ensure that you've configured your Stripe webhook correctly and redeployed with all needed environment variables.
-
-#### Configure the Stripe Customer Portal
-
-1. Set your custom branding in the [settings](https://dashboard.stripe.com/settings/branding).
-2. Configure the Customer Portal [settings](https://dashboard.stripe.com/test/settings/billing/portal).
-3. Toggle on "Allow customers to update their payment methods".
-4. Toggle on "Allow customers to update subscriptions".
-5. Toggle on "Allow customers to cancel subscriptions".
-6. Add the products and prices you want.
-7. Set up the required business information and links.
-
-### Develop Locally
-
-Clone your GitHub repository to your local machine.
-
-#### Install Dependencies
-
-Ensure you have [pnpm](https://pnpm.io/installation) installed and run:
-
-```bash
-pnpm install

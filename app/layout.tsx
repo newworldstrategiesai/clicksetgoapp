@@ -1,25 +1,18 @@
-import { Metadata } from 'next';
+"use client"; // Mark as a Client Component
+
 import Footer from '@/components/ui/Footer';
 import Navbar from '@/components/ui/Navbar';
 import { Toaster } from '@/components/ui/Toasts/toaster';
 import { PropsWithChildren, Suspense } from 'react';
-import { getURL } from '@/utils/helpers';
+import { usePathname } from 'next/navigation'; // Import usePathname to get current route
 import 'styles/main.css';
 
-const title = 'Click Set Go AI';
-const description = 'Brought to you by Vercel, Stripe, and Supabase.';
+export default function RootLayout({ children }: PropsWithChildren) {
+  const pathname = usePathname(); // Get the current path
 
-export const metadata: Metadata = {
-  metadataBase: new URL(getURL()),
-  title: title,
-  description: description,
-  openGraph: {
-    title: title,
-    description: description
-  }
-};
+  // Define routes where you don't want to show the footer
+  const hideFooterRoutes = ['/dialer'];
 
-export default async function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className="bg-black">
@@ -30,7 +23,10 @@ export default async function RootLayout({ children }: PropsWithChildren) {
         >
           {children}
         </main>
-        <Footer />
+
+        {/* Conditionally render the Footer */}
+        {!hideFooterRoutes.includes(pathname) && <Footer />}
+
         <Suspense>
           <Toaster />
         </Suspense>
