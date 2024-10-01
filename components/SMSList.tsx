@@ -44,8 +44,9 @@ const SMSList: React.FC<SMSListProps> = ({ logs, onRowClick, currentPage, logsPe
           </thead>
           <tbody>
             {Array.isArray(logs) && logs.length > 0 ? (
-              logs.map((log) => (
-                <tr key={log.id} className="hover:bg-gray-700 cursor-pointer" onClick={() => onRowClick(log)}>
+              logs.map((log, index) => (
+                // Combine `log.id` with `index` to ensure uniqueness
+                <tr key={`${log.id}-${index}`} className="hover:bg-gray-700 cursor-pointer" onClick={() => onRowClick(log)}>
                   <td className="py-2 px-4 border-b truncate max-w-xs">{log.from}</td>
                   <td className="py-2 px-4 border-b truncate max-w-xs">{log.to}</td>
                   <td className="py-2 px-4 border-b truncate max-w-xs">{moment(log.dateSent).format('MM/DD/YY hh:mm A')}</td>

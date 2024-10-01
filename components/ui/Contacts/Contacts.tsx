@@ -9,6 +9,7 @@ import ListsTable from "@/components/ListsTable";
 import CreateListModal from "@/components/CreateListModal";
 import ContactsTable from "@/components/ContactsTable";
 import { supabase } from "@/utils/supabaseClient";
+import BottomNav from "@/components/BottomNav"; // Importing the BottomNav component
 
 interface Contact {
   id: string;
@@ -57,15 +58,17 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
   useEffect(() => {
     const fetchContacts = async () => {
       try {
-        const { data, error } = await supabase.from('contacts').select('*').eq('user_id', userId);
+        const { data, error } = await supabase.from("contacts").select("*").eq("user_id", userId);
         if (error) {
           throw error;
         }
         const parsedContacts = data.map((contact: Contact) => ({
           ...contact,
-          first_name: contact.first_name || '',
-          last_name: contact.last_name || '',
-          phone: contact.phone.startsWith("+") ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, "")}`,
+          first_name: contact.first_name || "",
+          last_name: contact.last_name || "",
+          phone: contact.phone && typeof contact.phone === "string" && contact.phone.startsWith("+") 
+            ? contact.phone 
+            : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
       } catch (error) {
@@ -76,7 +79,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
     const fetchLists = async () => {
       try {
-        const { data, error } = await supabase.from('lists').select('*').eq('user_id', userId);
+        const { data, error } = await supabase.from("lists").select("*").eq("user_id", userId);
         if (error) {
           throw error;
         }
@@ -206,7 +209,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
       });
 
       if (response.ok) {
-        setContacts((prevContacts) => prevContacts.filter(contact => contact.id !== contactId));
+        setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));
         setSuccessMessage("Contact deleted successfully!");
       } else {
         setError("Failed to delete contact.");
@@ -225,8 +228,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
   const filteredContacts = contacts.filter(
     (contact) =>
-      (contact.first_name?.toLowerCase().includes(searchQuery) || '') ||
-      (contact.last_name?.toLowerCase().includes(searchQuery) || '') ||
+      contact.first_name?.toLowerCase().includes(searchQuery) ||
+      contact.last_name?.toLowerCase().includes(searchQuery) ||
       contact.phone.includes(searchQuery)
   );
 
@@ -235,7 +238,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
   };
 
   return (
-    <div className="p-4">
+    <div className="min-h-screen pb-16"> {/* Adjust height for sticky bottom nav */}
       {successMessage && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{successMessage}</div>}
       {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
       <div className="mb-4 flex flex-col md:flex-row md:items-center justify-center md:justify-between">
@@ -243,9 +246,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
           <button onClick={openCreateListModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
             Create New List
           </button>
-          <button onClick={openNewContactModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-            Add New Contact
-          </button>
+          <button onClick={openNewContactModal} className="hidden" /> {/* Removed visibility of this button */}
           <button onClick={handleUploadRedirect} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
             Upload
           </button>
@@ -264,6 +265,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
           onContactClick={openContactDetailsModal}
           onCallClick={openCallModal}
           searchQuery={searchQuery}
+          onSelectContact={openNewContactModal} // Ensure this triggers the new contact modal
           selectedContacts={selectedContactsForList}
         />
       )}
@@ -271,7 +273,6 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         <ListsTable
           lists={lists}
           onSelectList={handleSelectList}
-          onOpenNewContactModal={openNewContactModal}
           userId={userId}
           contacts={contacts}
         />
@@ -285,18 +286,18 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         userId={userId}
       />
 
-      <AddContactModal 
-        isOpen={newContactModalIsOpen} 
-        onClose={closeNewContactModal} 
+      <AddContactModal
+        isOpen={newContactModalIsOpen}
+        onClose={closeNewContactModal}
         onContactAdded={(newContact) => setContacts((prevContacts) => [...prevContacts, newContact])}
-        userId={userId} 
+        userId={userId}
       />
 
-      <ContactDetailsModal 
-        isOpen={detailsModalIsOpen} 
-        onClose={closeContactDetailsModal} 
-        contact={selectedContact} 
-        onContactDeleted={handleDelete} 
+      <ContactDetailsModal
+        isOpen={detailsModalIsOpen}
+        onClose={closeContactDetailsModal}
+        contact={selectedContact}
+        onContactDeleted={handleDelete}
       />
 
       <CallModal
@@ -312,6 +313,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         loading={loading}
         twilioNumbers={twilioNumbers}
       />
+
+      <BottomNav /> {/* Sticky bottom nav bar */}
     </div>
   );
 };

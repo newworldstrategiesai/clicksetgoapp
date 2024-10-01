@@ -14,6 +14,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
 
+  console.log('Account SID:', accountSid);
+  console.log('Auth Token:', authToken ? '********' : 'Not Set'); // Mask sensitive data
+
   if (!accountSid || !authToken) {
     return res.status(500).json({ message: 'Twilio credentials are not set' });
   }
@@ -38,12 +41,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(200).json({ allNumbers });
   } catch (error) {
     console.error('Error fetching Twilio numbers or verified caller IDs:', error);
-    
-    // Type assertion for error to be of type Error
-    const errorMessage = (error as Error).message || 'Unknown error';
+
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 
     return res.status(500).json({
-      message: 'Error fetching Twilio numbers or verified caller IDs',
+      message: 'Error fetching Twilio data',
       error: errorMessage,
     });
   }
