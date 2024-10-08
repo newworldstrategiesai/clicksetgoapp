@@ -28,7 +28,7 @@ const timezones = [
   { value: 'America/New_York', label: 'Eastern Time (ET)' },
   { value: 'America/Chicago', label: 'Central Time (CT)' },
   { value: 'America/Denver', label: 'Mountain Time (MT)' },
-  { value: 'America/Los_Angeles', label: 'Pacific Time (PT)' },
+  { value: 'America/LA', label: 'Pacific Time (PT)' },
   { value: 'Europe/London', label: 'London' },
   { value: 'Europe/Paris', label: 'Paris' },
   { value: 'Asia/Tokyo', label: 'Tokyo' },
