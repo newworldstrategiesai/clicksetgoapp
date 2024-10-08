@@ -19,7 +19,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     console.log('Fetched API keys:', apiKeys); // Log the fetched API keys
 
     if (!apiKeys) {
-      console.error('No API keys found for the user'); // Log if no keys found
+      console.error('Zero API keys found for the user'); // Log if no keys found
       return res.status(404).json({ error: 'No API keys found for the user' });
     }
 
@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     // Type assertion to Error
     const errorMessage = (error as Error).message || 'Unknown error occurred';
-    console.error('Error fetching  the API keys:', errorMessage); // Log the error message
+    console.error('Error fetching the API keys:', errorMessage); // Log the error message
     res.status(500).json({ error: 'Failed to fetch API keys' });
   }
 }
