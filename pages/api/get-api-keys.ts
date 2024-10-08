@@ -27,7 +27,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   } catch (error) {
     // Type assertion to Error
     const errorMessage = (error as Error).message || 'Unknown error occurred';
-    console.error('Error fetching API keys:', errorMessage); // Log the error message
+    console.error('Error fetching  the API keys:', errorMessage); // Log the error message
     res.status(500).json({ error: 'Failed to fetch API keys' });
   }
 }
