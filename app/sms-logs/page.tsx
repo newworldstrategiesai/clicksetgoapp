@@ -12,7 +12,7 @@ export default async function SMSLogsPage() {
       return redirect('/signin');
     }
 
-    return <SMSLogsClient />;
+    return <SMSLogsClient userId={user.id} />; // Pass userId as a prop
   } catch (error) {
     console.error('Error fetching user data:', error);
     return redirect('/signin');

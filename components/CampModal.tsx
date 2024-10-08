@@ -1,3 +1,4 @@
+// components/CampModal.tsx
 "use client";
 
 import React, { useState } from 'react';
@@ -10,14 +11,29 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
-export default function CampModal({ campaign, onClose, onEdit, onDelete, audience }) {
+interface CampModalProps {
+  campaign: {
+    id: string;
+    name: string;
+    description?: string; // Make it optional
+    start_date?: string; // Optional
+    end_date?: string; // Optional
+    status: string;
+  };
+  onClose: () => void;
+  onEdit: () => void;
+  onDelete: () => void;
+  audience: { name: string | null };
+}
+
+export default function CampModal({ campaign, onClose, onEdit, onDelete, audience }: CampModalProps) {
   const [status, setStatus] = useState(campaign.status); // Default status from the campaign
   const [isSaving, setIsSaving] = useState(false); // For tracking save button click
   const [isEditing, setIsEditing] = useState(false); // Track if the modal is in editing mode
-  const [error, setError] = useState(null); // Handle error state
+  const [error, setError] = useState<string | null>(null); // Handle error state
   const [formData, setFormData] = useState({
     name: campaign.name,
-    description: campaign.description || '',
+    description: campaign.description || '', // Default to empty string if undefined
   });
 
   // Save status update
@@ -34,6 +50,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
       setError(error.message); // Set the error message
     } else {
       console.log(`Campaign status updated to '${status}'`);
+      onEdit(); // Call onEdit to refresh campaign data if needed
     }
 
     setIsSaving(false);
@@ -46,7 +63,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
   };
 
   // Handle form data change
-  const handleFormChange = (e) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
@@ -69,6 +86,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
     } else {
       setIsEditing(false); // Exit edit mode
       console.log("Campaign details updated");
+      onEdit(); // Refresh campaign data if necessary
     }
     setIsSaving(false);
   };
@@ -105,8 +123,8 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
         ) : (
           <>
             <p>Description: {formData.description || 'No description provided'}</p>
-            <p>Start Date: {new Date(campaign.start_date).toLocaleDateString()}</p>
-            <p>End Date: {new Date(campaign.end_date).toLocaleDateString()}</p>
+            <p>Start Date: {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : 'N/A'}</p>
+            <p>End Date: {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : 'N/A'}</p>
           </>
         )}
 

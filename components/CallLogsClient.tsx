@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import Link from 'next/link';
@@ -40,7 +40,7 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             const contact = contacts.find(
               (contact: any) =>
                 contact.phone &&
-                contact.phone.replace(/\D/g, '') === log.customer.number.replace(/\D/g, '')
+                contact.phone.replace(/\D/g, '') === log.customer?.number?.replace(/\D/g, '')
             );
             if (contact) {
               log.fullName = `${contact.first_name} ${contact.last_name}`;
@@ -88,7 +88,7 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
           >
             <div className="flex flex-col">
               <p className="text-lg">{log.fullName || log.customer?.number || 'Unknown'}</p>
-              <p className="text-sm text-gray-400">{log.customer?.location || 'Unknown'}</p>
+              <p className="text-sm text-gray-400">Unknown location</p> {/* Removed location */}
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-400">{moment(log.startedAt).format('MMM D, h:mm A')}</p>

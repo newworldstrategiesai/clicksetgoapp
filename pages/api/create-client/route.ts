@@ -1,10 +1,11 @@
+// app/api/create-client/route.ts
+import { NextResponse } from 'next/server';
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import { Database } from '@/types_db';
 
-export const createClient = () => {
+export function createClient() {
   const cookieStore = cookies();
-  return createServerClient<Database>(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
@@ -12,14 +13,14 @@ export const createClient = () => {
         get(name: string) {
           return cookieStore.get(name)?.value || null;
         },
-        set(name: string, value: string, options: CookieOptions) {
+        set(name: string, value: string, options?: CookieOptions) {
           try {
             cookieStore.set({ name, value, ...options });
           } catch (error) {
             console.error('Error setting cookie:', error);
           }
         },
-        remove(name: string, options: CookieOptions) {
+        remove(name: string, options?: CookieOptions) {
           try {
             cookieStore.set({ name, value: '', ...options });
           } catch (error) {
@@ -29,4 +30,4 @@ export const createClient = () => {
       }
     }
   );
-};
+}

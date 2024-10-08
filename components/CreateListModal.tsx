@@ -22,6 +22,7 @@ const customStyles = {
 interface CreateListModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onSave: (selectedContacts: string[], listId: string) => Promise<void>;
   selectedContactsForList: Set<string>;
   userId: string;
 }
@@ -29,6 +30,7 @@ interface CreateListModalProps {
 const CreateListModal: React.FC<CreateListModalProps> = ({
   isOpen,
   onClose,
+  onSave,
   selectedContactsForList,
   userId
 }) => {
@@ -55,11 +57,17 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
       const { data, error } = await supabase
         .from('lists')
         .insert([{ name: listName, user_id: userId, contacts_count: selectedContactsForList.size }])
-        .single();
+        .single(); // Ensure that we're expecting a single object in the response
 
       if (error) {
         throw error;
       }
+
+      // Type assertion to tell TypeScript the shape of the returned data
+      const listId = (data as { id: string }).id; // Assert the type of data
+
+      // Call onSave function with selected contacts and list ID
+      await onSave(Array.from(selectedContactsForList), listId);
 
       setSuccessMessage('List created successfully!');
       setListName(''); // Clear input field

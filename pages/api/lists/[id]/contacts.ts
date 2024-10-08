@@ -1,3 +1,5 @@
+// pages/api/lists/[id]/contacts.ts
+
 import { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from 'utils/supabaseClient'; // Adjust the import path as needed
 
@@ -18,27 +20,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .eq('id', id)
         .single();
 
-      if (listError) throw listError;
+      if (listError || !list) {
+        return res.status(404).json({ error: 'List not found' });
+      }
 
-      // Fetch contact IDs linked to the list
-      const { data: contactLinks, error: linkError } = await supabase
+      // Fetch contact IDs that belong to the specified list
+      const { data: contactIdsData, error: idError } = await supabase
         .from('contact_lists')
         .select('contact_id')
         .eq('list_id', id);
 
-      if (linkError) throw linkError;
+      if (idError) throw idError;
 
-      const contactIds = contactLinks.map((link: { contact_id: string }) => link.contact_id);
+      // Extract the contact IDs into an array
+      const contactIds = contactIdsData?.map(contact => contact.contact_id) || [];
 
-      if (contactIds.length === 0) {
-        return res.status(200).json({ listName: list.name, contacts: [] }); // No contacts found
-      }
-
-      // Fetch contact details including phone number
+      // Fetch contacts based on the list of contact IDs
       const { data: contacts, error: contactError } = await supabase
         .from('contacts')
-        .select('id, first_name, last_name, phone') // Include phone field
-        .in('id', contactIds);
+        .select('id, first_name, last_name, phone')
+        .in('id', contactIds); // Use the extracted contact IDs
 
       if (contactError) throw contactError;
 

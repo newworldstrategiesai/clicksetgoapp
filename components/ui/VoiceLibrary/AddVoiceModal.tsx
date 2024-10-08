@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import  Button  from '@/components/ui/Button';
+import  Button  from '@/components/ui/Button/Button';
 import Modal from '@/components/ui/Modal';
 import { ElevenLabsClient } from 'elevenlabs'; // Import the ElevenLabsClient
 

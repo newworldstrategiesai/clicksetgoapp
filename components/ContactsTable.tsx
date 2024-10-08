@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faStar, faClock, faUser, faTh, faVoicemail } from "@fortawesome/free-solid-svg-icons";
@@ -14,26 +16,29 @@ interface Contact {
 
 interface ContactsTableProps {
   contacts: Contact[];
+  userId: string; // Added userId to the props
   onContactClick: (contact: Contact) => void;
   onCallClick: (contact: Contact) => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onAddToList: (selectedContacts: string[], listId: string) => void;
   onSelectContact?: (contactId: string) => void;
+  selectedContacts: Set<string>; // Add selectedContacts
 }
 
 const ContactsTable: React.FC<ContactsTableProps> = ({
   contacts,
+  userId, // Destructure userId from props
   onContactClick,
   onCallClick,
   searchQuery = "",
   onSearchChange,
   onAddToList,
   onSelectContact,
+  selectedContacts, // Destructure selectedContacts from props
 }) => {
-  const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
-  const [selectAll, setSelectAll] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectAll, setSelectAll] = useState(false);
 
   const lowercasedQuery = searchQuery.toLowerCase();
   const filteredContacts = contacts.filter((contact) => {
@@ -48,7 +53,6 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
     );
   });
 
-  // Group contacts by the first letter of the last name or first name
   const groupedContacts = filteredContacts.reduce((acc: any, contact) => {
     const firstLetter = (contact.last_name || contact.first_name || "").charAt(0).toUpperCase();
     if (!acc[firstLetter]) acc[firstLetter] = [];
@@ -56,46 +60,40 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
     return acc;
   }, {});
 
-  // Toggle Select All
   const handleSelectAll = () => {
     if (selectAll) {
-      setSelectedContacts(new Set());
+      selectedContacts.clear();
     } else {
-      const allContactIds = filteredContacts.map((contact) => contact.id);
-      setSelectedContacts(new Set(allContactIds));
+      filteredContacts.forEach(contact => selectedContacts.add(contact.id));
     }
     setSelectAll(!selectAll);
   };
 
-  // Toggle individual contact selection
   const toggleSelectContact = (contactId: string) => {
-    const updatedSelectedContacts = new Set(selectedContacts);
-    if (updatedSelectedContacts.has(contactId)) {
-      updatedSelectedContacts.delete(contactId);
+    if (selectedContacts.has(contactId)) {
+      selectedContacts.delete(contactId);
     } else {
-      updatedSelectedContacts.add(contactId);
+      selectedContacts.add(contactId);
     }
-    setSelectedContacts(updatedSelectedContacts);
+    setSelectAll(selectedContacts.size === filteredContacts.length); // Check if all contacts are selected
   };
 
-  // Handle "Go" button click
   const handleGoClick = () => {
     if (selectedContacts.size > 0) {
-      setIsModalOpen(true); // Open the modal to select a list
+      setIsModalOpen(true);
     } else {
       alert("Please select at least one contact.");
     }
   };
 
-  // Handle adding to list
   const handleAddToList = (listId: string) => {
     onAddToList(Array.from(selectedContacts), listId);
-    setIsModalOpen(false); // Close the modal after saving
+    setIsModalOpen(false);
   };
 
   return (
     <div className="bg-black text-white h-screen flex flex-col">
-      {/* Header with Back button and Add (+) button */}
+      {/* Header */}
       <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
         <Link href="/lists">
           <button className="text-blue-500 text-lg">Lists</button>
@@ -117,7 +115,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         />
       </div>
 
-      {/* Select All and Actions */}
+      {/* Select All */}
       <div className="flex justify-between px-4 py-2 border-b border-gray-700">
         <div className="flex items-center">
           <input
@@ -133,7 +131,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         </button>
       </div>
 
-      {/* Contacts list */}
+      {/* Contacts List */}
       <div className="flex-grow overflow-y-auto">
         {Object.keys(groupedContacts).sort().map((letter) => (
           <div key={letter} className="p-4">
@@ -147,7 +145,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
                 onClick={() => onContactClick(contact)}
               >
                 <div className="flex items-center">
-                  {/* Avatar (placeholder if no image) */}
+                  {/* Avatar */}
                   <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
                     {contact.first_name.charAt(0).toUpperCase()}
                   </div>
@@ -167,7 +165,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
                   />
                   <button
                     onClick={(e) => {
-                      e.stopPropagation(); // Prevent opening the contact
+                      e.stopPropagation();
                       onCallClick(contact);
                     }}
                     className="text-blue-500"
@@ -186,6 +184,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddToList={handleAddToList}
+        userId={userId} // Pass the userId prop
       />
 
       {/* Bottom Navigation */}

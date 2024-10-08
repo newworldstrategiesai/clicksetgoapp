@@ -1,9 +1,9 @@
-"use client"; // Declare this as a Client Component
+"use client";
 
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
-import Modal from "react-modal";
+import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -20,13 +20,7 @@ interface CallTask {
   priority: string;
   contact_id: string;
   first_message?: string;
-}
-
-interface Contact {
-  id: string;
-  first_name: string;
-  last_name: string;
-  phone: string;
+  contact_name?: string; // Add this line if it should be optional
 }
 
 interface CampaignPageProps {
@@ -68,7 +62,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
         const { data: tasks, error: taskError } = await supabase
           .from("call_tasks")
-          .select(`*, contacts(first_name, last_name, phone)`)
+          .select(`*, contacts(first_name, last_name, phone, user_id)`) // Include user_id
           .eq("campaign_id", id);
 
         if (taskError) {
@@ -83,7 +77,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           }));
           setCampaignTasks(enrichedTasks || []);
         }
-      } catch (error: unknown) { // Explicitly set the type of error
+      } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           console.error("Error fetching campaign and tasks:", error.message);
         } else {
@@ -126,15 +120,32 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           first_name: contact.first_name,
           last_name: contact.last_name,
           phone: contact.phone,
+          user_id: contact.user_id // Ensure user_id is included
         };
+        
 
         try {
           await axios.post("/api/make-call", {
-            contact: contactData,
+            contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
             twilioNumber: campaignData.twilioNumber || '+19014102020',
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
+            userId: contact.user_id // Ensure user ID is passed to fetch API keys
           });
+          
+
+          // After the call is successfully initiated, update the call_task status
+          const { error: updateTaskError } = await supabase
+            .from('call_tasks')
+            .update({ call_status: 'Completed' }) // Update the status to "Completed"
+            .eq('id', task.id); // Update the specific call task row
+
+          if (updateTaskError) {
+            console.error('Error updating call task status:', updateTaskError.message);
+            setError(`Failed to update status for task ${task.id}.`);
+          } else {
+            console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
+          }
         } catch (apiError) {
           console.error(`Failed to initiate call for task ${task.id}:`, apiError);
           setError(`Failed to initiate call for task ${task.id}.`);
@@ -158,9 +169,21 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     }, 500);
   };
 
-  const openModal = (task: CallTask) => {
-    setSelectedTask(task);
-    setIsModalOpen(true);
+  const openModal = async (task: CallTask) => {
+    // Fetch additional details if needed here
+    const { data, error } = await supabase
+      .from('call_tasks')
+      .select('*') // Fetch any additional needed details
+      .eq('id', task.id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching task details:', error.message);
+      return;
+    }
+
+    setSelectedTask(data); // Set the selected task to the modal state
+    setIsModalOpen(true); // Open the modal
   };
 
   const closeModal = () => {
@@ -168,35 +191,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setIsModalOpen(false);
   };
 
-  const handleSaveTask = async () => {
-    if (selectedTask) {
-      const { error } = await supabase
-        .from("call_tasks")
-        .update({
-          call_subject: selectedTask.call_subject,
-          call_status: selectedTask.call_status,
-          scheduled_at: selectedTask.scheduled_at,
-          priority: selectedTask.priority,
-          first_message: selectedTask.first_message,
-        })
-        .eq("id", selectedTask.id);
-
-      if (error) {
-        console.error("Error saving task:", error.message);
-        setError("Error saving task.");
-      } else {
-        setIsModalOpen(false);
-        alert("Task saved successfully.");
-      }
-    }
-  };
-
   if (loading) {
     return <p className="text-center">Loading campaign data...</p>;
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
       {error ? (
         <p className="text-red-500">{error}</p>
       ) : campaignData ? (
@@ -234,134 +234,52 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 <tr className="bg-gray-200">
                   <th className="px-4 py-2 border">Call Subject</th>
                   <th className="px-4 py-2 border">Contact Name</th>
-                  <th className="px-4 py-2 border">Status</th>
+                  <th className="px-4 py-2 border">Call Status</th>
                   <th className="px-4 py-2 border">Scheduled At</th>
-                  <th className="px-4 py-2 border">Priority</th>
+                  <th className="px-4 py-2 border">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {campaignTasks.length > 0 ? (
-                  campaignTasks.map((task) => (
-                    <tr
-                      key={task.id}
-                      className="hover:bg-gray-100 cursor-pointer"
-                      onClick={() => openModal(task)}
-                    >
-                      <td className="border px-4 py-2">{task.call_subject}</td>
-                      <td className="border px-4 py-2">{task.contact_name}</td>
-                      <td className="border px-4 py-2">{task.call_status}</td>
-                      <td className="border px-4 py-2">{new Date(task.scheduled_at).toLocaleString()}</td>
-                      <td className="border px-4 py-2">{task.priority}</td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td className="border px-4 py-2" colSpan={5}>
-                      No tasks available for this campaign.
+                {campaignTasks.map((task) => (
+                  <tr key={task.id} className="hover:bg-gray-100">
+                    <td className="border px-4 py-2">{task.call_subject}</td>
+                    <td className="border px-4 py-2">{task.contact_name}</td>
+                    <td className="border px-4 py-2">{task.call_status}</td>
+                    <td className="border px-4 py-2">{new Date(task.scheduled_at).toLocaleString()}</td>
+                    <td className="border px-4 py-2">
+                      <button
+                        onClick={() => openModal(task)} // Open modal on row click
+                        className="text-blue-500 hover:underline"
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
 
-          {/* Modal for editing call task */}
+          {/* Modal for editing task */}
           {isModalOpen && selectedTask && (
-            <Modal
-              isOpen={isModalOpen}
-              onRequestClose={closeModal}
-              contentLabel="Edit Call Task"
-              ariaHideApp={false}
-              className="bg-white dark:bg-gray-900 p-8 rounded-lg max-w-lg mx-auto mt-10 shadow-lg"
-            >
-              <h2 className="text-2xl font-bold mb-6">Edit Task</h2>
-
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">Call Subject</label>
-                <input
-                  type="text"
-                  value={selectedTask.call_subject}
-                  onChange={(e) =>
-                    setSelectedTask((prev) => prev ? { ...prev, call_subject: e.target.value } : prev)
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">Call Status</label>
-                <select
-                  value={selectedTask.call_status}
-                  onChange={(e) =>
-                    setSelectedTask((prev) => prev ? { ...prev, call_status: e.target.value } : prev)
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Completed">Completed</option>
-                  <option value="Failed">Failed</option>
-                </select>
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">Scheduled At</label>
-                <input
-                  type="datetime-local"
-                  value={new Date(selectedTask.scheduled_at).toISOString().slice(0, 16)}
-                  onChange={(e) =>
-                    setSelectedTask((prev) =>
-                      prev ? { ...prev, scheduled_at: new Date(e.target.value).toISOString() } : prev
-                    )
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="block text-gray-700 dark:text-gray-300">Priority</label>
-                <select
-                  value={selectedTask.priority}
-                  onChange={(e) =>
-                    setSelectedTask((prev) => prev ? { ...prev, priority: e.target.value } : prev)
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                >
-                  <option value="Low">Low</option>
-                  <option value="Normal">Normal</option>
-                  <option value="High">High</option>
-                </select>
-              </div>
-
-              <div className="mb-6">
-                <label className="block text-gray-700 dark:text-gray-300">First Message</label>
-                <textarea
-                  value={selectedTask.first_message || ""}
-                  onChange={(e) =>
-                    setSelectedTask((prev) => prev ? { ...prev, first_message: e.target.value } : prev)
-                  }
-                  className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-                />
-              </div>
-
-              <div className="flex justify-end space-x-4">
-                <button
-                  onClick={closeModal}
-                  className="px-4 py-2 bg-gray-500 text-white rounded-lg"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveTask}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg"
-                >
-                  Save Changes
-                </button>
-              </div>
-            </Modal>
+            <TaskModal
+              task={selectedTask}
+              onClose={closeModal}
+              onSave={() => {
+                setCampaignTasks((prevTasks) =>
+                  prevTasks.map((t) =>
+                    t.id === selectedTask.id
+                      ? { ...selectedTask, contact_name: selectedTask.contact_name || '' } // Ensure contact_name is a string
+                      : t
+                  )
+                );
+                closeModal(); // Close the modal after saving
+              }}
+            />
           )}
         </>
       ) : (
-        <p className="text-center">Loading campaign data...</p>
+        <p>No campaign data found.</p>
       )}
     </div>
   );

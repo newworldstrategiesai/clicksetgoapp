@@ -1,18 +1,45 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import Button from "@/components/ui/Button/Button"; // Changed to default import
 import { supabase } from "@/utils/supabaseClient"; // Ensure this import is correct
+import { toast } from "@/registry/new-york/ui/use-toast";
+
+interface ScheduleData {
+  name: string;
+  monday_open: string;
+  monday_close: string;
+  tuesday_open: string;
+  tuesday_close: string;
+  wednesday_open: string;
+  wednesday_close: string;
+  thursday_open: string;
+  thursday_close: string;
+  friday_open: string;
+  friday_close: string;
+  saturday_open: string;
+  saturday_close: string;
+  sunday_open: string;
+  sunday_close: string;
+  created_at: string; // Adjust if needed to match your data type
+}
 
 interface ScheduleNewFormProps {
   userId: string;
 }
 
 export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ScheduleData>({
     name: "",
     monday_open: "09:00",
     monday_close: "17:00",
@@ -24,10 +51,10 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
     thursday_close: "17:00",
     friday_open: "09:00",
     friday_close: "17:00",
-    saturday_open: "00:00", // Default time value
-    saturday_close: "00:00", // Default time value
-    sunday_open: "00:00", // Default time value
-    sunday_close: "00:00", // Default time value
+    saturday_open: "00:00",
+    saturday_close: "00:00",
+    sunday_open: "00:00",
+    sunday_close: "00:00",
     created_at: new Date().toISOString(),
   });
 
@@ -107,7 +134,7 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
                     id={key}
                     name={key}
                     type="time"
-                    value={formData[key] ?? ''}
+                    value={formData[key as keyof ScheduleData] ?? ''}
                     onChange={handleChange}
                   />
                 </div>

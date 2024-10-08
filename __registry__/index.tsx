@@ -3405,17 +3405,17 @@ export const Index: Record<string, any> = {
       subcategory: "undefined",
       chunks: []
     },
-    "calendar": {
-      name: "calendar",
-      type: "components:ui",
-      registryDependencies: ["button"],
-      component: React.lazy(() => import("@/registry/new-york/ui/calendar")),
-      source: "",
-      files: ["registry/new-york/ui/calendar.tsx"],
-      category: "undefined",
-      subcategory: "undefined",
-      chunks: []
-    },
+   // "calendar": {
+     // name: "calendar",
+   //   type: "components:ui",
+    //  registryDependencies: ["button"],
+     // component: React.lazy(() => import("@/registry/new-york/ui/calendar")),
+      // source: "",
+    //  files: ["registry/new-york/ui/calendar.tsx"],
+     // category: "undefined",
+     // subcategory: "undefined",
+     // chunks: []
+   // },
     "card": {
       name: "card",
       type: "components:ui",

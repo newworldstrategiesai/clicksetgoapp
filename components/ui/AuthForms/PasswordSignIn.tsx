@@ -1,6 +1,7 @@
+// components/ui/AuthForms/PasswordSignin.tsx
 'use client';
 
-import Button from '@/components/ui/Button';
+import  Button  from '@/components/ui/Button/Button'; // Changed to named import
 import Link from 'next/link';
 import { signInWithPassword } from '@/utils/auth-helpers/server';
 import { handleRequest } from '@/utils/auth-helpers/client';
@@ -19,25 +20,31 @@ export default function PasswordSignIn({
 }: PasswordSignInProps) {
   const router = redirectMethod === 'client' ? useRouter() : null;
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault(); // Prevent default form submission
     setIsSubmitting(true); // Disable the button while the request is being handled
+
     await handleRequest(e, signInWithPassword, router);
-    setIsSubmitting(false);
+    setIsSubmitting(false); // Re-enable button after request
   };
 
   return (
-    <div className="my-8">
+    <div className="my-8 pt-8"> {/* Added padding-top here */}
       <form
         noValidate={true}
         className="mb-4"
-        onSubmit={(e) => handleSubmit(e)}
+        onSubmit={handleSubmit}
       >
         <div className="grid gap-2">
           <div className="grid gap-1">
             <label htmlFor="email">Email</label>
             <input
               id="email"
+              value={email} // Controlled input
+              onChange={(e) => setEmail(e.target.value)} // Update state on change
               placeholder="name@example.com"
               type="email"
               name="email"
@@ -45,15 +52,19 @@ export default function PasswordSignIn({
               autoComplete="email"
               autoCorrect="off"
               className="w-full p-3 rounded-md bg-zinc-800"
+              required // Mark as required for form validation
             />
             <label htmlFor="password">Password</label>
             <input
               id="password"
+              value={password} // Controlled input
+              onChange={(e) => setPassword(e.target.value)} // Update state on change
               placeholder="Password"
               type="password"
               name="password"
               autoComplete="current-password"
               className="w-full p-3 rounded-md bg-zinc-800"
+              required // Mark as required for form validation
             />
           </div>
           <Button

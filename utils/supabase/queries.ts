@@ -1,4 +1,4 @@
-import { SupabaseClient } from '@/server';
+import { SupabaseClient } from '@supabase/supabase-js'; // Correct import for SupabaseClient
 
 // Existing functions
 

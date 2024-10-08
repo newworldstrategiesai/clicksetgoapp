@@ -1,11 +1,11 @@
 'use client';
 
-import Button from '@/components/ui/Button';
+import Button from '@/components/ui/Button/Button'; // Use default import
 import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { createStripePortal } from '@/utils/stripe/server';
 import Link from 'next/link';
-import Card from '@/components/ui/Card';
+import Card from '@/components/ui/Card/Card';
 import { Tables } from '@/types_db';
 
 type Subscription = Tables<'subscriptions'>;
@@ -39,9 +39,14 @@ export default function CustomerPortalForm({ subscription }: Props) {
 
   const handleStripePortalRequest = async () => {
     setIsSubmitting(true);
-    const redirectUrl = await createStripePortal(currentPath);
-    setIsSubmitting(false);
-    return router.push(redirectUrl);
+    try {
+      const redirectUrl = await createStripePortal(currentPath);
+      await router.push(redirectUrl);
+    } catch (error) {
+      console.error('Error redirecting to Stripe portal:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

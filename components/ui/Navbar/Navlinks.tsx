@@ -6,6 +6,7 @@ import { handleRequest } from '@/utils/auth-helpers/client';
 import Logo from '@/components/icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { getRedirectMethod } from '@/utils/auth-helpers/settings';
+import { useState } from 'react';
 import s from './Navbar.module.css';
 
 interface NavlinksProps {
@@ -15,6 +16,13 @@ interface NavlinksProps {
 export default function Navlinks({ user }: NavlinksProps) {
   const router = getRedirectMethod() === 'client' ? useRouter() : null;
   const pathname = usePathname() ?? ''; // Ensure pathname is never null
+
+  const [isCampaignDropdownOpen, setIsCampaignDropdownOpen] = useState(false);
+
+  // Close dropdown when navigating to a new page
+  const handleLinkClick = () => {
+    setIsCampaignDropdownOpen(false);
+  };
 
   return (
     <div className="flex flex-col md:flex-row md:space-x-4">
@@ -26,6 +34,27 @@ export default function Navlinks({ user }: NavlinksProps) {
           <Link href="/overview" className={s.link}>
             Overview
           </Link>
+          
+          {/* Campaigns Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setIsCampaignDropdownOpen(!isCampaignDropdownOpen)}
+              className={s.link}
+            >
+              Campaigns
+            </button>
+            {isCampaignDropdownOpen && (
+              <div className="absolute z-10 bg-white shadow-md mt-2 rounded-md py-2">
+                <Link href="/campaigns" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
+                  All
+                </Link>
+                <Link href="/new-campaign" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
+                  New
+                </Link>
+              </div>
+            )}
+          </div>
+
           <Link href="/call-logs" className={s.link}>
             Calls
           </Link>

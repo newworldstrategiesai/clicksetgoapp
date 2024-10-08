@@ -1,6 +1,5 @@
 "use client"
 
-import { Icons } from "@/components/icons"
 import { Button } from "@/registry/default/ui/button"
 import {
   Card,
@@ -67,13 +66,7 @@ export function CardsPaymentMethod() {
               className="peer sr-only"
               aria-label="Paypal"
             />
-            <Label
-              htmlFor="paypal"
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-            >
-              <Icons.paypal className="mb-3 h-6 w-6" />
-              Paypal
-            </Label>
+            
           </div>
 
           <div>
@@ -83,13 +76,7 @@ export function CardsPaymentMethod() {
               className="peer sr-only"
               aria-label="Apple"
             />
-            <Label
-              htmlFor="apple"
-              className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-transparent p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
-            >
-              <Icons.apple className="mb-3 h-6 w-6" />
-              Apple
-            </Label>
+            
           </div>
         </RadioGroup>
         <div className="grid gap-2">

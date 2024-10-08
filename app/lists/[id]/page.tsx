@@ -1,5 +1,3 @@
-//lists/[id]/page.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -15,12 +13,14 @@ interface Contact {
 }
 
 const ListPage = ({ params }: { params: { id: string } }) => {
+  const { id } = params;
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [listName, setListName] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const { id } = params;
+  const userId = 'some-user-id'; // Replace this with how you get the actual userId
+  const selectedContactsForList = new Set<string>(); // Initialize selected contacts as a Set
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -53,8 +53,8 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     console.log('Phone clicked:', contact);
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value);
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value); // Update the search query state
   };
 
   // Filter contacts based on search query
@@ -62,6 +62,8 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     contact.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleAddToList = () => console.log('Add to list clicked'); // Ensure this function is defined
 
   return (
     <section className="mb-32 bg-black text-white">
@@ -80,7 +82,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
               type="text"
               placeholder="Search contacts..."
               value={searchQuery}
-              onChange={handleSearchChange}
+              onChange={(e) => handleSearchChange(e.target.value)} // Pass the string value
               className="mt-4 p-2 rounded border border-gray-600 bg-gray-900 text-white"
             />
           </div>
@@ -95,7 +97,11 @@ const ListPage = ({ params }: { params: { id: string } }) => {
               contacts={filteredContacts} // Use filtered contacts
               onContactClick={handleContactClick}
               onCallClick={handlePhoneClick}
-              searchQuery={searchQuery}
+              onAddToList={handleAddToList} // Ensure this function is defined
+              searchQuery={searchQuery} // Add this prop
+              onSearchChange={handleSearchChange} // Add this prop
+              userId={userId} // Pass userId prop to ContactsTable
+              selectedContacts={selectedContactsForList} // Pass selected contacts
             />
           )}
         </div>

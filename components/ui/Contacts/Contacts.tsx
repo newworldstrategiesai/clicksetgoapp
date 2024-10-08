@@ -161,36 +161,30 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     }
   };
 
-  const handleSaveList = async (name: string, selectedContacts: Set<string>) => {
-    if (!name.trim() || selectedContacts.size === 0) {
-      setError("Please provide a list name and select at least one contact.");
+  const handleSaveList = async (selectedContacts: string[], listId: string) => {
+    if (!listId || selectedContacts.length === 0) {
+      setError("Please provide a list ID and select at least one contact.");
       return;
     }
-
-    const selectedContactArray = Array.from(selectedContacts);
 
     try {
       setLoading(true);
       setSuccessMessage("");
-      const response = await fetch("/api/create-list", {
+      const response = await fetch(`/api/lists/${listId}/add-contacts`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, contacts: selectedContactArray }),
+        body: JSON.stringify({ contacts: selectedContacts }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        setLists((prevLists) => [
-          ...prevLists,
-          { id: data.id, name, contactsCount: selectedContactArray.length },
-        ]);
-        setSuccessMessage("List created successfully!");
+        setSuccessMessage("Contacts added to list successfully!");
         closeCreateListModal();
       } else {
-        setError("Failed to create list.");
+        setError("Failed to add contacts to list.");
       }
     } catch (error) {
-      setError("Failed to create list.");
+      setError("Failed to add contacts to list.");
     } finally {
       setLoading(false);
     }
@@ -259,24 +253,17 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         />
       </div>
 
-      {activeTab === "contacts" && (
-        <ContactsTable
-          contacts={filteredContacts}
-          onContactClick={openContactDetailsModal}
-          onCallClick={openCallModal}
-          searchQuery={searchQuery}
-          onSelectContact={openNewContactModal} // Ensure this triggers the new contact modal
-          selectedContacts={selectedContactsForList}
-        />
-      )}
-      {activeTab === "lists" && (
-        <ListsTable
-          lists={lists}
-          onSelectList={handleSelectList}
-          userId={userId}
-          contacts={contacts}
-        />
-      )}
+      <ContactsTable
+        contacts={filteredContacts}
+        onContactClick={openContactDetailsModal}
+        onCallClick={openCallModal}
+        searchQuery={searchQuery}
+        onSearchChange={(value) => setSearchQuery(value)} // Ensure this function is defined
+        onSelectContact={openNewContactModal} // Ensure this triggers the new contact modal
+        selectedContacts={selectedContactsForList} // This should now work without errors
+        userId={userId} // Pass the userId prop to ContactsTable
+        onAddToList={handleSaveList} // Ensure this function is defined
+      />
 
       <CreateListModal
         isOpen={createListModalIsOpen}

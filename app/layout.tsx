@@ -25,7 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         </main>
 
         {/* Conditionally render the Footer */}
-        {!hideFooterRoutes.includes(pathname) && <Footer />}
+        {!hideFooterRoutes.includes(pathname || '') && <Footer />}
 
         <Suspense>
           <Toaster />

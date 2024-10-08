@@ -1,10 +1,12 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import VoiceDropdown from './VoiceDropdown';
+import ContactsModal from './ContactsModal';
+import CallConfirmationModal from './CallConfirmationModal'; // Import the new modal
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
@@ -16,6 +18,7 @@ interface Contact {
   first_name: string;
   last_name: string;
   phone: string;
+  user_id: string; // Ensure this is included
 }
 
 interface TwilioNumber {
@@ -65,13 +68,12 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
   const [newLastName, setNewLastName] = useState('');
   const [callReason, setCallReason] = useState('');
   const [firstMessage, setFirstMessage] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState<'existing' | 'new'>('existing');
+  const [isCallModalOpen, setIsCallModalOpen] = useState(false); // Modal for Call Confirmation
   const [loading, setLoading] = useState(false);
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [isAddressBookVisible, setIsAddressBookVisible] = useState(false); // New state for address book visibility
+  const [isAddressBookModalOpen, setIsAddressBookModalOpen] = useState(false); // Modal for Address Book
 
   useEffect(() => {
     const fetchTwilioNumbers = async () => {
@@ -89,9 +91,12 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
 
     const fetchContacts = async () => {
       try {
-        const { data, error } = await supabase.from('contacts').select('*').eq('user_id', userId);
+        const { data, error } = await supabase
+          .from('contacts')
+          .select('*')
+          .eq('user_id', userId); // Ensure you're filtering by user_id
         if (error) throw error;
-        setContacts(data);
+        setContacts(data); // Now `data` should match the Contact type
       } catch (error) {
         console.error('Error fetching contacts:', error);
         toast.error('Failed to fetch contacts. Please refresh the page or try again later.');
@@ -137,14 +142,12 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
       setSelectedContact(contact);
       setNewFirstName(contact.first_name);
       setNewLastName(contact.last_name);
-      setModalMode('existing');
     } else {
       setSelectedContact(null);
       setNewFirstName('');
       setNewLastName('');
-      setModalMode('new');
     }
-    setIsModalOpen(true);
+    setIsCallModalOpen(true);
   };
 
   const handleModalSubmit = async () => {
@@ -172,17 +175,17 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
         userId,
       });
       toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
+      setIsCallModalOpen(false); // Close modal after call is initiated
     } catch (error) {
-      console.error('Error initiating call:', error.response?.data || error.message);
-      toast.error('Failed to initiate call: ' + (error.response?.data?.message || 'Unknown error'));
+      console.error('Error initiating call:', (error as any).response?.data || (error as Error).message);
+      toast.error('Failed to initiate call: ' + ((error as any).response?.data?.message || 'Unknown error'));
     } finally {
       setLoading(false);
-      setIsModalOpen(false);
     }
   };
 
   const handleCancel = () => {
-    setIsModalOpen(false);
+    setIsCallModalOpen(false);
   };
 
   const handleContactClick = (contact: Contact) => {
@@ -190,19 +193,12 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
     setInput(formattedPhoneNumber || '');
     setNewFirstName(contact.first_name);
     setNewLastName(contact.last_name);
+    setIsAddressBookModalOpen(false); // Close the modal upon selection
   };
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value.toLowerCase());
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value.toLowerCase());
   };
-
-  const filteredContacts = contacts.filter(contact => {
-    const firstNameMatch = contact.first_name?.toLowerCase().includes(searchQuery);
-    const lastNameMatch = contact.last_name?.toLowerCase().includes(searchQuery);
-    const phoneMatch = contact.phone ? contact.phone.includes(searchQuery) : false;
-
-    return firstNameMatch || lastNameMatch || phoneMatch;
-  });
 
   const buttons = [
     { value: '1', letters: '' },
@@ -220,10 +216,37 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div className="min-h-screen flex bg-black text-white">
       <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={true} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
 
-      <div className="flex flex-col items-center justify-center w-full pt-16">
+      {/* Left Panel for Address Book */}
+      <div className="hidden md:flex md:flex-col md:w-1/3 p-4 bg-gray-800 h-screen overflow-y-auto">
+        <input
+          type="text"
+          placeholder="Search contacts"
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)} // Use updated function
+          className="p-2 mb-4 border rounded-lg w-full bg-gray-700 text-white"
+        />
+        {contacts.length > 0 ? (
+          <ul>
+            {contacts.map((contact) => (
+              <li
+                key={contact.id}
+                onClick={() => handleContactClick(contact)}
+                className="p-2 mb-2 cursor-pointer hover:bg-gray-700 rounded"
+              >
+                {contact.first_name} {contact.last_name} - {contact.phone}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No contacts found.</p>
+        )}
+      </div>
+
+      {/* Right Panel for Dialer */}
+      <div className="flex-grow flex flex-col items-center justify-center w-full pt-16">
         <div className="text-4xl text-white mb-8">{input || 'Enter Number'}</div>
         <div className="grid grid-cols-3 gap-4 w-64">
           {buttons.map((button) => (
@@ -250,7 +273,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
             {loading ? 'Calling...' : '📞'}
           </button>
         </div>
-        <div className="mt-6 w-64">
+        <div className="mt-6 w-64 pb-24"> {/* Added padding-bottom to prevent overlap with footer */}
           <label className="block mb-2">
             <span className="block text-gray-400">Select Twilio Number:</span>
             <select
@@ -269,112 +292,35 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
         </div>
       </div>
 
-      {/* Address Book Section */}
-      <div className="flex flex-col md:w-1/2 p-4 bg-gray-800 h-screen overflow-y-auto">
-        <button
-          className="mb-4 text-blue-500 md:hidden"
-          onClick={() => setIsAddressBookVisible(!isAddressBookVisible)}
-        >
-          {isAddressBookVisible ? 'Hide Contacts' : 'Show Contacts'}
-        </button>
-        {isAddressBookVisible && (
-          <>
-            <input
-              type="text"
-              placeholder="Search contacts"
-              value={searchQuery}
-              onChange={handleSearchChange}
-              className="p-2 mb-4 border rounded-lg w-full bg-gray-700 text-white"
-            />
-            {filteredContacts.length > 0 ? (
-              <ul>
-                {filteredContacts.map((contact) => (
-                  <li
-                    key={contact.id}
-                    onClick={() => handleContactClick(contact)}
-                    className="p-2 mb-2 cursor-pointer hover:bg-gray-700 rounded"
-                  >
-                    {contact.first_name} {contact.last_name} - {contact.phone}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No contacts found.</p>
-            )}
-          </>
-        )}
-      </div>
+      {/* Modal for Call Confirmation */}
+      <CallConfirmationModal
+        isOpen={isCallModalOpen}
+        onClose={() => setIsCallModalOpen(false)}
+        modalMode={'existing'} // or 'new' based on your logic
+        contactName={`${newFirstName} ${newLastName}`}
+        handleModalSubmit={handleModalSubmit}
+        loading={loading}
+        newFirstName={newFirstName}
+        setNewFirstName={setNewFirstName}
+        newLastName={newLastName}
+        setNewLastName={setNewLastName}
+        input={input}
+        callReason={callReason}
+        setCallReason={setCallReason}
+        firstMessage={firstMessage}
+        setFirstMessage={setFirstMessage}
+      />
 
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 p-6 rounded w-80">
-            <h2 className="text-lg font-bold mb-4">
-              {modalMode === 'existing' ? `Calling ${selectedContact?.first_name} ${selectedContact?.last_name}` : 'New Contact'}
-            </h2>
-            <>
-              <div className="mb-4">
-                <label className="block mb-1">First Name:</label>
-                <input
-                  type="text"
-                  value={newFirstName}
-                  onChange={(e) => setNewFirstName(e.target.value)}
-                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Last Name (Optional):</label>
-                <input
-                  type="text"
-                  value={newLastName}
-                  onChange={(e) => setNewLastName(e.target.value)}
-                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Phone Number:</label>
-                <div className="w-full p-2 bg-gray-700 rounded border border-gray-600">
-                  {input || 'Enter Number'}
-                </div>
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">Reason for Calling:</label>
-                <input
-                  type="text"
-                  value={callReason}
-                  onChange={(e) => setCallReason(e.target.value)}
-                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  required
-                />
-              </div>
-              <div className="mb-4">
-                <label className="block mb-1">First Message (Optional):</label>
-                <input
-                  type="text"
-                  value={firstMessage}
-                  onChange={(e) => setFirstMessage(e.target.value)}
-                  className="w-full p-2 bg-gray-700 rounded border border-gray-600"
-                  placeholder="Enter your first message"
-                />
-              </div>
-            </>
-            <div className="flex justify-between">
-              <button
-                onClick={handleModalSubmit}
-                className="w-full bg-blue-600 p-2 rounded text-white mr-2"
-                disabled={loading}
-              >
-                {loading ? 'Submitting...' : 'Call Now'}
-              </button>
-              <button
-                onClick={handleCancel}
-                className="w-full bg-gray-600 p-2 rounded text-white ml-2"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
+      {/* Modal for Address Book */}
+      {isAddressBookModalOpen && (
+        <ContactsModal
+          isOpen={isAddressBookModalOpen}
+          onClose={() => setIsAddressBookModalOpen(false)}
+          contacts={contacts}
+          onContactClick={handleContactClick}
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange} // This now passes a string
+        />
       )}
 
       {/* Bottom Navigation */}
@@ -385,18 +331,26 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
             <span className="text-xs mt-1">Favorites</span>
           </div>
         </Link>
-        <Link href="/recents">
+        <Link href="/campaigns">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faClock} size="lg" />
-            <span className="text-xs mt-1">Recents</span>
+            <span className="text-xs mt-1">Scheduled</span>
           </div>
         </Link>
-        <Link href="/contacts">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faUser} size="lg" />
-            <span className="text-xs mt-1">Contacts</span>
-          </div>
-        </Link>
+        {/* Modify to navigate to /contacts in desktop and open modal in mobile */}
+        <div
+          className="flex flex-col items-center cursor-pointer"
+          onClick={() => {
+            if (window.innerWidth >= 768) {
+              window.location.href = '/contacts'; // Navigate to /contacts for desktop
+            } else {
+              setIsAddressBookModalOpen(true); // Open modal for mobile
+            }
+          }}
+        >
+          <FontAwesomeIcon icon={faUser} size="lg" />
+          <span className="text-xs mt-1">Contacts</span>
+        </div>
         <div className="flex flex-col items-center">
           <FontAwesomeIcon icon={faTh} size="lg" />
           <span className="text-xs mt-1">Keypad</span>

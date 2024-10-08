@@ -1,3 +1,4 @@
+//@/types.ts
 export interface CallLog {
   id: string;
   customer?: { number: string };
@@ -71,4 +72,34 @@ export interface Message {
   direction: string; // 'inbound' or 'outbound'
   dateSent: string;
   avatar?: string;
+}
+
+// Updated Campaign interface based on the provided schema
+export interface Campaign {
+  id: string; // UUID type corresponds to string in TypeScript
+  name: string; // Text type
+  description?: string; // Text type, optional
+  start_date?: string; // Timestamp with time zone, optional
+  end_date?: string; // Timestamp with time zone, optional
+  status?: string; // Text type, optional
+  created_at?: string; // Timestamp with time zone, optional
+  updated_at?: string; // Timestamp with time zone, optional
+  start_time?: string; // Time without time zone, optional
+  start_timezone?: string; // Character varying, optional
+  end_time?: string; // Time without time zone, optional
+  end_timezone?: string; // Character varying, optional
+  audience?: string; // UUID type corresponds to string in TypeScript, optional
+  budget?: number; // Numeric type, optional
+  allocation?: string; // Character varying, optional
+  utm_source?: string; // Character varying, optional
+  utm_medium?: string; // Character varying, optional
+  utm_campaign?: string; // Character varying, optional
+  gdpr?: boolean; // Boolean type, optional
+  ccpa?: boolean; // Boolean type, optional
+  channels?: any; // JSONB type, optional
+  due_date?: string; // Timestamp with time zone, optional
+  schedule?: string; // UUID type corresponds to string in TypeScript, optional
+  user_id?: string; // UUID type corresponds to string in TypeScript, optional
+  agent?: string; // UUID type corresponds to string in TypeScript, optional
+  scheduled_at?: string; // Timestamp with time zone, optional
 }

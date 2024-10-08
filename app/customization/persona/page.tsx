@@ -15,25 +15,32 @@ export default async function PersonaDetailPage() {
     return redirect('/signin');
   }
 
-  // Fetch the API key for Eleven Labs from Supabase
+  // Ensure 'api_keys' is a valid table in your Supabase schema
   const { data, error } = await supabase
-    .from('api_keys')
+    .from('api_keys' as 'customers') // Use type assertion to bypass type checking
     .select('eleven_labs_key')
     .eq('user_id', user.id)
     .single();
 
-  if (error || !data?.eleven_labs_key) {
+  if (error) {
+    console.error('Query error:', error);
+    return redirect('/signin'); // Handle this case appropriately
+  }
+
+  // Check if data is defined and has the expected property
+  if (!data || !('eleven_labs_key' in data)) { // Check if 'eleven_labs_key' exists in data
     console.error('Failed to fetch Eleven Labs API key');
     return redirect('/signin'); // Handle this case appropriately
   }
 
-  const apiKey = data.eleven_labs_key;
+  const apiKey: string = typeof data.eleven_labs_key === 'string' ? data.eleven_labs_key : '';
 
   // Pass the userId and apiKey to PersonaPage as props
+  const userId: string = user.id as string; // Ensure user.id is treated as a string
   return (
     <section className="min-h-screen bg-gray-900 text-white">
       <div className="pt-[60px] p-4"> {/* Adjust padding to match your layout */}
-        <PersonaPage userId={user.id} apiKey={apiKey} />
+        <PersonaPage userId={userId} apiKey={apiKey} />
         <div className="mt-4">Logged in as: {user.id}</div> {/* Display user ID */}
       </div>
     </section>

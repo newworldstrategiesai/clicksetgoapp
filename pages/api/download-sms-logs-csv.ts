@@ -23,23 +23,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   try {
     // Fetch all SMS logs from Supabase
     let allLogs: any[] = [];
-    let pageToken: string | null = null;
+    let offset = 0;
+    const limit = 100; // Adjust batch size as needed
 
-    do {
-      const { data, error, next_page_token } = await supabase
+    while (true) {
+      const { data, error } = await supabase
         .from('sms_logs')
         .select('*')
-        .range(pageToken ? pageToken : 0, 100); // Fetch in batches, adjust batch size as needed
+        .range(offset, offset + limit - 1); // Fetch records from `offset` to `offset + limit`
 
       if (error) {
         console.error('Error fetching SMS logs:', error);
         return res.status(500).json({ error: 'Error fetching SMS logs' });
       }
 
-      allLogs = [...allLogs, ...data];
+      if (data.length === 0) {
+        break; // Exit loop if no more data is available
+      }
 
-      pageToken = next_page_token || null;
-    } while (pageToken);
+      allLogs = [...allLogs, ...data];
+      offset += limit; // Increment offset for next batch
+    }
 
     // Generate CSV from the logs
     const csvContent = generateCSV(allLogs);

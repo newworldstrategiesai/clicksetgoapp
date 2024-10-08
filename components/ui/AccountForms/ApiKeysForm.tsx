@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import Button from '@/components/ui/Button';
+import Button from '@/components/ui/Button/Button'; // Changed to default import
 import Card from '@/components/ui/Card/Card';
 import { saveApiKeys } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
@@ -164,7 +164,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
           />
         </div>
         <div>
-          <Button type="submit" loading={isSubmitting}>
+          <Button type="submit">
             Save API Keys
           </Button>
         </div>
