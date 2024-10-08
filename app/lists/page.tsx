@@ -17,12 +17,6 @@ export default async function ListsPage() {
         // Fetch lists for the current user by passing user.id
         const lists = await getLists(supabase, user.id);
 
-        // Define the function to open the new list modal
-        const onOpenNewListModal = () => {
-            // Implement your modal opening logic here
-            console.log('Open new list modal');
-        };
-
         return (
             <div className="pt-8 p-4">
                 <section className="bg-black">
@@ -36,7 +30,6 @@ export default async function ListsPage() {
                     <div className="p-4">
                         <ListsTable 
                             lists={lists || []} 
-                            onOpenNewListModal={onOpenNewListModal} // Pass the function as a prop
                         />
                     </div>
                 </section>

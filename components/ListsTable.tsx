@@ -1,4 +1,5 @@
-"use client";
+// components/ListsTable.tsx
+"use client"; // This is a client component
 
 import React from 'react';
 import { useRouter } from 'next/navigation';
@@ -13,10 +14,9 @@ interface List {
 
 interface ListsTableProps {
   lists: List[];
-  onOpenNewListModal: () => void; // Prop for opening the new list modal
 }
 
-const ListsTable: React.FC<ListsTableProps> = ({ lists, onOpenNewListModal }) => {
+const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
   const router = useRouter();
 
   const handleSelectList = (listId: string) => {
@@ -25,10 +25,9 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists, onOpenNewListModal }) =>
 
   return (
     <div className="w-full max-w-5xl overflow-x-auto">
-      {/* Header with the "+" button */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-white">Lists</h2>
-        <button onClick={onOpenNewListModal} className="text-blue-500">
+        <button onClick={() => console.log('Open new list modal')} className="text-blue-500">
           <FontAwesomeIcon icon={faPlus} size="lg" />
         </button>
       </div>

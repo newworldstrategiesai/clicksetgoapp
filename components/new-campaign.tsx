@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/NewCampaign/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/NewCampaign/textarea";
@@ -85,7 +85,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-
     setFormData(prevData => ({
       ...prevData,
       [name]: value
