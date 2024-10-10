@@ -13,11 +13,11 @@ interface HomeProps {
   fullName: string;
 }
 
-export function Home({userId }: HomeProps) {
+export function Home({userId, fullName }: HomeProps) {
   const [showTrainingSubmenu, setShowTrainingSubmenu] = useState(false);
   const [showPerformanceSubmenu, setShowPerformanceSubmenu] = useState(false);
   const [showAIProfileSubmenu, setShowAIProfileSubmenu] = useState(false);
-  const [fullName, setFullName] = useState("User");
+  // const [fullName, setFullName] = useState("User");
 
   
 
