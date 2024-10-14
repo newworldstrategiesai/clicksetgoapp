@@ -5,11 +5,12 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string): string | null => {
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'IN');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
   if (req.method === 'POST') {
     const { contact, reason, twilioNumber, firstMessage, voiceId } = req.body;
 
@@ -36,6 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Use the custom firstMessage if provided, otherwise default to a standard message
     const customizedFirstMessage = firstMessage || `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`;
 
+
     const callData = {
       customer: {
         number: formattedContactNumber,
@@ -50,7 +52,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
         twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       },
-      assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
+      // d1070629-bbd4-4a39-bb68-f0bcef1da950
+      // a8cad288-e468-49de-85ff-00725364c107 
+      assistantId: 'd1070629-bbd4-4a39-bb68-f0bcef1da950',
       assistantOverrides: {
         firstMessage: customizedFirstMessage,
         voice: {
@@ -62,11 +66,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         model: {
           provider: 'openai',
-          model: 'gpt-4o-mini',
+          model: 'gpt-4o-mini-abcd',
           messages: [
             {
               role: 'system',
-              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf) `
+              // content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf) `
+              content: `Your name is ritik, you want to sell your soap, ask user if he wants to buy it`
             }
           ],
           functions: [
@@ -114,6 +119,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
       console.log('Payload being sent:', JSON.stringify(callData, null, 2));
+      console.log( "response")
       const response = await axios.post(
         'https://api.vapi.ai/call',
         callData,
@@ -146,21 +152,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       if (axios.isAxiosError(error)) {
         console.error('Error initiating call:', error.response?.data || error.message);
         res.status(500).json({
-          message: 'Failed to initiate call',
+          message: 'Failed to initiate call 1',
           error: error.response?.data || error.message,
           requestData: callData // Log request data for debugging
         });
       } else if (error instanceof Error) {
         console.error('Error initiating call:', error.message);
         res.status(500).json({
-          message: 'Failed to initiate call',
+          message: 'Failed to initiate call 2',
           error: error.message,
           requestData: callData // Log request data for debugging
         });
       } else {
         console.error('Unknown error:', error);
         res.status(500).json({
-          message: 'Failed to initiate call',
+          message: 'Failed to initiate call 3',
           error: 'Unknown error',
           requestData: callData // Log request data for debugging
         });

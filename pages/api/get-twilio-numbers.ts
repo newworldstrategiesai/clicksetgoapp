@@ -14,8 +14,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken = process.env.TWILIO_AUTH_TOKEN;
 
-  console.log('Account SID:', accountSid);
-  console.log('Auth Token:', authToken ? '********' : 'Not Set'); // Mask sensitive data
+  // console.log('Account SID:', accountSid);
+  // console.log('Auth Token:', authToken ? '********' : 'Not Set'); // Mask sensitive data
 
   if (!accountSid || !authToken) {
     return res.status(500).json({ message: 'Twilio credentials are not set' });
