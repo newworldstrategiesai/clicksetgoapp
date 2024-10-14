@@ -54,7 +54,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
   });
 
   const groupedContacts = filteredContacts.reduce((acc: any, contact) => {
-    const firstLetter = (contact.last_name || contact.first_name || "").charAt(0).toUpperCase();
+    const firstLetter = (contact.first_name || "").charAt(0).toUpperCase();
     if (!acc[firstLetter]) acc[firstLetter] = [];
     acc[firstLetter].push(contact);
     return acc;
