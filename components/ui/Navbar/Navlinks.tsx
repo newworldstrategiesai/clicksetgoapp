@@ -8,15 +8,13 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getRedirectMethod } from '@/utils/auth-helpers/settings';
 import { useState } from 'react';
 import s from './Navbar.module.css';
+import { useUser } from '@/utils/useUser';
 
-interface NavlinksProps {
-  user?: any;
-}
 
-export default function Navlinks({ user }: NavlinksProps) {
+export default function Navlinks() {
   const router = getRedirectMethod() === 'client' ? useRouter() : null;
   const pathname = usePathname() ?? ''; // Ensure pathname is never null
-
+  const { user } = useUser();
   const [isCampaignDropdownOpen, setIsCampaignDropdownOpen] = useState(false);
 
   // Close dropdown when navigating to a new page

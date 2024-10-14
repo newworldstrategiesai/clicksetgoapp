@@ -1,40 +1,27 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { createClient } from '@/utils/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
-import { User } from '@supabase/supabase-js';
 import Navlinks from './Navlinks';
+import { useUser } from '@/utils/useUser';
+import Link from 'next/link';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const { user, loading } = useUser();
   const router = useRouter();
   const pathname = usePathname();
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  useEffect(() => {
-    const getUser = async () => {
-      const supabase = createClient();
-      const { data } = await supabase.auth.getUser();
-      setUser(data.user);
-      setLoading(false);
-    };
-
-    getUser();
-  }, []);
 
   useEffect(() => {
     setIsOpen(false);
   }, [pathname]);
 
+  // Don't render the navbar when loading
   if (loading) {
-    return <div>Loading...</div>;
+    return null;
   }
+
+  const isSignInPage = pathname === '/signin';
 
   return (
     <nav className="navbar bg-black text-white px-4 py-3 w-full z-10 top-0">
@@ -43,37 +30,49 @@ const Navbar: React.FC = () => {
       </a>
       <div className="max-w-6xl px-6 mx-auto flex items-center justify-between">
         <div className="text-xl font-bold">
-          <a href="/home" className="hover:text-gray-300">CLICK SET GO</a>
+          <Link href="/home" className="hover:text-gray-300">CLICK SET GO</Link>
         </div>
-        <div className="hidden md:flex space-x-4">
-          <Navlinks user={user} />
-        </div>
-        <div className="md:hidden">
-          <button
-            onClick={toggleMenu}
-            className="text-white focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16m-7 6h7"
-              ></path>
-            </svg>
-          </button>
-        </div>
+        {!isSignInPage && user ? (
+          <>
+            <div className="hidden md:flex space-x-4">
+              <Navlinks />
+            </div>
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsOpen(!isOpen)}
+                className="text-white focus:outline-none"
+                aria-label="Toggle menu"
+              >
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16m-7 6h7"
+                  ></path>
+                </svg>
+              </button>
+            </div>
+          </>
+        ) : (
+          <div>
+            {!isSignInPage && (
+              <Link href="/signin" className="hover:text-gray-300">
+                Sign In
+              </Link>
+            )}
+          </div>
+        )}
       </div>
-      {isOpen && (
+      {isOpen && !isSignInPage && user && (
         <div className="md:hidden absolute inset-x-0 top-full bg-black p-4 text-right space-y-2">
-          <Navlinks user={user} />
+          <Navlinks />
         </div>
       )}
     </nav>
