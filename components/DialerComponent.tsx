@@ -41,7 +41,7 @@ const formatPhoneNumber = (phoneNumber: string) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'IN');
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -82,7 +82,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
         const response = await axios.get('/api/get-twilio-numbers');
         setTwilioNumbers(response.data.allNumbers || []);
         if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+          setSelectedTwilioNumber(DEFAULT_TWILIO_NUMBER || response.data.allNumbers[0].phoneNumber);
         }
       } catch (error) {
         console.error('Error fetching Twilio numbers:', error);
