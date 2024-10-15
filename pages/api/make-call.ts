@@ -66,12 +66,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         model: {
           provider: 'openai',
-          model: 'gpt-4o-mini-abcd',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',
-              // content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf) `
-              content: `Your name is ritik, you want to sell your soap, ask user if he wants to buy it`
+              content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n If the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf) `
             }
           ],
           functions: [
