@@ -67,6 +67,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         model: {
           provider: 'openai',
           model: 'gpt-4o-mini',
+          model: 'gpt-4o-mini',
           messages: [
             {
               role: 'system',

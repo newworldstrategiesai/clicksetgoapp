@@ -145,7 +145,7 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
               }
             }
           }}
-          audience={{ name: 'Sample Audience' }} // Replace with actual audience data if available
+          audience={{ name: selectedCampaign.audience || 'No audience Selected' }} // Replace with actual audience data if available
         />
       )} */}
     </>
