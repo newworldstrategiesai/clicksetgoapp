@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Papa from 'papaparse';
 import { ClipLoader } from 'react-spinners';
 import { useRouter } from 'next/navigation';
@@ -16,6 +16,7 @@ interface Contact {
 }
 
 const UploadContacts = () => {
+  const fileInputRef = useRef<HTMLInputElement | null>(null); // Ref for the file input
   const { userId, loading } = useUser();
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [contacts, setContacts] = useState<Contact[]>([]);
@@ -32,6 +33,9 @@ const UploadContacts = () => {
     if (e.target.files && e.target.files[0]) {
       setCsvFile(e.target.files[0]);
       parseCSV(e.target.files[0]);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''; // Reset the input value to allow re-uploading the same file
+      }
     }
   };
 
@@ -48,7 +52,7 @@ const UploadContacts = () => {
         const parsedContacts = results.data.map(contact => ({
           first_name: contact.first_name || '',
           last_name: contact.last_name || '',
-          phone: contact.phone ? (contact.phone.startsWith('+') ? contact.phone : `+${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+          phone: contact.phone ? (contact.phone.startsWith('+91') ? contact.phone : `+91${contact.phone.replace(/[^0-9]/g, '')}`) : '',
           email_address: contact.email_address || '',
           user_id: userId // Add user_id to each contact
         }));
@@ -106,7 +110,13 @@ const UploadContacts = () => {
         <div className="text-center mb-8">
           <p>Upload a CSV file with contacts to make your agents happy.</p>
         </div>
-        <input type="file" accept=".csv" onChange={handleFileChange} className="mb-4" />
+        <input
+          type="file"
+          accept=".csv"
+          onChange={handleFileChange}
+          className="mb-4"
+          ref={fileInputRef} // Attach the ref to the file input
+        />
         {contacts.length > 0 && (
           <>
             <button onClick={handleFileUpload} className="px-6 py-3 bg-blue-600 text-white rounded-lg mb-8">

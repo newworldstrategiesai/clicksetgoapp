@@ -8,13 +8,15 @@ import { usePathname, useRouter } from 'next/navigation';
 import { getRedirectMethod } from '@/utils/auth-helpers/settings';
 import { useState } from 'react';
 import s from './Navbar.module.css';
-import { useUser } from '@/utils/useUser';
 
+interface NavlinksProps {
+  user?: any;
+}
 
-export default function Navlinks() {
+export default function Navlinks({ user }: NavlinksProps) {
   const router = getRedirectMethod() === 'client' ? useRouter() : null;
   const pathname = usePathname() ?? ''; // Ensure pathname is never null
-  const { user } = useUser();
+
   const [isCampaignDropdownOpen, setIsCampaignDropdownOpen] = useState(false);
 
   // Close dropdown when navigating to a new page
@@ -48,6 +50,9 @@ export default function Navlinks() {
                 </Link>
                 <Link href="/new-campaign" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
                   New
+                </Link>
+                <Link href="/schedule-new-form" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
+                  Schedule form
                 </Link>
               </div>
             )}

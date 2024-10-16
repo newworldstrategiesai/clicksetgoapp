@@ -1,3 +1,4 @@
+
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
@@ -19,3 +20,4 @@ export default async function ContactDashboardPage() {
   // Return the Home component with the userId and fullName passed as props
   return <Home userId={user.id} fullName={fullName} />;
 }
+
