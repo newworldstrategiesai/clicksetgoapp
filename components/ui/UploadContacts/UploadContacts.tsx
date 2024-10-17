@@ -52,7 +52,7 @@ const UploadContacts = () => {
         const parsedContacts = results.data.map(contact => ({
           first_name: contact.first_name || '',
           last_name: contact.last_name || '',
-          phone: contact.phone ? (contact.phone.startsWith('+91') ? contact.phone : `+91${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+          phone: contact.phone ? (contact.phone.startsWith('+1') ? contact.phone : `+1${contact.phone.replace(/[^0-9]/g, '')}`) : '',
           email_address: contact.email_address || '',
           user_id: userId // Add user_id to each contact
         }));
