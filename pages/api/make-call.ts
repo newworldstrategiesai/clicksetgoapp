@@ -45,7 +45,7 @@ export default async function handler(
     // Use the custom firstMessage if provided, otherwise default to a standard message
     const customizedFirstMessage =
       firstMessage ||
-      `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`;
+      `Hello, this is Sarah from I T Niche. Am I speaking with ${contact.first_name}?`;
 
     const callData = {
       customer: {
