@@ -31,7 +31,7 @@ interface Voice {
   preview_url: string;
 }
 
-const DEFAULT_TWILIO_NUMBER = '+19014102020';
+const DEFAULT_TWILIO_NUMBER = process.env.TWILIO_NUMBER || '';
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string) => {

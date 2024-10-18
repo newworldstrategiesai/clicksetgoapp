@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -34,8 +34,7 @@ interface Voice {
   preview_url: string;
 }
 
-// 19014102020
-const DEFAULT_TWILIO_NUMBER = '+13343731975';
+const DEFAULT_TWILIO_NUMBER = process.env.TWILIO_NUMBER || '';
 
 const formatPhoneNumber = (phoneNumber: string) => {
   if (typeof phoneNumber !== 'string') {
@@ -75,6 +74,26 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
   const [selectedVoice, setSelectedVoice] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddressBookModalOpen, setIsAddressBookModalOpen] = useState(false); // Modal for Address Book
+
+  const handleKeyPress = useCallback((event: KeyboardEvent) => {
+    if (isCallModalOpen || isAddressBookModalOpen) return;
+
+    const key = event.key;
+    if (/^[0-9*#]$/.test(key)) {
+      setInput(prevInput => prevInput + key);
+    } else if (key === 'Backspace') {
+      setInput(prevInput => prevInput.slice(0, -1));
+    } else if (key === 'Enter') {
+      handleCall();
+    }
+  }, [isCallModalOpen, isAddressBookModalOpen]);
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyPress);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [handleKeyPress]);
 
   useEffect(() => {
     const fetchTwilioNumbers = async () => {
