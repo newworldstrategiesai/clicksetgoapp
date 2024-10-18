@@ -26,36 +26,36 @@ const UploadContacts = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log('User ID from context:', userId);
+    if (userId) {
+      console.log('User ID from context:', userId);
+    }
   }, [userId]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setCsvFile(e.target.files[0]);
-      parseCSV(e.target.files[0]);
+      const file = e.target.files[0];
+      setCsvFile(file);
+      parseCSV(file);
       if (fileInputRef.current) {
-        fileInputRef.current.value = ''; // Reset the input value to allow re-uploading the same file
+        fileInputRef.current.value = '';
       }
     }
   };
 
   const parseCSV = (file: File) => {
-    if (!userId) {
-      setError('User ID is missing. Please try again later.');
-      return;
-    }
-
     Papa.parse<Contact>(file, {
       header: true,
       complete: (results) => {
         console.log('Parsed Results:', results.data);
-        const parsedContacts = results.data.map(contact => ({
-          first_name: contact.first_name || '',
-          last_name: contact.last_name || '',
-          phone: contact.phone ? (contact.phone.startsWith('+1') ? contact.phone : `+1${contact.phone.replace(/[^0-9]/g, '')}`) : '',
-          email_address: contact.email_address || '',
-          user_id: userId // Add user_id to each contact
-        }));
+        const parsedContacts = results.data
+          .filter(contact => contact.first_name || contact.last_name || contact.phone || contact.email_address)
+          .map(contact => ({
+            first_name: contact.first_name || '',
+            last_name: contact.last_name || '',
+            phone: contact.phone ? (contact.phone.startsWith('+1') ? contact.phone : `+1${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+            email_address: contact.email_address || '',
+            user_id: userId || '' // Use empty string if userId is null
+          }));
         setContacts(parsedContacts);
         console.log('Parsed contacts with user ID:', parsedContacts);
       },
@@ -67,7 +67,10 @@ const UploadContacts = () => {
   };
 
   const handleFileUpload = async () => {
-    if (!csvFile) return;
+    if (!csvFile || !userId) {
+      setError('Please select a file and ensure you are logged in.');
+      return;
+    }
     setUploading(true);
     setError('');
     setSuccess(false);
@@ -78,7 +81,7 @@ const UploadContacts = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ contacts }),
+        body: JSON.stringify({ contacts, userId }),
       });
 
       if (!response.ok) {
@@ -88,10 +91,11 @@ const UploadContacts = () => {
       const data = await response.json();
       console.log('Upload successful:', data);
       setSuccess(true);
-      setContacts([]); // Clear the contacts after successful upload
+      setContacts([]);
+      setCsvFile(null);
     } catch (error) {
       console.error('Error uploading contacts:', error);
-      setError('Error uploading contacts.');
+      setError('Error uploading contacts. Please try again.');
     } finally {
       setUploading(false);
     }
