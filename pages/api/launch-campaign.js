@@ -25,7 +25,7 @@ export default async function handler(req, res) {
           type: 'number',
           number: formatPhoneNumber(contact.phone),
         },
-        twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER || '+13343731975',
+        twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER,
         twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
         twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       },

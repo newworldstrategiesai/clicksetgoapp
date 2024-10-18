@@ -37,7 +37,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           phone: contact.phone,
         },
         reason: task.call_subject,
-        twilioNumber: task.twilioNumber || '+19014102020',
+        twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: 'your_voice_id_here', // Or any other data needed for the call
         // Add your Twilio and VAPI keys as necessary
