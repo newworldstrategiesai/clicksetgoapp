@@ -27,7 +27,7 @@ type CallReport = {
   timestamp: string;
 };
 
-const TWILIO_PHONE_NUMBER = '+19014102020'; // Twilio phone number
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_NUMBER || ''; // Twilio phone number
 const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
 const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipient email
 

@@ -12,6 +12,9 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const { campaignId, contacts, schedule, reason } = req.body;
 
+    if (!campaignId || !contacts || !Array.isArray(contacts) || contacts.length === 0 || !schedule || !reason) {
+      return res.status(400).json({ message: 'Invalid request body' });
+    }
     const calls = contacts.map(contact => ({
       customer: {
         number: formatPhoneNumber(contact.phone),
@@ -22,16 +25,16 @@ export default async function handler(req, res) {
           type: 'number',
           number: formatPhoneNumber(contact.phone),
         },
-        twilioPhoneNumber: '+19014102020',
+        twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER,
         twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
         twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       },
-      assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
+      assistantId: process.env.VAPI_ASSISTANT_ID || 'd1070629-bbd4-4a39-bb68-f0bcef1da950',
       assistantOverrides: {
         firstMessage: `Hello this is Ben's AI Assistant. Am I speaking with ${contact.first_name}?`,
         model: {
           provider: 'openai',
-          model: 'gpt-4-turbo',
+          model: process.env.VAPI_MODEL || 'gpt-4-turbo',
           messages: [
             {
               role: 'system',

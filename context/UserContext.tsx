@@ -1,4 +1,4 @@
-// context/UserContext.tsx
+  // context/UserContext.tsx
 'use client'; // Add this line to specify that this file is a client component
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
@@ -53,6 +53,10 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     };
   }, []);
 
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <UserContext.Provider value={{ userId, setUserId, loading }}>
       {children}
@@ -67,3 +71,4 @@ export const useUser = () => {
   }
   return context;
 };
+  

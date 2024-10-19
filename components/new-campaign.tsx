@@ -165,6 +165,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const selectedScheduleName = schedules.find(schedule => schedule.id === formData.schedule)?.name || 'Select a schedule';
   const selectedAgentName = agents.find(agent => agent.id === formData.agent)?.agent_name || 'Select an agent';
 
+  console.log("select schedule name",selectedScheduleName)
+
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />

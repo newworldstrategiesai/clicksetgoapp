@@ -55,7 +55,7 @@ callQueue.process(async (job) => {
         phone: task.contacts.phone,
       },
       reason: task.call_subject,
-      twilioNumber: task.twilioNumber || '+19014102020', // Default Twilio number if not specified
+      twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER, // Default Twilio number if not specified
       firstMessage: task.first_message || `Calling ${task.contacts.first_name} for ${task.call_subject}`,
     });
 

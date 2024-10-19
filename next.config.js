@@ -1,6 +1,11 @@
 const { NextConfig } = require('next');
 
 module.exports = {
+  experimental: {
+    turbo: { // Correcting this to be an object
+      enabled: true, // Enables Turbopack
+    },
+  },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -26,7 +31,7 @@ module.exports = {
       },
       {
         source: '/',
-        destination: '/index.html', // This may be problematic if not intended
+        destination: '/index.html', // Ensure this is intended
         permanent: true,
       },
     ];

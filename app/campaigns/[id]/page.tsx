@@ -128,9 +128,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
-            twilioNumber: campaignData.twilioNumber || '+19014102020',
+            twilioNumber: campaignData.twilioNumber || process.env.TWILIO_NUMBER,
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
-            userId: contact.user_id // Ensure user ID is passed to fetch API keys
+            userId: contact.user_id, // Ensure user ID is passed to fetch API keys
+            voiceId: "CwhRBWXzGAHq8TQ4Fs17"
           });
           
 

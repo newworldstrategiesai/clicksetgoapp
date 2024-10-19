@@ -6,6 +6,7 @@ import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';
 import ApiKeysForm from '@/components/ui/AccountForms/ApiKeysForm';
 import { useUser } from '@/context/UserContext';
+import { Tables } from '@/types_db';
 
 // Define interfaces for the props
 interface User {
@@ -17,23 +18,31 @@ interface UserDetails {
   full_name: string;
 }
 
-interface Subscription {
-  // Define the properties of subscription here
-  // Example:
-  planName: string;
-  status: string;
+// Update the Subscription interface
+interface Subscription extends Tables<'subscriptions'> {
+  prices: Tables<'prices'> & {
+    products: Tables<'products'> | null;
+  } | null;
 }
 
 interface AccountPageClientProps {
   user: User;
   userDetails: UserDetails;
   subscription: Subscription;
+  apiKeys: {
+    twilio_sid: string;
+    twilio_auth_token: string;
+    eleven_labs_key: string;
+    vapi_key: string;
+    open_ai_api_key: string;
+  };
 }
 
 export default function AccountPageClient({
   user,
   userDetails,
   subscription,
+  apiKeys,
 }: AccountPageClientProps) {
   const { setUserId } = useUser();
 
@@ -55,9 +64,9 @@ export default function AccountPageClient({
       </div>
       <div className="p-4">
         <CustomerPortalForm subscription={subscription} />
-        <NameForm userName={userDetails?.full_name ?? ''} />
+        <NameForm userName={userDetails?.full_name ?? ''} userId={user.id} />
         <EmailForm userEmail={user.email} />
-        <ApiKeysForm userId={user.id} />
+        <ApiKeysForm userId={user.id} apiKeys={apiKeys} />
       </div>
     </section>
   );

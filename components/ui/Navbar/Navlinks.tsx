@@ -51,6 +51,9 @@ export default function Navlinks({ user }: NavlinksProps) {
                 <Link href="/new-campaign" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
                   New
                 </Link>
+                <Link href="/schedule-new-form" className="block px-4 py-2 text-gray-700 hover:bg-gray-100" onClick={handleLinkClick}>
+                  Schedule form
+                </Link>
               </div>
             )}
           </div>

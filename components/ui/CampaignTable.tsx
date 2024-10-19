@@ -50,17 +50,23 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
     fetchCampaigns();
   }, [userId]); // Fetch campaigns when userId changes
 
-  // Open modal for campaign details
-  const openModal = (campaign: Campaign) => {
-    setSelectedCampaign(campaign);
-    setShowModal(true);
+  // Function to handle click and redirect to the campaign page
+  const handleClick = (campaignId: string) => {
+    // Redirect to the campaign page using the campaign ID
+    window.location.href = `/campaigns/${campaignId}`;
   };
 
-  // Close modal
-  const closeModal = () => {
-    setShowModal(false);
-    setSelectedCampaign(null);
-  };
+  // // Open modal for campaign details
+  // const openModal = (campaign: Campaign) => {
+  //   setSelectedCampaign(campaign);
+  //   setShowModal(true);
+  // };
+
+  // // Close modal
+  // const closeModal = () => {
+  //   setShowModal(false);
+  //   setSelectedCampaign(null);
+  // };
 
   return (
     <>
@@ -86,7 +92,7 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
                 <tr
                   key={campaign.id}
                   className="hover:bg-gray-100 cursor-pointer transition duration-150"
-                  onClick={() => openModal(campaign)}
+                  onClick={() => handleClick(campaign.id)} // Use handleClick function to redirect
                 >
                   <td className="px-4 py-3 border-b text-gray-800 truncate">{campaign.name || 'No name'}</td>
                   <td className="px-4 py-3 border-b text-gray-800 truncate max-w-xs sm:max-w-md">{campaign.description || 'No description'}</td>
@@ -109,7 +115,7 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
       )}
 
       {/* Modal for showing campaign details */}
-      {showModal && selectedCampaign && (
+      {/* {showModal && selectedCampaign && (
         <CampModal
           campaign={{
             ...selectedCampaign,
@@ -139,9 +145,9 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
               }
             }
           }}
-          audience={{ name: 'Sample Audience' }} // Replace with actual audience data if available
+          audience={{ name: selectedCampaign.audience || 'No audience Selected' }} // Replace with actual audience data if available
         />
-      )}
+      )} */}
     </>
   );
 }

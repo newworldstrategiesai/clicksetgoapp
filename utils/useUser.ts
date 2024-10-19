@@ -3,42 +3,42 @@ import { User } from '@supabase/supabase-js';
 import { createClient } from '@/utils/supabase/client';
 
 export function useUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const supabase = createClient();
+    useEffect(() => {
+        const supabase = createClient();
 
-    const getUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser();
-        if (error) {
-          console.error('Error fetching user:', error);
-          setUser(null);
-        } else {
-          setUser(data.user);
-        }
-      } catch (error) {
-        console.error('Unexpected error:', error);
-        setUser(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+        const getUser = async () => {
+            try {
+                const { data, error } = await supabase.auth.getUser();
+                if (error) {
+                    console.error('Error fetching user:', error);
+                    setUser(null);
+                } else {
+                    setUser(data.user);
+                }
+            } catch (error) {
+                console.error('Unexpected error:', error);
+                setUser(null);
+            } finally {
+                setLoading(false);
+            }
+        };
 
-    getUser();
+        getUser();
 
-    const { data: authListener } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+        const { data: authListener } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
+                setUser(session?.user ?? null);
+                setLoading(false);
+            }
+        );
 
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
-  }, []);
+        return () => {
+            authListener.subscription.unsubscribe();
+        };
+    }, []);
 
-  return { user, loading };
+    return { user, loading };
 }
