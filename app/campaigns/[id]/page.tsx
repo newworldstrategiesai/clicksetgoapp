@@ -23,6 +23,15 @@ interface CallTask {
   contact_name?: string; // Add this line if it should be optional
 }
 
+interface CampaignData {
+  id: string;
+  name: string;
+  status: string;
+  start_date: string;
+  end_date: string;
+  twilioNumber?: string; // Optional field
+}
+
 interface CampaignPageProps {
   params: { id: string };
 }
@@ -30,7 +39,7 @@ interface CampaignPageProps {
 export default function CampaignPage({ params }: CampaignPageProps) {
   const { id } = params;
   const [campaignTasks, setCampaignTasks] = useState<(CallTask & { contact_name: string })[]>([]);
-  const [campaignData, setCampaignData] = useState<any>(null);
+  const [campaignData, setCampaignData] = useState<CampaignData | null>(null); // Updated type
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [isLaunching, setIsLaunching] = useState(false);
@@ -42,6 +51,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   // Fetch campaign details and call tasks
   useEffect(() => {
+    let isMounted = true; // Track if component is mounted
+
     async function fetchCampaignAndTasks() {
       setLoading(true);
 
@@ -54,20 +65,22 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
         if (campaignError) {
           console.error("Error fetching campaign:", campaignError.message);
-          setError("Error fetching campaign details.");
+          setError(campaignError.message); // Display actual error message
           return;
         }
 
-        setCampaignData(campaign);
+        if (isMounted) {
+          setCampaignData(campaign);
+        }
 
         const { data: tasks, error: taskError } = await supabase
           .from("call_tasks")
-          .select(`*, contacts(first_name, last_name, phone, user_id)`) // Include user_id
+          .select(`*, contacts(first_name, last_name, phone, user_id)`)
           .eq("campaign_id", id);
 
         if (taskError) {
           console.error("Error fetching call tasks:", taskError.message);
-          setError("Error fetching call tasks.");
+          setError(taskError.message); // Display actual error message
         } else {
           const enrichedTasks = tasks.map((task: any) => ({
             ...task,
@@ -75,21 +88,30 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               ? `${task.contacts.first_name} ${task.contacts.last_name}`
               : "Unknown Contact",
           }));
-          setCampaignTasks(enrichedTasks || []);
+          if (isMounted) {
+            setCampaignTasks(enrichedTasks || []);
+          }
         }
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
           console.error("Error fetching campaign and tasks:", error.message);
+          setError(error.message); // Display actual error message
         } else {
           console.error("Unexpected error:", error);
         }
         setError("Error fetching campaign and tasks.");
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
 
     fetchCampaignAndTasks();
+
+    return () => {
+      isMounted = false; // Cleanup function to prevent memory leaks
+    };
   }, [id]);
 
   const handleLaunchCampaign = async () => {
@@ -97,15 +119,28 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null);
 
     try {
-      for (const task of campaignTasks) {
-        const { data: contact, error: contactError } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("id", task.contact_id)
-          .single();
+      const contactIds = campaignTasks.map(task => task.contact_id);
+      const { data: contacts, error: contactError } = await supabase
+        .from("contacts")
+        .select("*")
+        .in("id", contactIds); // Fetch all contacts in bulk
 
-        if (contactError || !contact) {
-          console.error("Error fetching contact details:", contactError || "No contact found.");
+      if (contactError) {
+        console.error("Error fetching contacts:", contactError.message);
+        setError(contactError.message);
+        return;
+      }
+
+      const contactMap = contacts.reduce((acc: any, contact: any) => {
+        acc[contact.id] = contact;
+        return acc;
+      }, {});
+
+      for (const task of campaignTasks) {
+        const contact = contactMap[task.contact_id];
+
+        if (!contact) {
+          console.error("No contact found for task:", task.id);
           setError(`Failed to fetch contact details for task ${task.id}.`);
           continue;
         }
@@ -120,21 +155,19 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           first_name: contact.first_name,
           last_name: contact.last_name,
           phone: contact.phone,
-          user_id: contact.user_id // Ensure user_id is included
+          user_id: contact.user_id
         };
-        
 
         try {
           await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
-            twilioNumber: campaignData.twilioNumber || process.env.TWILIO_NUMBER,
+            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER,
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
             voiceId: "CwhRBWXzGAHq8TQ4Fs17"
           });
           
-
           // After the call is successfully initiated, update the call_task status
           const { error: updateTaskError } = await supabase
             .from('call_tasks')
