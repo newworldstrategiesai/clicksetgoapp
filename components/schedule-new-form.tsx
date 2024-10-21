@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardHeader,
@@ -34,6 +34,10 @@ interface ScheduleData {
   created_at: string; // Adjust if needed to match your data type
 }
 
+interface ScheduleWithId extends ScheduleData {
+  id: string; // Each schedule has a unique ID
+}
+
 interface ScheduleNewFormProps {
   userId: string;
 }
@@ -61,6 +65,7 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<boolean>(false);
+  const [schedules, setSchedules] = useState<ScheduleWithId[]>([]); // Added state for existing schedules
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -103,6 +108,41 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
     }
   };
 
+  useEffect(() => {
+    const fetchSchedules = async () => {
+      const { data, error } = await supabase
+        .from('schedules')
+        .select('*')
+        .eq('user_id', userId); // Fetch schedules for the current user
+
+      if (error) {
+        console.error('Error fetching schedules:', error);
+      } else {
+        setSchedules(data || []); // Set the fetched schedules
+      }
+    };
+
+    fetchSchedules();
+  }, [userId]); // Fetch schedules when userId changes
+
+  const handleEdit = (schedule: ScheduleWithId) => {
+    setFormData(schedule); // Populate form with selected schedule data
+  };
+
+  const handleDelete = async (scheduleId: string) => {
+    const { error } = await supabase
+      .from('schedules')
+      .delete()
+      .eq('id', scheduleId); // Delete the schedule by ID
+
+    if (error) {
+      console.error('Error deleting schedule:', error);
+    } else {
+      setSchedules((prevSchedules) => prevSchedules.filter(schedule => schedule.id !== scheduleId)); // Update state to remove deleted schedule
+      console.log('Schedule deleted successfully');
+    }
+  };
+
   return (
     <Card className="w-full max-w-2xl mx-auto mt-8">
       <CardHeader>
@@ -110,6 +150,20 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
         <CardDescription>Create and manage your schedules.</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div>
+          <h2 className="text-lg font-semibold">Existing Schedules</h2>
+          <ul>
+            {schedules.map((schedule) => (
+              <li key={schedule.id} className="flex justify-between items-center">
+                <span>{schedule.name}</span>
+                <div className="flex space-x-2">
+                  <Button onClick={() => handleEdit(schedule)}>Edit</Button>
+                  <Button onClick={() => handleDelete(schedule.id)} variant="flat" style={{ backgroundColor: 'red', color:'white' }}>Delete</Button> {/* Added delete button */}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
         <form onSubmit={handleSubmit}>
           <div className="space-y-2">
             <Label htmlFor="name">Schedule Name</Label>
