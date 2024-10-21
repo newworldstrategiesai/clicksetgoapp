@@ -101,12 +101,22 @@ const UploadContacts = () => {
     }
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
   if (loading) {
     return <div>Loading...</div>;
   }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
+      <button
+          onClick={handleGoBack}
+          className="px-4 py-2 bg-gray-600 text-white rounded-lg ml-4 mb-4 self-start"
+        >
+          ← Back
+        </button>
       <div className="flex flex-col items-center">
         <div className="text-center mb-4">
           <h1 className="text-4xl font-bold">Upload Contacts</h1>
@@ -114,6 +124,7 @@ const UploadContacts = () => {
         <div className="text-center mb-8">
           <p>Upload a CSV file with contacts to make your agents happy.</p>
         </div>
+        
         <input
           type="file"
           accept=".csv"
