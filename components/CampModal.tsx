@@ -1,7 +1,7 @@
 // components/CampModal.tsx
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import Link from 'next/link'; // Import Next.js Link for navigation
 
@@ -19,12 +19,28 @@ interface CampModalProps {
     start_date?: string; // Optional
     end_date?: string; // Optional
     status: string;
+    audience: string; // Add audience to campaign
   };
   onClose: () => void;
   onEdit: () => void;
   onDelete: () => void;
   audience: { name: string | null };
 }
+
+// Fetch audience name based on audience
+const fetchAudienceName = async (audience: string) => {
+  const { data, error } = await supabase
+    .from('lists')
+    .select('name')
+    .eq('id', audience)
+    .single();
+
+  if (error) {
+    console.error("Error fetching audience name:", error.message);
+    return null;
+  }
+  return data?.name;
+};
 
 export default function CampModal({ campaign, onClose, onEdit, onDelete, audience }: CampModalProps) {
   const [status, setStatus] = useState(campaign.status); // Default status from the campaign
@@ -35,6 +51,16 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
     name: campaign.name,
     description: campaign.description || '', // Default to empty string if undefined
   });
+  const [audienceName, setAudienceName] = useState<string | null>(null);
+
+  // Fetch audience name when the component mounts
+  useEffect(() => {
+    const getAudienceName = async () => {
+      const name = await fetchAudienceName(campaign.audience);
+      setAudienceName(name);
+    };
+    getAudienceName();
+  }, [campaign.audience]);
 
   // Save status update
   const handleSave = async () => {
@@ -103,6 +129,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
               value={formData.name}
               onChange={handleFormChange}
               className="w-full p-2 bg-gray-800 text-white rounded-md"
+              placeholder='Edit Campaign Name'
             />
           ) : (
             <Link href={`/campaigns/${campaign.id}`} className="text-blue-500 underline">
@@ -128,7 +155,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           </>
         )}
 
-        {audience && <p>Audience: {audience.name}</p>}
+        {audienceName && <p>Audience: {audienceName}</p>}
 
         {/* Status Dropdown */}
         <div className="mt-4">

@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { createClient } from '@/server';
+import { createClient } from '@/app/server';
 
 // Props type definition using JSDoc
 /**
