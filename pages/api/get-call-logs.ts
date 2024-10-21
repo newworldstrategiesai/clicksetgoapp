@@ -11,7 +11,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   try {
     // Hardcoded API key for testing
-    const VAPI_API_KEY = '431bb6dd-6ec1-401d-ae1f-baa3c09322d7';
+    const VAPI_API_KEY = process.env.VAPI_API_KEY || '431bb6dd-6ec1-401d-ae1f-baa3c09322d7';
 
     // Fetch all call logs
     const response = await axios.get('https://api.vapi.ai/call', {
