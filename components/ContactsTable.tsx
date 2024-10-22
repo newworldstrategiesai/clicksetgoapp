@@ -16,26 +16,26 @@ interface Contact {
 
 interface ContactsTableProps {
   contacts: Contact[];
-  userId: string; // Added userId to the props
+  userId: string;
   onContactClick: (contact: Contact) => void;
   onCallClick: (contact: Contact) => void;
   searchQuery: string;
   onSearchChange: (value: string) => void;
   onAddToList: (selectedContacts: string[], listId: string) => void;
   onSelectContact?: (contactId: string) => void;
-  selectedContacts: Set<string>; // Add selectedContacts
+  selectedContacts: Set<string>;
 }
 
 const ContactsTable: React.FC<ContactsTableProps> = ({
   contacts,
-  userId, // Destructure userId from props
+  userId,
   onContactClick,
   onCallClick,
   searchQuery = "",
   onSearchChange,
   onAddToList,
   onSelectContact,
-  selectedContacts, // Destructure selectedContacts from props
+  selectedContacts,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -75,7 +75,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
     } else {
       selectedContacts.add(contactId);
     }
-    setSelectAll(selectedContacts.size === filteredContacts.length); // Check if all contacts are selected
+    setSelectAll(selectedContacts.size === filteredContacts.length);
   };
 
   const handleGoClick = () => {
@@ -137,44 +137,46 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
           <div key={letter} className="p-4">
             <h2 className="text-gray-500 text-sm mb-2">{letter}</h2>
             {groupedContacts[letter].map((contact: Contact) => (
-              <div
-                key={contact.id}
-                className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800 ${
-                  selectedContacts.has(contact.id) ? "bg-gray-800" : ""
-                }`}
-                onClick={() => onContactClick(contact)}
-              >
-                <div className="flex items-center">
-                  {/* Avatar */}
-                  <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
-                    {contact.first_name.charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-lg">
-                      {contact.first_name} {contact.last_name}
-                    </p>
-                    <p className="text-gray-400">{contact.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    checked={selectedContacts.has(contact.id)}
-                    onChange={() => toggleSelectContact(contact.id)}
-                    className="mr-2"
-                  />
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onCallClick(contact);
-                    }}
-                    className="text-blue-500"
-                  >
-                    📞
-                  </button>
-                </div>
-              </div>
-            ))}
+  <div
+    key={contact.id}
+    className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors ${
+      selectedContacts.has(contact.id) ? "bg-gray-800" : ""
+    }`}
+    onClick={() => onContactClick(contact)} // This should remain
+  >
+    <div className="flex items-center w-full">
+      {/* Checkbox at the start */}
+      <div onClick={(e) => e.stopPropagation()} className="mr-3">
+        <input
+          type="checkbox"
+          checked={selectedContacts.has(contact.id)}
+          onChange={() => toggleSelectContact(contact.id)}
+          className="cursor-pointer"
+        />
+      </div>
+      {/* Avatar */}
+      <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
+        {contact.first_name.charAt(0).toUpperCase()}
+      </div>
+      <div className="flex-grow">
+        <p className="text-lg">
+          {contact.first_name} {contact.last_name}
+        </p>
+        <p className="text-gray-400">{contact.phone}</p>
+      </div>
+    </div>
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onCallClick(contact);
+      }}
+      className="p-2 bg-green-600 rounded text-white hover:bg-green-500 transition-colors"
+    >
+      📞
+    </button>
+  </div>
+))}
+
           </div>
         ))}
       </div>
@@ -184,7 +186,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onAddToList={handleAddToList}
-        userId={userId} // Pass the userId prop
+        userId={userId}
       />
 
       {/* Bottom Navigation */}
