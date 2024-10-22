@@ -10,9 +10,8 @@ import { createClient } from '@supabase/supabase-js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css'; // Import CSS for the date picker
+import 'react-datepicker/dist/react-datepicker.css';
 
-// Initialize Supabase client
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
@@ -22,7 +21,6 @@ interface NewCampaignProps {
   userId: string;
 }
 
-// List of timezones for the dropdown
 const timezones = [
   { value: 'UTC', label: 'UTC' },
   { value: 'America/New_York', label: 'Eastern Time (ET)' },
@@ -39,8 +37,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    startDate: new Date(), // Initialize with today's date
-    endDate: new Date(),    // Initialize with today's date
+    startDate: new Date(),
+    endDate: new Date(),
     timezone: '',
     audience: '',
     budget: '',
@@ -48,7 +46,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmSource: '',
     utmMedium: '',
     utmCampaign: '',
-    schedule: '',  // Expecting UUID
+    schedule: '',
     agent: ''
   });
 
@@ -56,7 +54,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
 
-  // Fetch lists, schedules, and agents from Supabase
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -82,7 +79,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     fetchData();
   }, [userId]);
 
-  // Handle input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prevData => ({
@@ -91,7 +87,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }));
   };
 
-  // Handle timezone selection from dropdown
   const handleTimezoneChange = (value: string) => {
     setFormData(prevData => ({
       ...prevData,
@@ -99,7 +94,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }));
   };
 
-  // Handle audience, schedule, and agent selection
   const handleSelectChange = (value: string) => {
     setFormData(prevData => ({
       ...prevData,
@@ -121,23 +115,19 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }));
   };
 
-  // Handle form submission and campaign creation
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Ensure that start and end times are valid
     if (formData.startDate >= formData.endDate) {
       toast.error('End date must be after the start date');
       return;
     }
 
-    // Insert the campaign into Supabase without passing scheduled_at
     const { data, error } = await supabase.from('campaigns').insert([
       {
         name: formData.name,
         description: formData.description || null,
-        start_date: formData.startDate.toISOString(), // Use ISO format
-        end_date: formData.endDate.toISOString(),     // Use ISO format
+        start_date: formData.startDate.toISOString(),
+        end_date: formData.endDate.toISOString(),
         start_timezone: formData.timezone || null,
         end_timezone: formData.timezone || null,
         audience: formData.audience || null,
@@ -149,7 +139,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         utm_medium: formData.utmMedium || null,
         utm_campaign: formData.utmCampaign || null,
         user_id: userId,
-        // Do not include scheduled_at here, it's calculated on the backend
       }
     ]);
 
@@ -160,30 +149,26 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }
   };
 
-  // Find selected names for display in the dropdowns
   const selectedListName = lists.find(list => list.id === formData.audience)?.name || 'Select a list';
   const selectedScheduleName = schedules.find(schedule => schedule.id === formData.schedule)?.name || 'Select a schedule';
   const selectedAgentName = agents.find(agent => agent.id === formData.agent)?.agent_name || 'Select an agent';
 
-  console.log("select schedule name",selectedScheduleName)
-
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6">New Campaign</h1>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <h1 className="text-3xl font-bold mb-6 text-center">New Campaign</h1>
+      <form onSubmit={handleSubmit} className="space-y-6 bg-black shadow-md rounded-lg p-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="name">Campaign Name</Label>
-            <Input id="name" name="name" type="text" placeholder="Enter campaign name" value={formData.name} onChange={handleChange} />
+            <Input id="name" name="name" type="text" placeholder="Enter campaign name" value={formData.name} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
           <div>
             <Label htmlFor="description">Description</Label>
-            <Textarea id="description" name="description" placeholder="Enter campaign description" value={formData.description} onChange={handleChange} />
+            <Textarea id="description" name="description" placeholder="Enter campaign description" value={formData.description} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
         </div>
 
-        {/* Date Picker for Start and End Dates */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="startDate">Start Date</Label>
@@ -193,6 +178,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
+              className="border rounded-lg p-2 w-full"
             />
           </div>
           <div>
@@ -203,6 +189,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
+              className="border rounded-lg p-2 w-full"
             />
           </div>
         </div>
@@ -243,29 +230,29 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="budget">Budget</Label>
-            <Input id="budget" name="budget" type="text" placeholder="Enter budget" value={formData.budget} onChange={handleChange} />
+            <Input id="budget" name="budget" type="text" placeholder="Enter budget" value={formData.budget} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
           <div>
             <Label htmlFor="allocation">Allocation</Label>
-            <Input id="allocation" name="allocation" type="text" placeholder="Enter allocation" value={formData.allocation} onChange={handleChange} />
+            <Input id="allocation" name="allocation" type="text" placeholder="Enter allocation" value={formData.allocation} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="utmSource">UTM Source</Label>
-            <Input id="utmSource" name="utmSource" type="text" placeholder="Enter UTM Source" value={formData.utmSource} onChange={handleChange} />
+            <Input id="utmSource" name="utmSource" type="text" placeholder="Enter UTM Source" value={formData.utmSource} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
           <div>
             <Label htmlFor="utmMedium">UTM Medium</Label>
-            <Input id="utmMedium" name="utmMedium" type="text" placeholder="Enter UTM Medium" value={formData.utmMedium} onChange={handleChange} />
+            <Input id="utmMedium" name="utmMedium" type="text" placeholder="Enter UTM Medium" value={formData.utmMedium} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="utmCampaign">UTM Campaign</Label>
-            <Input id="utmCampaign" name="utmCampaign" type="text" placeholder="Enter UTM Campaign" value={formData.utmCampaign} onChange={handleChange} />
+            <Input id="utmCampaign" name="utmCampaign" type="text" placeholder="Enter UTM Campaign" value={formData.utmCampaign} onChange={handleChange} className="border rounded-lg p-2" />
           </div>
         </div>
 
@@ -302,7 +289,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           </div>
         </div>
 
-        <Button type="submit">Create Campaign</Button>
+        <Button type="submit" className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200">Create Campaign</Button>
       </form>
     </div>
   );
