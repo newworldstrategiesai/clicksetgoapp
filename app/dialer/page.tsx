@@ -28,8 +28,8 @@ export default async function DialerPage() {
         const apiKey = data.eleven_labs_key;
 
         return (
-            <section className="min-h-screen bg-gray-900 text-white">
-                <div className="pt-[60px] p-4"> {/* Adjust the padding-top to match the height of your navbar */}
+            <section className="min-h-screen bg-black text-white">
+                <div className="pt-[60px] p-4 bg-black"> {/* Ensure this div has bg-black */}
                     <DialerComponent userId={user.id} apiKey={apiKey} />
                 </div>
             </section>
