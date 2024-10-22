@@ -25,7 +25,7 @@ export default async function handler(req, res) {
           type: 'number',
           number: formatPhoneNumber(contact.phone),
         },
-        twilioPhoneNumber: process.env.TWILIO_PHONE_NUMBER,
+        twilioPhoneNumber: process.env.TWILIO_NUMBER,
         twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
         twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
       },
@@ -47,11 +47,11 @@ export default async function handler(req, res) {
         }
       }
     }));
-
+    const vapiScheduleURL = process.env.VAPI_SCHEDULE;
     try {
       console.log('Scheduling calls:', calls);
       const response = await axios.post(
-        'https://api.vapi.ai/schedule',
+        vapiScheduleURL,
         { calls, schedule },
         {
           headers: {

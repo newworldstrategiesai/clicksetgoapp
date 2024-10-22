@@ -3,7 +3,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import { IncomingMessage } from 'http'; // Import IncomingMessage from 'http'
 
 // URL of the API endpoint for a production server (using HTTPS)
-const apiUrl = 'https://yourapp.vercel.app/api/fetch-call-logs';
+const apiUrl = `${process.env.VERCEL_API}/api/fetch-call-logs`;
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {

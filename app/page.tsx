@@ -6,9 +6,13 @@ import Head from 'next/head';
 export default function HomePage() {
   useEffect(() => {
     const script = document.createElement('script');
-    script.src = "https://js.stripe.com/v3/pricing-table.js";
-    script.async = true;
-    document.body.appendChild(script);
+    const stripePricingTable = process.env.STRIPE_PRICING_TABLE;
+
+    if (stripePricingTable) { // Check if the value is defined
+      script.src = stripePricingTable;
+      script.async = true;
+      document.body.appendChild(script);
+    }
   }, []);
 
   return (

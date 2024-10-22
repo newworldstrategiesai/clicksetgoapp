@@ -114,7 +114,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
             {
               name: 'SendSMS',
               async: false,
-              serverUrl: 'https://clicksetgo.app/api/send-sms',
+              serverUrl: process.env.CSGSENDSMSURL,
               parameters: {
                 type: 'object',
                 required: ['callerNumber', 'callerName', 'smsMessage'],
@@ -159,7 +159,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         serverMessages: [
           'end-of-call-report'
         ],
-        serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
+        serverUrl: process.env.END_OF_CALL_REPORT,
         endCallPhrases: ['goodbye'],
         analysisPlan: {
           summaryPrompt: 'You are an expert note-taker. You will be given a transcript of a call. Summarize the call in 2-3 sentences, if applicable.',

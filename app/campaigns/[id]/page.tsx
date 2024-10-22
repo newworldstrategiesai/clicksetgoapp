@@ -159,13 +159,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         };
 
         try {
-          await axios.post("/api/make-call", {
-            contact: contactData, // Ensure this contains all necessary fields
-            reason: task.call_subject,
-            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER,
-            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
-            userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-            voiceId: "CwhRBWXzGAHq8TQ4Fs17"
+          await axios.post("/api/launch-campaign", {
+            campaignId: id, // Ensure campaign ID is sent
+            contacts: [contactData], // Send contact data as an array
+            schedule: task.scheduled_at, // Send the scheduled time
+            reason: task.call_subject, // Send the reason for the call
+            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`, // Send first message
           });
           
           // After the call is successfully initiated, update the call_task status

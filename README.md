@@ -1,4 +1,4 @@
-# Click Set Go - AI Voice Assistant
+# Click Set Go - AI Voice Assistant for different purposes
 
 **Click Set Go** is an AI-powered voice assistant designed to manage phone calls, SMS messaging, and CRM tasks. The assistant provides personalized interactions by checking the contact database and greeting callers by name. Planned features include memory retention, Google Calendar integration, embeddable agents via Vapi Web SDK, and subscription management via Stripe.
 

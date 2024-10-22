@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const VAPI_API_URL = 'https://api.vapi.ai/call';
+  const VAPI_API_URL = process.env.VAPI_CALL||'';
   const VAPI_API_KEY = process.env.VAPI_API_KEY; // Ensure this is set in your .env file
 
   const { pageSize = 300, lastCreatedAt } = req.query;
