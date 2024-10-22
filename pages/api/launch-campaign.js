@@ -47,11 +47,11 @@ export default async function handler(req, res) {
         }
       }
     }));
-
+    const vapiScheduleURL = process.env.VAPI_SCHEDULE;
     try {
       console.log('Scheduling calls:', calls);
       const response = await axios.post(
-        'https://api.vapi.ai/schedule',
+        vapiScheduleURL,
         { calls, schedule },
         {
           headers: {

@@ -101,7 +101,7 @@ export default async function handler(
           //   {
           //     name: 'SendSMS',
           //     description: "Sends requested info to the caller's phone number",
-          //     serverUrl: 'https://clicksetgo.app/api/send-sms',
+          //     serverUrl: process.env.CSGSENDSMSURL,
 
           //     parameters: {
           //       type: 'object',
@@ -124,7 +124,6 @@ export default async function handler(
           //         }
           //       }
           //     }
-          //   }
           // ]
         },
         clientMessages: [
@@ -136,17 +135,25 @@ export default async function handler(
           'conversation-update'
         ],
         // serverMessages: ['end-of-call-report'],
-        // serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
+        // serverUrl: process.env.END_OF_CALL_REPORT,
         // serverUrlSecret: '777333777'
       }
     };
 
+    // Ensure environment variables are defined
+    const vapiCallUrl = process.env.VAPI_CALL;
+    const vapiApiKey = process.env.VAPI_API_KEY;
+
+    if (!vapiCallUrl || !vapiApiKey) {
+      return res.status(500).json({ message: 'Missing environment variables' });
+    }
+
     try {
       console.log('Payload being sent:', JSON.stringify(callData, null, 2));
       console.log('response');
-      const response = await axios.post('https://api.vapi.ai/call', callData, {
+      const response = await axios.post(vapiCallUrl, callData, {
         headers: {
-          Authorization: `Bearer ${process.env.VAPI_API_KEY}`,
+          Authorization: `Bearer ${vapiApiKey}`,
           'Content-Type': 'application/json'
         }
       });

@@ -1,64 +1,82 @@
-import type { AppProps } from 'next/app';
-import AuthWrapper from '@/components/AuthWrapper';
+// import type { AppProps } from 'next/app';
+// import AuthWrapper from '@/components/AuthWrapper';
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <AuthWrapper>
-      <Component {...pageProps} />
-    </AuthWrapper>
-  );
-}
+// function MyApp({ Component, pageProps }: AppProps) {
+//   return (
+//     <AuthWrapper>
+//       <Component {...pageProps} />
+//     </AuthWrapper>
+//   );
+// }
 
-export default MyApp;
+// export default MyApp;
 
 
 // Including AuthWrapper
 
-// import { useEffect } from 'react';
-// import { useRouter } from 'next/router';
-// import { createClient } from '@/server';
-// import type { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { createClient } from '@/server';
+import type { AppProps } from 'next/app';
+import { UserProvider } from '@/context/UserContext';
+import Modal from 'react-modal';
+import { supabase } from '@/utils/supabaseClient';
 
-// /**
-//  * @typedef {Object} AuthWrapperProps
-//  * @property {React.ReactNode} children
-//  */
+/**
+ * @typedef {Object} AuthWrapperProps
+ * @property {React.ReactNode} children
+ */
 
-// /**
-//  * @param {AuthWrapperProps} props
-//  */
-// function MyApp({ Component, pageProps }: AppProps) {
-//   const router = useRouter();
+/**
+ * @param {AuthWrapperProps} props
+ */
+function MyApp({ Component, pageProps }: AppProps) {
+  const router = useRouter();
 
-//   useEffect(() => {
-//     const checkAuth = async () => {
-//       const supabase = createClient();
-//       const { data: { user } } = await supabase.auth.getUser();
+  useEffect(() => {
+    // Set the app element for modal accessibility
+    Modal.setAppElement('#__next');
 
-//       if (!user && router.pathname !== '/signin') {
-//         router.push('/signin');
-//       } else if (user && router.pathname === '/signin') {
-//         router.push('/home');
-//       }
-//     };
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw new Error(error.message);
 
-//     checkAuth();
+        if (session) {
+          // Redirect to /home if the user is already logged in
+          router.push('/home');
+        } else {
+          // Redirect to /login if no session exists
+          router.push('/login');
+        }
+      } catch (error) {
+        console.error('Error checking session:', error);
+        router.push('/login');
+      }
+    };
 
-//     // Handle back button
-//     const handlePopState = () => {
-//       if (router.pathname === '/home') {
-//         window.location.href = '/index.html';
-//       }
-//     };
+    checkSession();
 
-//     window.addEventListener('popstate', handlePopState);
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN') {
+        router.push('/home');
+      } else if (event === 'SIGNED_OUT') {
+        router.push('/login');
+      }
+    });
 
-//     return () => {
-//       window.removeEventListener('popstate', handlePopState);
-//     };
-//   }, [router]);
+    return () => {
+      if (authListener && typeof authListener === 'object' && 'subscription' in authListener) {
+        authListener.subscription?.unsubscribe();
+      }
+    };
+  }, [router]);
 
-//   return <Component {...pageProps} />;
-// }
+  return (
+    <UserProvider>
+      <Component {...pageProps} />
+    </UserProvider>
+  );
+}
 
-// export default MyApp;
+export default MyApp;
