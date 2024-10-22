@@ -17,12 +17,21 @@ export default function AuthWrapper({ children }) {
     useEffect(() => {
         const checkAuth = async () => {
             const supabase = createClient();
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-            if (!user && router.pathname !== '/signin') {
-                router.push('/signin');
+            // Check if there was an error fetching the session
+            if (sessionError || !session) {
+                router.push('/signin'); // Redirect to sign-in if session is invalid
+                return;
+            }
+
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            // Check if there was an error fetching the user
+            if (userError || !user) {
+                router.push('/signin'); // Redirect to sign-in if user is not found
             } else if (user && router.pathname === '/signin') {
-                router.push('/home');
+                router.push('/home'); // Redirect to home if already signed in
             }
         };
 

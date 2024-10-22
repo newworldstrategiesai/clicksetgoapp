@@ -3,7 +3,7 @@ import axios from 'axios';
 const agentCall = async (callData) => {
   try {
     const response = await axios.post(
-      'https://api.vapi.ai/call',
+      process.env.VAPI_CALL,
       callData,
       {
         headers: {
