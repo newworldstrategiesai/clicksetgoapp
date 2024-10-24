@@ -35,6 +35,7 @@ export default async function DialerPage() {
             <section className="min-h-screen bg-gray-900 text-white">
                 <div className="pt-[60px] p-4"> {/* Adjust the padding-top to match the height of your navbar */}
                     <DialerComponent userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
+
                 </div>
             </section>
         );

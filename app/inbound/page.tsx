@@ -10,7 +10,10 @@ export default function InboundSettingsPage() {
     "outbound calls to potential clients who have expressed interest in DJ services, with the goal of booking events or scheduling consultations."
   );
   const [tone, setTone] = useState("friendly, slightly witty");
-
+  const facebookURL= process.env.FACEBOOK;
+  const instagramURL= process.env.INSTAGRAM;
+  const calendely_link= process.env.CALENDELY_URL;
+  const pdf_file= process.env.PDF_URL;
   const generatePrompt = () => {
     return `
     Outbound Call Handling Prompt for ${assistantName}, the Assistant for ${companyName}
@@ -82,14 +85,14 @@ export default function InboundSettingsPage() {
 
     LINKS
     * Pricing Information:
-        * Wedding Pricing PDF: https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf
+        * Wedding Pricing PDF: ${pdf_file}
         * Use this link to send the PDF to customers who inquire about wedding pricing.
     * Consultation Scheduling:
-        * Calendly Scheduling Link: https://calendly.com/m10djcompany/consultation
+        * Calendly Scheduling Link: ${calendely_link}
         * Send this link to customers who wish to schedule a consultation to discuss event details.
     * Social Media Links:
-        * Facebook: https://www.facebook.com/M10DJCompany
-        * Instagram: https://www.instagram.com/M10DJCompany
+        * Facebook: ${facebookURL}/M10DJCompany
+        * Instagram: ${instagramURL}/M10DJCompany
         * Use these links if the customer asks about where they can find more information or follow us online.
 
     BOOKING CONFIRMATION

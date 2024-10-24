@@ -157,13 +157,14 @@ export default async function handler(
     const vapiCallUrl = process.env.VAPI_CALL;
     const vapiApiKey = vapi_key;
 
+
     if (!vapiCallUrl || !vapiApiKey) {
       return res.status(500).json({ message: 'Missing environment variables' });
     }
 
     try {
       console.log('Payload being sent:', JSON.stringify(callData, null, 2));
-      
+
       const response = await axios.post(vapiCallUrl, callData, {
         headers: {
           Authorization: `Bearer ${vapiApiKey}`,

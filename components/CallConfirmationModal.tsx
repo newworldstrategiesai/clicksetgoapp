@@ -40,67 +40,79 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90">
-      <div className="bg-gray-800 p-6 rounded-lg w-full h-full md:w-1/2 md:h-auto overflow-y-auto">
-        <h2 className="text-xl font-bold text-white mb-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-95 z-50">
+      <div className="bg-black p-6 rounded-lg w-full max-w-lg md:w-1/2 h-auto shadow-lg transition-transform transform">
+        <h2 className="text-2xl font-bold text-white mb-6 text-center">
           {modalMode === 'existing' ? `Calling ${contactName}` : 'New Contact'}
         </h2>
+
+        {/* First Name Input */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-300">First Name:</label>
+          <label className="block mb-1 text-gray-400">First Name</label>
           <input
             type="text"
             value={newFirstName}
             onChange={(e) => setNewFirstName(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white"
+            className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 text-white"
             required
           />
         </div>
+
+        {/* Last Name Input */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-300">Last Name (Optional):</label>
+          <label className="block mb-1 text-gray-400">Last Name (Optional)</label>
           <input
             type="text"
             value={newLastName}
             onChange={(e) => setNewLastName(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white"
+            className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 text-white"
           />
         </div>
+
+        {/* Phone Number Display */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-300">Phone Number:</label>
-          <div className="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white">
+          <label className="block mb-1 text-gray-400">Phone Number</label>
+          <div className="w-full p-3 bg-gray-800 rounded-lg border border-gray-700 text-white">
             {input || 'Enter Number'}
           </div>
         </div>
+
+        {/* Reason for Calling Input */}
         <div className="mb-4">
-          <label className="block mb-1 text-gray-300">Reason for Calling:</label>
+          <label className="block mb-1 text-gray-400">Reason for Calling</label>
           <input
             type="text"
             value={callReason}
             onChange={(e) => setCallReason(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white"
+            className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 text-white"
             required
           />
         </div>
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-300">First Message (Optional):</label>
+
+        {/* First Message Input */}
+        <div className="mb-6">
+          <label className="block mb-1 text-gray-400">First Message (Optional)</label>
           <input
             type="text"
             value={firstMessage}
             onChange={(e) => setFirstMessage(e.target.value)}
-            className="w-full p-2 bg-gray-700 rounded border border-gray-600 text-white"
+            className="w-full p-3 bg-gray-900 rounded-lg border border-gray-700 focus:ring-2 focus:ring-blue-500 text-white"
             placeholder="Enter your first message"
           />
         </div>
-        <div className="flex justify-between">
+
+        {/* Buttons */}
+        <div className="flex justify-between space-x-4">
           <button
             onClick={handleModalSubmit}
-            className="w-full bg-blue-600 p-2 rounded text-white mr-2"
+            className={`w-full p-3 rounded-lg text-white transition-colors ${loading ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-500'}`}
             disabled={loading}
           >
             {loading ? 'Submitting...' : 'Call Now'}
           </button>
           <button
             onClick={onClose}
-            className="w-full bg-gray-600 p-2 rounded text-white ml-2"
+            className="w-full p-3 bg-gray-700 rounded-lg text-white hover:bg-gray-600 transition-colors"
           >
             Cancel
           </button>

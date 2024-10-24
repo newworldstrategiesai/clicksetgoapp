@@ -56,17 +56,17 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
     window.location.href = `/campaigns/${campaignId}`;
   };
 
-  // // Open modal for campaign details
-  // const openModal = (campaign: Campaign) => {
-  //   setSelectedCampaign(campaign);
-  //   setShowModal(true);
-  // };
+  // Open modal for campaign details
+  const openModal = (campaign: Campaign) => {
+    setSelectedCampaign(campaign);
+    setShowModal(true);
+  };
 
-  // // Close modal
-  // const closeModal = () => {
-  //   setShowModal(false);
-  //   setSelectedCampaign(null);
-  // };
+  // Close modal
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedCampaign(null);
+  };
 
   return (
     <>
@@ -75,12 +75,12 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
       ) : errorMessage ? (
         <p className="text-red-500 text-center">{errorMessage}</p>
       ) : (
-        <div className="overflow-x-auto rounded-lg shadow-md bg-white">
+        <div className="overflow-x-auto rounded-lg shadow-md bg-white" style={{textAlign:"center"}}>
           <table className="min-w-full bg-white border border-gray-300 table-auto">
             <thead>
               <tr className="bg-gray-100">
                 <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">Campaign Name</th>
-                <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">Description</th>
+                <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">Description / Reason for the Call</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">Start Date</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">End Date</th>
                 <th className="px-4 py-3 text-gray-700 font-semibold text-sm border-b">Status</th>
@@ -95,10 +95,10 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
                   onClick={() => handleClick(campaign.id)} // Use handleClick function to redirect
                 >
                   <td className="px-4 py-3 border-b text-gray-800 truncate">{campaign.name || 'No name'}</td>
-                  <td className="px-4 py-3 border-b text-gray-800 truncate max-w-xs sm:max-w-md">{campaign.description || 'No description'}</td>
+                  <td className="px-4 py-3 border-b text-gray-800 truncate max-w-xs sm:max-w-md">{campaign.description && campaign.description.length > 30 ? `${campaign.description.substring(0, 30)}...` : campaign.description || 'No description'}</td>
                   <td className="px-4 py-3 border-b text-gray-800">{campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="px-4 py-3 border-b text-gray-800">{campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : 'N/A'}</td>
-                  <td className="px-4 py-3 border-b text-gray-800">{campaign.status}</td>
+                  <td className="px-4 py-3 border-b text-gray-800" onClick={(e) => { e.stopPropagation(); openModal(campaign); }}><p  style={{borderRadius:"15px", boxShadow:'rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px ', padding:'5px 10px'}}>{campaign.status || "Not Available"}</p></td>
                   <td className="px-4 py-3 border-b text-gray-800">${campaign.budget?.toFixed(2)}</td>
                 </tr>
               ))}
@@ -115,12 +115,13 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
       )}
 
       {/* Modal for showing campaign details */}
-      {/* {showModal && selectedCampaign && (
+      {showModal && selectedCampaign && (
         <CampModal
           campaign={{
             ...selectedCampaign,
             description: selectedCampaign.description || '', // Ensure description is always a string
-            status: selectedCampaign.status || 'Unknown', // Provide default status
+            audience: selectedCampaign.audience || '', // Corrected property name to 'audience'
+            status: selectedCampaign.status || 'Active', // Provide default status
           }}
           onClose={closeModal}
           onEdit={async () => {
@@ -147,7 +148,7 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
           }}
           audience={{ name: selectedCampaign.audience || 'No audience Selected' }} // Replace with actual audience data if available
         />
-      )} */}
+      )}
     </>
   );
 }

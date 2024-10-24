@@ -37,6 +37,9 @@ const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipien
 // Initialize Resend with your API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+import { sendSms } from './sendSms';
+import { sendEmail } from './sendEmail';
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const user = await getUser(supabase)
@@ -61,7 +64,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const { message } = req.body;
+  const { message, sendSmsToggle = false, sendEmailToggle = false } = req.body; // Added toggle values with defaults
 
   if (!message || !message.call) {
     return res.status(400).json({ error: 'Invalid data received' });
@@ -101,202 +104,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     timestamp: message.timestamp || new Date().toISOString(), // Fallback to current timestamp
   };
 
-  // Asynchronous function to send SMS and Email
-  (async function() {
-    try {
-      // Send the SMS with the call report
-      await twilioClient.messages.create({
-        body: `
-          Call Report:
-          - Call ID: ${callReport.call_id}
-          - Type: ${callReport.type}
-          - Status: ${callReport.status}
-          - Ended Reason: ${callReport.ended_reason}
-          - Summary: ${callReport.summary}
-          - Stereo Recording URL: ${callReport.stereo_recording_url}
-          - Customer Number: ${callReport.customer_number}
-          - Assistant Name: ${callReport.assistant_name}
-          - Assistant Model: ${callReport.assistant_model}
-          - Assistant Transcriber: ${callReport.assistant_transcriber}
-          - Assistant Voice Provider: ${callReport.assistant_voice_provider}
-          - Assistant Voice ID: ${callReport.assistant_voice_id}
-          - Phone Number: ${callReport.phone_number}
-          - Timestamp: ${callReport.timestamp}
-        `,
-        from: TWILIO_PHONE_NUMBER,
-        to: DEFAULT_RECIPIENT_PHONE_NUMBER,
-      });
+  // Check if SMS sending is enabled
+  if (sendSmsToggle) {
+    await sendSms(callReport);
+  } else {
+    return res.status(403).json({ error: 'SMS sending is disabled' });
+  }
 
-      // Send the email with the call report using Resend
-      const emailData = await resend.emails.send({
-        from: 'info@clicksetgo.app',
-        to: DEFAULT_RECIPIENT_EMAIL,
-        subject: 'Call Report',
-        html: `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Call Report</title>
-            <style>
-                body {
-                    font-family: 'Arial', sans-serif;
-                    background-color: #0d0d0d;
-                    color: #e6e6e6;
-                    margin: 0;
-                    padding: 0;
-                    line-height: 1.6;
-                }
-                .container {
-                    max-width: 600px;
-                    margin: 20px auto;
-                    background-color: #1a1a1a;
-                    border-radius: 12px;
-                    overflow: hidden;
-                    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-                    padding: 20px;
-                }
-                h1 {
-                    color: #00c6ff;
-                    text-align: center;
-                    font-size: 24px;
-                    margin-bottom: 20px;
-                }
-                .report-section {
-                    margin-bottom: 15px;
-                }
-                .report-section:last-child {
-                    margin-bottom: 0;
-                }
-                .report-section strong {
-                    color: #00c6ff;
-                    font-size: 16px;
-                }
-                .report-section p {
-                    margin: 5px 0;
-                    padding-left: 10px;
-                    border-left: 4px solid #00c6ff;
-                    background-color: #1a1a1a;
-                    padding: 10px;
-                    border-radius: 8px;
-                }
-                .cta-button {
-                    display: inline-block;
-                    margin-top: 20px;
-                    background-color: #00c6ff;
-                    color: #0d0d0d;
-                    text-decoration: none;
-                    padding: 12px 20px;
-                    border-radius: 8px;
-                    text-align: center;
-                    font-weight: bold;
-                    transition: background-color 0.3s ease;
-                }
-                .cta-button:hover {
-                    background-color: #00a5cc;
-                }
-                .footer {
-                    margin-top: 30px;
-                    text-align: center;
-                    font-size: 14px;
-                    color: #666;
-                }
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Call Report</h1>
+  // Check if Email sending is enabled
+  if (sendEmailToggle) {
+    await sendEmail(callReport);
+  } else {
+    return res.status(403).json({ error: 'Email sending is disabled' });
+  }
 
-                <div class="report-section">
-                    <strong>Call ID:</strong>
-                    <p>${callReport.call_id}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Type:</strong>
-                    <p>${callReport.type}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Status:</strong>
-                    <p>${callReport.status}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Ended Reason:</strong>
-                    <p>${callReport.ended_reason}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Summary:</strong>
-                    <p>${callReport.summary}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Stereo Recording URL:</strong>
-                    <p><a href="${callReport.stereo_recording_url}" style="color: #00c6ff;">Listen</a></p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Customer Number:</strong>
-                    <p>${callReport.customer_number}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Assistant Name:</strong>
-                    <p>${callReport.assistant_name}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Assistant Model:</strong>
-                    <p>${callReport.assistant_model}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Assistant Transcriber:</strong>
-                    <p>${callReport.assistant_transcriber}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Assistant Voice Provider:</strong>
-                    <p>${callReport.assistant_voice_provider}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Assistant Voice ID:</strong>
-                    <p>${callReport.assistant_voice_id}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Phone Number:</strong>
-                    <p>${callReport.phone_number}</p>
-                </div>
-
-                <div class="report-section">
-                    <strong>Timestamp:</strong>
-                    <p>${callReport.timestamp}</p>
-                </div>
-
-                <div style="text-align: center;">
-                    <a href="${callReport.stereo_recording_url}" class="cta-button">Listen to Recording</a>
-                </div>
-
-                <div class="footer">
-                    <p>&copy; 2024 ClickSetGo. All rights reserved.</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        `,
-      });
-
-      console.log('Email sent successfully:', emailData);
-
-      res.status(200).json({ success: true });
-    } catch (error: unknown) {
-      console.error('Error sending SMS or email:', error);
-      res.status(500).json({ error: (error as Error).message || 'Internal Server Error' });
-    }
-  })();
+  res.status(200).json({ success: true });
 }

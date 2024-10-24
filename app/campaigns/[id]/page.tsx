@@ -124,15 +124,28 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null);
 
     try {
-      for (const task of campaignTasks) {
-        const { data: contact, error: contactError } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("id", task.contact_id)
-          .single();
+      const contactIds = campaignTasks.map(task => task.contact_id);
+      const { data: contacts, error: contactError } = await supabase
+        .from("contacts")
+        .select("*")
+        .in("id", contactIds); // Fetch all contacts in bulk
 
-        if (contactError || !contact) {
-          console.error("Error fetching contact details:", contactError || "No contact found.");
+      if (contactError) {
+        console.error("Error fetching contacts:", contactError.message);
+        setError(contactError.message);
+        return;
+      }
+
+      const contactMap = contacts.reduce((acc: any, contact: any) => {
+        acc[contact.id] = contact;
+        return acc;
+      }, {});
+
+      for (const task of campaignTasks) {
+        const contact = contactMap[task.contact_id];
+
+        if (!contact) {
+          console.error("No contact found for task:", task.id);
           setError(`Failed to fetch contact details for task ${task.id}.`);
           continue;
         }
@@ -147,9 +160,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           first_name: contact.first_name,
           last_name: contact.last_name,
           phone: contact.phone,
-          user_id: contact.user_id // Ensure user_id is included
+          user_id: contact.user_id
         };
-        
 
         try {
           await axios.post("/api/make-call", {
@@ -162,6 +174,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             sendSMS: sendSMS,
             sendEmail: sendEmail
           });
+
           const { error: updateTaskError } = await supabase
             .from('call_tasks')
             .update({ call_status: 'Completed' }) // Update the status to "Completed"
