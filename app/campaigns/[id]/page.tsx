@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import axios from "axios";
 import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
+import { Switch } from '@headlessui/react'; // Import Switch component for toggle
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -48,6 +49,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CallTask | null>(null);
+
+  // Toggle state
+  const [sendSMS, setSendSMS] = useState<string>("no"); // Change initial state to string
+  const [sendEmail, setSendEmail] = useState<string>("no"); // Change initial state to string
 
   // Fetch campaign details and call tasks
   useEffect(() => {
@@ -159,15 +164,17 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         };
 
         try {
-          await axios.post("/api/launch-campaign", {
-            campaignId: id, // Ensure campaign ID is sent
-            contacts: [contactData], // Send contact data as an array
-            schedule: task.scheduled_at, // Send the scheduled time
-            reason: task.call_subject, // Send the reason for the call
-            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`, // Send first message
+          await axios.post("/api/make-call", {
+            contact: contactData, // Ensure this contains all necessary fields
+            reason: task.call_subject,
+            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Added optional chaining
+            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
+            userId: contact.user_id, // Ensure user ID is passed to fetch API keys
+            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
+            sendSMS: sendSMS,
+            sendEmail: sendEmail
           });
-          
-          // After the call is successfully initiated, update the call_task status
+
           const { error: updateTaskError } = await supabase
             .from('call_tasks')
             .update({ call_status: 'Completed' }) // Update the status to "Completed"
@@ -238,6 +245,42 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           <p>Status: {campaignData.status}</p>
           <p>Start Date: {new Date(campaignData.start_date).toLocaleDateString()}</p>
           <p>End Date: {new Date(campaignData.end_date).toLocaleDateString()}</p>
+
+          {/* Toggle switches for SMS and Email */}
+          <div className="flex items-center mt-4">
+            <span className="mr-2">Send SMS:</span>
+            <Switch
+              checked={sendSMS === "yes"} // Update condition to check for "yes"
+              onChange={(value) => {setSendSMS(value ? "yes" : "no"), console.log(value ? "yes" : "no")}} // Update state to "yes" or "no"
+              className={`${
+                sendSMS === "yes" ? 'bg-green-600' : 'bg-gray-200'
+              } relative inline-flex items-center h-6 rounded-full w-11`}
+            >
+              <span className="sr-only">Send SMS</span>
+              <span
+                className={`${
+                  sendSMS === "yes" ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition`}
+              />
+            </Switch>
+          </div>
+          <div className="flex items-center mt-2">
+            <span className="mr-2">Send Email:</span>
+            <Switch
+              checked={sendEmail === "yes"} // Update condition to check for "yes"
+              onChange={(value) => {setSendEmail(value ? "yes" : "no"), console.log(value ? "yes" : "no")}} // Update state to "yes" or "no"
+              className={`${
+                sendEmail === "yes" ? 'bg-green-600' : 'bg-gray-200'
+              } relative inline-flex items-center h-6 rounded-full w-11`}
+            >
+              <span className="sr-only">Send Email</span>
+              <span
+                className={`${
+                  sendEmail === "yes" ? 'translate-x-6' : 'translate-x-1'
+                } inline-block w-4 h-4 transform bg-white rounded-full transition`}
+              />
+            </Switch>
+          </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
             <button

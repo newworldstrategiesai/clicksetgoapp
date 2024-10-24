@@ -7,15 +7,18 @@ type TwilioNumber = {
 };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Method Not Allowed' });
   }
 
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken = process.env.TWILIO_AUTH_TOKEN;
+  const { user_Id: userId , twilioClient: twilioClient} = req.body;
 
-  // console.log('Account SID:', accountSid);
-  // console.log('Auth Token:', authToken ? '********' : 'Not Set'); // Mask sensitive data
+  if (!twilioClient || twilioClient.length === 0) {
+    return res.status(404).json({ message: 'No Twilio credentials found for the user' });
+  }
+
+  const accountSid = twilioClient.twilioSid;
+  const authToken = twilioClient.twilioAuthToken;
 
   if (!accountSid || !authToken) {
     return res.status(500).json({ message: 'Twilio credentials are not set' });
@@ -24,19 +27,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const client = twilio(accountSid, authToken);
 
   try {
-    const incomingPhoneNumbers = await client.incomingPhoneNumbers.list();
+    // Fetch incoming Twilio phone numbers
+    const incomingPhoneNumbers = await client.incomingPhoneNumbers.list({ limit: 100 });
     const twilioNumbers: TwilioNumber[] = incomingPhoneNumbers.map(number => ({
       sid: number.sid,
       phoneNumber: number.phoneNumber,
     }));
 
-    const verifiedCallerIds = await client.outgoingCallerIds.list();
+    // Fetch verified outgoing caller IDs
+    const verifiedCallerIds = await client.outgoingCallerIds.list({ limit: 100 });
     const callerIds: TwilioNumber[] = verifiedCallerIds.map(id => ({
       sid: id.sid,
       phoneNumber: id.phoneNumber,
     }));
 
-    const allNumbers = [...twilioNumbers, ...callerIds];
+    // Combine both lists and remove duplicates based on phone number
+    const allNumbers = [...twilioNumbers, ...callerIds].reduce((acc, current) => {
+      if (!acc.find(item => item.phoneNumber === current.phoneNumber)) {
+        acc.push(current);
+      }
+      return acc;
+    }, [] as TwilioNumber[]);
 
     return res.status(200).json({ allNumbers });
   } catch (error) {

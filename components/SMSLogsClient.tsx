@@ -20,7 +20,8 @@ interface SMSLogResponse {
   totalCount: number;
 }
 
-const SMSLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
+const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: string; twilioAuthToken : string; vapiKey: string  }> = 
+ ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }) => {
   const [smsLogs, setSmsLogs] = useState<SMSLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [csvLoading, setCsvLoading] = useState(false);
@@ -36,7 +37,14 @@ const SMSLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
     try {
       setLoading(true);
       const response: AxiosResponse<SMSLogResponse> = await axios.get<SMSLogResponse>('/api/get-sms-logs', {
-        params: { page, pageSize: logsPerPage, pageToken: token, userId },
+        params: { 
+          page, 
+          pageSize: logsPerPage, 
+          pageToken: token, 
+          userId,
+          // Sending the API keys as an object
+          credentials: { apiKey, twilioSid, twilioAuthToken, vapiKey }
+        },
       });
 
       const { messages, nextPageToken, totalCount } = response.data;
@@ -71,6 +79,7 @@ const SMSLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
     setSelectedLog(null);
   };
 
+  // Fetch all SMS logs
   const fetchAllSMSLogs = async (): Promise<SMSLog[]> => {
     let allLogs: SMSLog[] = [];
     let page = 1;
@@ -81,7 +90,14 @@ const SMSLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
     while (true) {
       try {
         const response: AxiosResponse<SMSLogResponse> = await axios.get<SMSLogResponse>('/api/get-sms-logs', {
-          params: { page, pageSize: logsPerPage, pageToken: token, userId },
+          params: { 
+            page, 
+            pageSize: logsPerPage, 
+            pageToken: token, 
+            userId,
+            // Sending the API keys as an object
+            credentials: { apiKey, twilioSid, twilioAuthToken, vapiKey }
+          },
         });
 
         const { messages, nextPageToken } = response.data;

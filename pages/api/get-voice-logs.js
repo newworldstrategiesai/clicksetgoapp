@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 export default async function handler(req, res) {
-  const VAPI_API_URL = 'https://api.vapi.ai/call';
+  const VAPI_API_URL = process.env.VAPI_CALL;
   const VAPI_API_KEY = process.env.VAPI_API_KEY; // Ensure this is set in your .env file
   const TWILIO_API_URL = 'https://api.twilio.com/2010-04-01/Accounts/YOUR_ACCOUNT_SID/Messages.json';
   const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
