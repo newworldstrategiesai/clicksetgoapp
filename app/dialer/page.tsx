@@ -16,21 +16,25 @@ export default async function DialerPage() {
         // Fetch the API key for Eleven Labs from Supabase
         const { data, error } = await supabase
             .from('api_keys' as any)  // Cast as 'any' to bypass type checking
-            .select('eleven_labs_key')
+            .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
             .eq('user_id', user.id)
             .single();
 
-        if (error || !data?.eleven_labs_key) {
+        if (error || !data) {
             console.error('Failed to fetch Eleven Labs API key');
             return redirect('/signin');  // Handle this case as appropriate
         }
 
         const apiKey = data.eleven_labs_key;
+        const twilioSid = data.twilio_sid;
+        const twilioAuthToken = data.twilio_auth_token;
+        const vapiKey = data.vapi_key;
+
 
         return (
             <section className="min-h-screen bg-gray-900 text-white">
                 <div className="pt-[60px] p-4"> {/* Adjust the padding-top to match the height of your navbar */}
-                    <DialerComponent userId={user.id} apiKey={apiKey} />
+                    <DialerComponent userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
                 </div>
             </section>
         );

@@ -58,7 +58,8 @@ const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
   }
 };
 
-const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string }) => {
+const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }: 
+  { userId: string; apiKey: string; twilioSid: string; twilioAuthToken : string; vapiKey: string }) => {
   const [input, setInput] = useState('');
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>(DEFAULT_TWILIO_NUMBER);
@@ -98,7 +99,15 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
   useEffect(() => {
     const fetchTwilioNumbers = async () => {
       try {
-        const response = await axios.get('/api/get-twilio-numbers');
+        const twilioClient = { twilioSid, twilioAuthToken };
+
+        // Send credentials along with user_Id to the API
+        const response = await axios.post(`/api/get-twilio-numbers`, {
+          user_Id: userId,
+          twilioClient: twilioClient // Include the credentials data
+        });
+
+        // Set the fetched Twilio numbers
         setTwilioNumbers(response.data.allNumbers || []);
         if (response.data.allNumbers && response.data.allNumbers.length > 0) {
           setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
@@ -108,6 +117,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
         toast.error('Failed to fetch Twilio numbers. Please try again later.');
       }
     };
+    
 
     const fetchContacts = async () => {
       try {
@@ -178,6 +188,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
 
     const formattedPhoneNumber = formatPhoneNumber(input);
     const twilioNumberToUse = selectedTwilioNumber || DEFAULT_TWILIO_NUMBER;
+    const credentials = { twilioSid, twilioAuthToken, vapiKey };
 
     try {
       setLoading(true);
@@ -193,6 +204,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string; apiKey: string })
         twilioNumber: twilioNumberToUse,
         voiceId: selectedVoice,
         userId,
+        credentials,
       });
       toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
       setIsCallModalOpen(false); // Close modal after call is initiated

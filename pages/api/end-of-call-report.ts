@@ -3,6 +3,8 @@ import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '@/types_db';
 import twilio from 'twilio';
 import { Resend } from 'resend';
+import { supabase } from '@/utils/supabaseClient';
+import { getUser } from '@/utils/supabase/queries';
 
 // Define the type for the call report
 type CallReport = {
@@ -31,12 +33,29 @@ const TWILIO_PHONE_NUMBER = process.env.TWILIO_NUMBER || ''; // Twilio phone num
 const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
 const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipient email
 
-const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 // Initialize Resend with your API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+    const user = await getUser(supabase)
+
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
+    }
+    
+    const {data, error} = await supabase
+    .from('api_keys')
+    .select('*')
+    .eq("user_id", user.id)
+    .single();
+
+    const accountSid = data.twilioSid;
+    const authToken = data.twilioAuthToken;
+
+    const twilioClient = twilio(accountSid, authToken);
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
