@@ -1,3 +1,5 @@
+// Navbar.tsx
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -59,7 +61,6 @@ const Navbar: React.FC = () => {
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
             >
               <path
                 strokeLinecap="round"
@@ -72,7 +73,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden absolute inset-x-0 top-full bg-black p-4 text-right space-y-2">
+        <div className="md:hidden absolute inset-x-0 top-full bg-black p-4 space-y-2">
           <Navlinks user={user} />
         </div>
       )}
