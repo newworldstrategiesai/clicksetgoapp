@@ -1,15 +1,17 @@
-"use client";
+// components/ui/Contacts/Contacts.tsx
+
+'use client';
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AddContactModal from "@/components/AddContactModal";
 import ContactDetailsModal from "@/components/ContactDetailsModal";
 import CallModal from "@/components/CallModal";
-import ListsTable from "@/components/ListsTable";
-import CreateListModal from "@/components/CreateListModal";
 import ContactsTable from "@/components/ContactsTable";
 import { supabase } from "@/utils/supabaseClient";
-import BottomNav from "@/components/BottomNav"; // Importing the BottomNav component
+import BottomNav from "@/components/BottomNav";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 
 interface Contact {
   id: string;
@@ -20,12 +22,6 @@ interface Contact {
   user_id: string;
 }
 
-interface List {
-  id: string;
-  name: string;
-  contactsCount: number;
-}
-
 interface TwilioNumber {
   sid: string;
   phoneNumber: string;
@@ -33,25 +29,25 @@ interface TwilioNumber {
 
 interface ContactsProps {
   userId: string;
-  selectedContactsForList?: Set<string>;
+  onAddToList: (ids: string[], listId: string) => void;
 }
 
-const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = new Set() }) => {
+const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [lists, setLists] = useState<List[]>([]);
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [detailsModalIsOpen, setDetailsModalIsOpen] = useState(false);
   const [callModalIsOpen, setCallModalIsOpen] = useState(false);
-  const [createListModalIsOpen, setCreateListModalIsOpen] = useState(false);
-  const [newContactModalIsOpen, setNewContactModalIsOpen] = useState(false);
+  const [addContactModalIsOpen, setAddContactModalIsOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>("");
   const [callReason, setCallReason] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [selectedContactsForList, setSelectedContactsForList] = useState<Set<string>>(new Set());
+
+  // New state for search
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeTab, setActiveTab] = useState("contacts");
 
   const router = useRouter();
 
@@ -66,27 +62,17 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
           ...contact,
           first_name: contact.first_name || "",
           last_name: contact.last_name || "",
-          phone: contact.phone && typeof contact.phone === "string" && contact.phone.startsWith("+") 
-            ? contact.phone 
-            : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
+          phone:
+            contact.phone &&
+            typeof contact.phone === "string" &&
+            contact.phone.startsWith("+")
+              ? contact.phone
+              : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
       } catch (error) {
         console.error("Error fetching contacts:", error);
         setError("Error fetching contacts.");
-      }
-    };
-
-    const fetchLists = async () => {
-      try {
-        const { data, error } = await supabase.from("lists").select("*").eq("user_id", userId);
-        if (error) {
-          throw error;
-        }
-        setLists(data);
-      } catch (error) {
-        console.error("Error fetching lists:", error);
-        setError("Error fetching lists.");
       }
     };
 
@@ -102,7 +88,6 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     };
 
     fetchContacts();
-    fetchLists();
     fetchTwilioNumbers();
   }, [userId]);
 
@@ -122,10 +107,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
 
   const closeCallModal = () => setCallModalIsOpen(false);
 
-  const openCreateListModal = () => setCreateListModalIsOpen(true);
-  const closeCreateListModal = () => setCreateListModalIsOpen(false);
-  const openNewContactModal = () => setNewContactModalIsOpen(true);
-  const closeNewContactModal = () => setNewContactModalIsOpen(false);
+  const openAddContactModal = () => setAddContactModalIsOpen(true);
+  const closeAddContactModal = () => setAddContactModalIsOpen(false);
 
   const handleCallNow = async () => {
     if (!selectedContact || !callReason || !selectedTwilioNumber) {
@@ -146,7 +129,6 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         }),
       });
 
-      const data = await response.json();
       if (response.ok) {
         setSuccessMessage("Call initiated successfully!");
         setError("");
@@ -161,54 +143,29 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     }
   };
 
-  const handleSaveList = async (selectedContacts: string[], listId: string) => {
-    if (!listId || selectedContacts.length === 0) {
-      setError("Please provide a list ID and select at least one contact.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setSuccessMessage("");
-      const response = await fetch(`/api/lists/${listId}/add-contacts`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contacts: selectedContacts }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        setSuccessMessage("Contacts added to list successfully!");
-        closeCreateListModal();
-      } else {
-        setError("Failed to add contacts to list.");
-      }
-    } catch (error) {
-      setError("Failed to add contacts to list.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSelectList = (listId: string) => {
-    router.push(`/lists/${listId}`);
+  const handleAddContact = (newContact: Contact) => {
+    setContacts((prevContacts) => [...prevContacts, newContact]);
   };
 
   const handleDelete = async (contactId: string) => {
     try {
       setLoading(true);
       setSuccessMessage("");
-      const response = await fetch(`/api/delete-contact?id=${contactId}`, {
-        method: "DELETE",
-      });
+      const { error } = await supabase
+        .from('contacts')
+        .delete()
+        .eq('id', contactId);
 
-      if (response.ok) {
-        setContacts((prevContacts) => prevContacts.filter((contact) => contact.id !== contactId));
-        setSuccessMessage("Contact deleted successfully!");
-      } else {
-        setError("Failed to delete contact.");
+      if (error) {
+        throw error;
       }
+
+      setContacts((prevContacts) =>
+        prevContacts.filter((contact) => contact.id !== contactId)
+      );
+      setSuccessMessage("Contact deleted successfully!");
     } catch (error) {
+      console.error("Error deleting contact:", error);
       setError("Failed to delete contact.");
     } finally {
       setLoading(false);
@@ -216,70 +173,104 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
     }
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchQuery(event.target.value.toLowerCase());
+  const handleAddToListInternal = (selectedContacts: string[], listId: string) => {
+    onAddToList(selectedContacts, listId);
+    setSelectedContactsForList(new Set());
+    // Optionally, close any modal if present
   };
 
-  const filteredContacts = contacts.filter(
-    (contact) =>
-      contact.first_name?.toLowerCase().includes(searchQuery) ||
-      contact.last_name?.toLowerCase().includes(searchQuery) ||
-      contact.phone.includes(searchQuery)
-  );
+  const handleSelectAll = () => {
+    if (selectedContactsForList.size === contacts.length) {
+      setSelectedContactsForList(new Set());
+    } else {
+      const allIds = contacts.map((contact) => contact.id);
+      setSelectedContactsForList(new Set(allIds));
+    }
+  };
 
-  const handleUploadRedirect = () => {
-    router.push("/upload-contacts");
+  const handleToggleSelectContact = (contactId: string) => {
+    setSelectedContactsForList((prevSelected) => {
+      const updated = new Set(prevSelected);
+      if (updated.has(contactId)) {
+        updated.delete(contactId);
+      } else {
+        updated.add(contactId);
+      }
+      return updated;
+    });
+  };
+
+  const handleSelectContact = (contactId: string) => {
+    if (contactId === "new") {
+      openAddContactModal();
+    } else {
+      const contact = contacts.find((c) => c.id === contactId);
+      if (contact) {
+        openContactDetailsModal(contact);
+      }
+    }
+  };
+
+  const handleGoClick = () => {
+    if (selectedContactsForList.size > 0) {
+      const listId = prompt("Enter List ID to add selected contacts:");
+      if (listId) {
+        handleAddToListInternal(Array.from(selectedContactsForList), listId);
+      }
+    } else {
+      alert("Please select at least one contact.");
+    }
+  };
+
+  // Handler for search change
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
   };
 
   return (
-    <div className="min-h-screen pb-16"> {/* Adjust height for sticky bottom nav */}
-      {successMessage && <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">{successMessage}</div>}
-      {error && <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>}
-      <div className="mb-4 flex flex-col md:flex-row md:items-center justify-center md:justify-between">
-        <div className="flex flex-row space-x-4 mb-4 md:mb-0">
-          <button onClick={openCreateListModal} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-            Create New List
-          </button>
-          <button onClick={openNewContactModal} className="hidden" /> {/* Removed visibility of this button */}
-          <button onClick={handleUploadRedirect} className="px-4 py-2 bg-blue-600 text-white rounded-lg">
-            Upload
-          </button>
+    <div className="min-h-screen pb-16 bg-black">
+      {/* Success and Error Messages */}
+      {successMessage && (
+        <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">
+          {successMessage}
         </div>
-        <input
-          type="text"
-          placeholder="Search contacts"
-          onChange={handleSearch}
-          className="p-2 border rounded-lg w-full md:w-auto"
+      )}
+      {error && (
+        <div className="bg-red-100 text-red-700 p-4 mb-4 rounded">{error}</div>
+      )}
+
+      {/* Header with "+" button and "Go" button */}
+      <div className="flex justify-between items-center mb-4 px-4">
+     
+       
+      </div>
+
+      {/* Contacts Table */}
+      <div className="flex-grow overflow-y-auto">
+        <ContactsTable
+          contacts={contacts}
+          userId={userId}
+          onContactClick={openContactDetailsModal}
+          onCallClick={openCallModal}
+          onAddToList={handleAddToListInternal} // Correct signature
+          onSelectContact={handleSelectContact}
+          selectedContacts={selectedContactsForList}
+          onToggleSelectContact={handleToggleSelectContact}
+          onSelectAll={handleSelectAll}
+          searchQuery={searchQuery} // Pass searchQuery
+          onSearchChange={handleSearchChange} // Pass onSearchChange
         />
       </div>
 
-      <ContactsTable
-        contacts={filteredContacts}
-        onContactClick={openContactDetailsModal}
-        onCallClick={openCallModal}
-        searchQuery={searchQuery}
-        onSearchChange={(value) => setSearchQuery(value)} // Ensure this function is defined
-        onSelectContact={openNewContactModal} // Ensure this triggers the new contact modal
-        selectedContacts={selectedContactsForList} // This should now work without errors
-        userId={userId} // Pass the userId prop to ContactsTable
-        onAddToList={handleSaveList} // Ensure this function is defined
-      />
-
-      <CreateListModal
-        isOpen={createListModalIsOpen}
-        onClose={closeCreateListModal}
-        onSave={handleSaveList}
-        selectedContactsForList={selectedContactsForList}
-        userId={userId}
-      />
-
+      {/* AddContactModal */}
       <AddContactModal
-        isOpen={newContactModalIsOpen}
-        onClose={closeNewContactModal}
-        onContactAdded={(newContact) => setContacts((prevContacts) => [...prevContacts, newContact])}
+        isOpen={addContactModalIsOpen}
+        onClose={closeAddContactModal}
+        onContactAdded={handleAddContact}
         userId={userId}
       />
 
+      {/* ContactDetailsModal */}
       <ContactDetailsModal
         isOpen={detailsModalIsOpen}
         onClose={closeContactDetailsModal}
@@ -287,6 +278,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, selectedContactsForList = n
         onContactDeleted={handleDelete}
       />
 
+      {/* CallModal */}
       <CallModal
         isOpen={callModalIsOpen}
         onClose={closeCallModal}
