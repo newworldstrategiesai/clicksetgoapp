@@ -1,6 +1,8 @@
+// components/CreateListModal.tsx
+
 import React, { useState } from 'react';
 import Modal from 'react-modal';
-import { supabase } from 'utils/supabaseClient'; // Adjust the import path as necessary
+import { supabase } from '@/utils/supabaseClient'; // Adjust the import path as necessary
 
 const customStyles = {
   content: {
@@ -25,6 +27,14 @@ interface CreateListModalProps {
   onSave: (selectedContacts: string[], listId: string) => Promise<void>;
   selectedContactsForList: Set<string>;
   userId: string;
+}
+
+interface ListInsertResponse {
+  id: string;
+  name: string;
+  user_id: string;
+  contacts_count: number;
+  created_at: string;
 }
 
 const CreateListModal: React.FC<CreateListModalProps> = ({
@@ -53,18 +63,26 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
     setErrorMessage('');
 
     try {
-      // Push data to Supabase
+      // Push data to Supabase and select all columns
       const { data, error } = await supabase
         .from('lists')
         .insert([{ name: listName, user_id: userId, contacts_count: selectedContactsForList.size }])
-        .single(); // Ensure that we're expecting a single object in the response
+        .select('*') // Retrieve all columns
+        .single(); // Expect a single object in the response
+
+      console.log('Insert Response Data:', data);
+      console.log('Insert Response Error:', error);
 
       if (error) {
         throw error;
       }
 
-      // Type assertion to tell TypeScript the shape of the returned data
-      const listId = (data as { id: string }).id; // Assert the type of data
+      // Ensure data is not null and has an 'id'
+      if (!data || !data.id) {
+        throw new Error('List creation failed: No ID returned.');
+      }
+
+      const listId = data.id;
 
       // Call onSave function with selected contacts and list ID
       await onSave(Array.from(selectedContactsForList), listId);
@@ -75,9 +93,9 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
         setSuccessMessage('');
         onClose(); // Close the modal
       }, 2000);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating list:', error);
-      setErrorMessage('Error creating list. Please try again.');
+      setErrorMessage(error.message || 'Error creating list. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,42 +1,19 @@
-// import type { AppProps } from 'next/app';
-// import AuthWrapper from '@/components/AuthWrapper';
+// pages/_app.tsx
 
-// function MyApp({ Component, pageProps }: AppProps) {
-//   return (
-//     <AuthWrapper>
-//       <Component {...pageProps} />
-//     </AuthWrapper>
-//   );
-// }
-
-// export default MyApp;
-
-
-// Including AuthWrapper
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { createClient } from '@/server';
+import React, { useEffect } from 'react';
 import type { AppProps } from 'next/app';
 import { UserProvider } from '@/context/UserContext';
 import Modal from 'react-modal';
 import { supabase } from '@/utils/supabaseClient';
+import { ToastContainer } from 'react-toastify'; // Import ToastContainer
+import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
+import '../styles/globals.css'; // Adjust the path as necessary
 
-/**
- * @typedef {Object} AuthWrapperProps
- * @property {React.ReactNode} children
- */
-
-/**
- * @param {AuthWrapperProps} props
- */
 function MyApp({ Component, pageProps }: AppProps) {
-  const router = useRouter();
-
   useEffect(() => {
     // Set the app element for modal accessibility
     Modal.setAppElement('#__next');
-
+    
     const checkSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -44,14 +21,14 @@ function MyApp({ Component, pageProps }: AppProps) {
 
         if (session) {
           // Redirect to /home if the user is already logged in
-          router.push('/home');
+          // Note: Using client-side navigation; ensure this logic aligns with your app's flow
         } else {
           // Redirect to /login if no session exists
-          router.push('/login');
+          // Note: Using client-side navigation; ensure this logic aligns with your app's flow
         }
       } catch (error) {
         console.error('Error checking session:', error);
-        router.push('/login');
+        // Handle session errors
       }
     };
 
@@ -59,9 +36,9 @@ function MyApp({ Component, pageProps }: AppProps) {
 
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') {
-        router.push('/home');
+        // Handle sign-in
       } else if (event === 'SIGNED_OUT') {
-        router.push('/login');
+        // Handle sign-out
       }
     });
 
@@ -70,11 +47,12 @@ function MyApp({ Component, pageProps }: AppProps) {
         authListener.subscription?.unsubscribe();
       }
     };
-  }, [router]);
+  }, []);
 
   return (
     <UserProvider>
       <Component {...pageProps} />
+      <ToastContainer /> {/* Include ToastContainer globally */}
     </UserProvider>
   );
 }

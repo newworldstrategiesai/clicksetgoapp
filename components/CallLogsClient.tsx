@@ -143,10 +143,10 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             <span className="text-xs mt-1">Favorites</span>
           </div>
         </Link>
-        <Link href="/recents">
+        <Link href="/campaigns">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faClock} size="lg" />
-            <span className="text-xs mt-1">Recents</span>
+            <span className="text-xs mt-1">Scheduled</span>
           </div>
         </Link>
         <Link href="/contacts">

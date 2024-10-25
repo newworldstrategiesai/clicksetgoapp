@@ -5,7 +5,7 @@ import React from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faStar,
+  faUpload,      // Import faUpload
   faClock,
   faUser,
   faTh,
@@ -14,16 +14,17 @@ import {
 
 const BottomNav: React.FC = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white shadow-md z-10">
-      <div className="flex justify-between items-center max-w-lg mx-auto py-3 px-4">
-        <Link href="/favorites" className="flex flex-col items-center space-y-1">
-          <FontAwesomeIcon icon={faStar} className="text-xl" />
-          <span className="text-xs">Favorites</span>
+    <nav className="fixed bottom-0 left-0 right-0 bg-black text-white shadow-md z-10">
+      <div className="flex justify-around items-center max-w-lg mx-auto py-3 px-4">
+        {/* Replaced "Favorites" with "Upload" */}
+        <Link href="/upload-contacts" className="flex flex-col items-center space-y-1">
+          <FontAwesomeIcon icon={faUpload} className="text-xl" />
+          <span className="text-xs">Upload</span>
         </Link>
 
-        <Link href="/recents" className="flex flex-col items-center space-y-1">
+        <Link href="/lists" className="flex flex-col items-center space-y-1">
           <FontAwesomeIcon icon={faClock} className="text-xl" />
-          <span className="text-xs">Recents</span>
+          <span className="text-xs">Lists</span>
         </Link>
 
         <Link href="/contacts" className="flex flex-col items-center space-y-1">
