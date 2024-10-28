@@ -15,7 +15,7 @@ export default async function DialerPage() {
 
         // Fetch the API key for Eleven Labs from Supabase
         const { data, error } = await supabase
-            .from('api_keys' as any)  // Cast as 'any' to bypass type checking
+            .from('api_keys' as any)  // Cast as 'any' to bypass type checking  
             .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
             .eq('user_id', user.id)
             .single();

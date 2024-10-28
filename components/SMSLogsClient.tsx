@@ -42,9 +42,11 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
           pageSize: logsPerPage, 
           pageToken: token, 
           userId,
-          // Sending the API keys as an object
-          credentials: { apiKey, twilioSid, twilioAuthToken, vapiKey }
         },
+        headers: { // Moved credentials to headers
+          'twilioSid': twilioSid,
+          'twilioAuthToken': twilioAuthToken,
+        }
       });
 
       const { messages, nextPageToken, totalCount } = response.data;
@@ -95,9 +97,11 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
             pageSize: logsPerPage, 
             pageToken: token, 
             userId,
-            // Sending the API keys as an object
-            credentials: { apiKey, twilioSid, twilioAuthToken, vapiKey }
           },
+          headers: { // Moved credentials to headers
+            'twilioSid': twilioSid,
+            'twilioAuthToken': twilioAuthToken,
+          }
         });
 
         const { messages, nextPageToken } = response.data;

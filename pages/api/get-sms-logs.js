@@ -2,11 +2,11 @@
 import twilio from 'twilio';
 
 export default async function handler(req, res) {
-  const { pageSize = 100, pageToken, credentials } = req.query;
+  const { pageSize = 100, pageToken, } = req.query;
   const limit = parseInt(pageSize);
 
-  const accountSid = credentials.twilioSid
-  const authToken = credentials.twilioAuthToken
+  const accountSid = req.headers['twiliosid'];
+  const authToken = req.headers['twilioauthtoken'];
   const client = twilio(accountSid, authToken);
 
   try {

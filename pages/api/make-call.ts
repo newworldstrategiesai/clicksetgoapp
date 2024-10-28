@@ -5,7 +5,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string): string | null => {
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'IN');
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
