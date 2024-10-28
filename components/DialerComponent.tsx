@@ -476,4 +476,3 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
 };
 
 export default DialerComponent;
-   

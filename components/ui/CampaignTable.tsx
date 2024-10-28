@@ -4,17 +4,23 @@ import { useState, useEffect } from 'react';
 import CampModal from '@/components/CampModal'; // Import the CampModal component
 import { createClient, PostgrestError } from '@supabase/supabase-js'; // Import Supabase client
 import { Campaign } from '@/types'; // Import the Campaign type from the types file
+import { useRouter } from 'next/navigation';
 
 interface CampaignTableProps {
   userId: string; // Receive userId as a prop
+  apiKey: string; 
+  twilioSid: string; 
+  twilioAuthToken : string; 
+  vapiKey: string
 }
 
-export default function CampaignTable({ userId }: CampaignTableProps) {
+export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToken, vapiKey  }: CampaignTableProps) {
   const [campaignData, setCampaignData] = useState<Campaign[]>([]);
   const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const router = useRouter();
 
   // Initialize Supabase client
   const supabase = createClient(
@@ -52,8 +58,8 @@ export default function CampaignTable({ userId }: CampaignTableProps) {
 
   // Function to handle click and redirect to the campaign page
   const handleClick = (campaignId: string) => {
-    // Redirect to the campaign page using the campaign ID
-    window.location.href = `/campaigns/${campaignId}`;
+    const queryString = new URLSearchParams({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }).toString();
+    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with query parameters
   };
 
   // Open modal for campaign details

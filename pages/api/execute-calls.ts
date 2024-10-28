@@ -39,7 +39,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         reason: task.call_subject,
         twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
-        voiceId: 'your_voice_id_here', // Or any other data needed for the call
+        voiceId: 'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
         // Add your Twilio and VAPI keys as necessary
       };
 

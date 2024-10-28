@@ -1,16 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { createClient } from "@supabase/supabase-js";
+import { supabase } from "@/utils/supabaseClient";
 import axios from "axios";
 import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
 import { Switch } from '@headlessui/react'; // Import Switch component for toggle
+import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
+import 'react-toastify/dist/ReactToastify.css';
 
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+
+
 
 interface CallTask {
   id: string;
@@ -45,14 +44,11 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const [loading, setLoading] = useState(true);
   const [isLaunching, setIsLaunching] = useState(false);
   const [isPausing, setIsPausing] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); // Add state to track pause/resume
 
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CallTask | null>(null);
-
-  // Toggle state
-  const [sendSMS, setSendSMS] = useState<string>("no"); // Change initial state to string
-  const [sendEmail, setSendEmail] = useState<string>("no"); // Change initial state to string
 
   // Fetch campaign details and call tasks
   useEffect(() => {
@@ -124,28 +120,15 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null);
 
     try {
-      const contactIds = campaignTasks.map(task => task.contact_id);
-      const { data: contacts, error: contactError } = await supabase
-        .from("contacts")
-        .select("*")
-        .in("id", contactIds); // Fetch all contacts in bulk
-
-      if (contactError) {
-        console.error("Error fetching contacts:", contactError.message);
-        setError(contactError.message);
-        return;
-      }
-
-      const contactMap = contacts.reduce((acc: any, contact: any) => {
-        acc[contact.id] = contact;
-        return acc;
-      }, {});
-
       for (const task of campaignTasks) {
-        const contact = contactMap[task.contact_id];
+        const { data: contact, error: contactError } = await supabase
+          .from("contacts")
+          .select("*")
+          .eq("id", task.contact_id)
+          .single();
 
-        if (!contact) {
-          console.error("No contact found for task:", task.id);
+        if (contactError || !contact) {
+          console.error("Error fetching contact details:", contactError || "No contact found.");
           setError(`Failed to fetch contact details for task ${task.id}.`);
           continue;
         }
@@ -160,21 +143,20 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           first_name: contact.first_name,
           last_name: contact.last_name,
           phone: contact.phone,
-          user_id: contact.user_id
+          user_id: contact.user_id // Ensure user_id is included
         };
-
+        
         try {
-          await axios.post("/api/make-call", {
+          await axios.post("/api/execute-calls", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
-            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Added optional chaining
+            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
-            sendSMS: sendSMS,
-            sendEmail: sendEmail
+            voiceId: "CwhRBWXzGAHq8TQ4Fs17"
           });
 
+          console.log('execute-call task completed');
           const { error: updateTaskError } = await supabase
             .from('call_tasks')
             .update({ call_status: 'Completed' }) // Update the status to "Completed"
@@ -201,12 +183,32 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     }
   };
 
-  const handlePauseCampaign = () => {
+  const handlePauseCampaign = async () => {
     setIsPausing(true);
-    setTimeout(() => {
-      alert("Campaign paused.");
+    setError(null); // Reset error state
+
+    try {
+      const newStatus = isPaused ? 'Resumed' : 'Paused'; // Determine new status
+      const { error: updateStatusError } = await supabase
+        .from('call_tasks')
+        .update({ call_status: newStatus }) // Update the status based on current state
+        .eq('campaign_id', id); // Update all tasks related to the campaign
+
+      if (updateStatusError) {
+        console.error('Error updating call task status:', updateStatusError.message);
+        setError(`Failed to update call task status. ${updateStatusError.message}`);
+      } else {
+        console.log(`Call task status updated to "${newStatus}" for campaign ID:`, id);
+        setIsPaused(!isPaused); // Toggle the pause state
+      }
+
+      toast.info(`Campaign ${newStatus.toLowerCase()}.`); // New toast notification
+    } catch (error) {
+      console.error("Error pausing/resuming campaign:", error);
+      setError("Failed to update campaign status. Check the console for more details.");
+    } finally {
       setIsPausing(false);
-    }, 500);
+    }
   };
 
   const openModal = async (task: CallTask) => {
@@ -231,13 +233,91 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setIsModalOpen(false);
   };
 
+  const handleAbortCampaign = async () => {
+    setError(null); // Reset error state
+
+    try {
+      const { error: updateStatusError } = await supabase
+        .from('call_tasks')
+        .update({ call_status: 'Aborted' }) // Update the status to "Aborted"
+        .eq('campaign_id', id); // Update all tasks related to the campaign
+
+      if (updateStatusError) {
+        console.error('Error updating call task status:', updateStatusError.message);
+        setError(`Failed to update call task status. ${updateStatusError.message}`);
+      } else {
+        console.log(`Call task status updated to "Aborted" for campaign ID:`, id);
+        toast.error("Campaign aborted successfully!"); // New toast notification
+      }
+    } catch (error) {
+      console.error("Error aborting campaign:", error);
+      setError("Failed to abort campaign. Check the console for more details.");
+    }
+  };
+
+  const handleForceLaunchCampaign = async () => {
+    setIsLaunching(true);
+    setError(null);
+
+    try {
+      for (const task of campaignTasks) {
+        // Force launch logic here, similar to handleLaunchCampaign
+        const contactData = {
+          // Assuming you want to use the same contact data structure
+          first_name: task.contact_name.split(' ')[0], // Example: using contact_name for demonstration
+          last_name: task.contact_name.split(' ')[1] || '',
+          phone: task.contact_id, // Assuming contact_id is used as phone for demonstration
+          user_id: task.contact_id // Assuming contact_id is used as user_id for demonstration
+        };
+
+        await axios.post("/api/make-call", {
+          contact: contactData,
+          reason: task.call_subject,
+          twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER,
+          firstMessage: task.first_message || `Calling ${contactData.first_name} for ${task.call_subject}`,
+          userId: contactData.user_id,
+          voiceId: "CwhRBWXzGAHq8TQ4Fs17"
+        });
+
+        // Update task status to "Force Launched"
+        const { error: updateTaskError } = await supabase
+          .from('call_tasks')
+          .update({ call_status: 'Force Launched' })
+          .eq('id', task.id);
+
+        if (updateTaskError) {
+          console.error('Error updating call task status:', updateTaskError.message);
+          setError(`Failed to update status for task ${task.id}.`);
+        }
+      }
+
+      alert("Campaign force launched successfully!");
+    } catch (error) {
+      console.error("Error force launching campaign:", error);
+      setError("Failed to force launch campaign. Check the console for more details.");
+    } finally {
+      setIsLaunching(false);
+    }
+  };
+
   if (loading) {
     return <p className="text-center">Loading campaign data...</p>;
   }
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
-      {error ? (
+      <ToastContainer
+        position="top-right"
+        autoClose={3000} // Adjust timing as desired
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
+      />      {error ? (
         <p className="text-red-500">{error}</p>
       ) : campaignData ? (
         <>
@@ -245,42 +325,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           <p>Status: {campaignData.status}</p>
           <p>Start Date: {new Date(campaignData.start_date).toLocaleDateString()}</p>
           <p>End Date: {new Date(campaignData.end_date).toLocaleDateString()}</p>
-
-          {/* Toggle switches for SMS and Email */}
-          <div className="flex items-center mt-4">
-            <span className="mr-2">Send SMS:</span>
-            <Switch
-              checked={sendSMS === "yes"} // Update condition to check for "yes"
-              onChange={(value) => {setSendSMS(value ? "yes" : "no"), console.log(value ? "yes" : "no")}} // Update state to "yes" or "no"
-              className={`${
-                sendSMS === "yes" ? 'bg-green-600' : 'bg-gray-200'
-              } relative inline-flex items-center h-6 rounded-full w-11`}
-            >
-              <span className="sr-only">Send SMS</span>
-              <span
-                className={`${
-                  sendSMS === "yes" ? 'translate-x-6' : 'translate-x-1'
-                } inline-block w-4 h-4 transform bg-white rounded-full transition`}
-              />
-            </Switch>
-          </div>
-          <div className="flex items-center mt-2">
-            <span className="mr-2">Send Email:</span>
-            <Switch
-              checked={sendEmail === "yes"} // Update condition to check for "yes"
-              onChange={(value) => {setSendEmail(value ? "yes" : "no"), console.log(value ? "yes" : "no")}} // Update state to "yes" or "no"
-              className={`${
-                sendEmail === "yes" ? 'bg-green-600' : 'bg-gray-200'
-              } relative inline-flex items-center h-6 rounded-full w-11`}
-            >
-              <span className="sr-only">Send Email</span>
-              <span
-                className={`${
-                  sendEmail === "yes" ? 'translate-x-6' : 'translate-x-1'
-                } inline-block w-4 h-4 transform bg-white rounded-full transition`}
-              />
-            </Switch>
-          </div>
 
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
             <button
@@ -293,13 +337,28 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               {isLaunching ? "Launching..." : "Launch Campaign"}
             </button>
             <button
-              onClick={handlePauseCampaign}
-              disabled={isPausing}
-              className={`px-4 py-2 bg-red-500 text-white rounded-lg transition-all ${
-                isPausing ? "opacity-50 cursor-not-allowed" : "hover:bg-red-600"
+              onClick={handleForceLaunchCampaign} // New button for force launch
+              disabled={isLaunching}
+              className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
+                isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
               }`}
             >
-              {isPausing ? "Pausing..." : "Pause Campaign"}
+              {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
+            </button>
+            <button
+              onClick={handlePauseCampaign}
+              disabled={isPausing}
+              className={`px-4 py-2 ${isPaused ? 'bg-blue-500' : 'bg-red-500'} text-white rounded-lg transition-all ${
+                isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
+              }`}
+            >
+              {isPaused ? "Resume Campaign" : "Pause Campaign"}
+            </button>
+            <button
+              onClick={handleAbortCampaign}
+              className="px-4 py-2 bg-yellow-500 text-white rounded-lg transition-all hover:bg-yellow-600"
+            >
+              Abort Campaign
             </button>
           </div>
 
@@ -307,7 +366,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           <div className="overflow-x-auto">
             <table className="table-auto w-full text-left border-collapse mt-4">
               <thead>
-                <tr className="bg-gray-200">
+                <tr className="bg-gray-800">
                   <th className="px-4 py-2 border">Call Subject</th>
                   <th className="px-4 py-2 border">Contact Name</th>
                   <th className="px-4 py-2 border">Call Status</th>
@@ -317,7 +376,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               </thead>
               <tbody>
                 {campaignTasks.map((task) => (
-                  <tr key={task.id} className="hover:bg-gray-100">
+                  <tr key={task.id} className="hover:bg-gray-700">
                     <td className="border px-4 py-2">{task.call_subject}</td>
                     <td className="border px-4 py-2">{task.contact_name}</td>
                     <td className="border px-4 py-2">{task.call_status}</td>
