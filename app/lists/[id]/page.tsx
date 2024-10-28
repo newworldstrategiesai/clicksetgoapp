@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import ContactsTable from '@/components/ContactsTable'; // Adjust the import path as necessary
+import Modal from 'react-modal';
+import { supabase } from 'utils/supabaseClient';
 
 interface Contact {
   id: string;
@@ -20,7 +21,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const userId = 'some-user-id'; // Replace this with how you get the actual userId
-  const selectedContactsForList = new Set<string>(); // Initialize selected contacts as a Set
+  const [selectedContactsForList, setSelectedContactsForList] = useState<Set<string>>(new Set()); // Initialize as state
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -57,16 +58,50 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     setSearchQuery(value); // Update the search query state
   };
 
-  // Filter contacts based on search query
-  const filteredContacts = contacts.filter(contact =>
-    contact.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    contact.last_name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const handleAddToList = (selectedContacts: string[], listId: string) => {
+    // Implement adding contacts to list
+    // Example:
+    // fetch(`/api/lists/${listId}/add-contacts`, { method: 'POST', body: JSON.stringify({ contacts: selectedContacts }) })
+    //   .then(...)
+    console.log(`Adding contacts: ${selectedContacts} to list: ${listId}`);
+  };
 
-  const handleAddToList = () => console.log('Add to list clicked'); // Ensure this function is defined
+  const handleSelectAll = () => {
+    if (selectedContactsForList.size === contacts.length) {
+      setSelectedContactsForList(new Set());
+    } else {
+      const allIds = contacts.map((contact) => contact.id);
+      setSelectedContactsForList(new Set(allIds));
+    }
+  };
+
+  const handleToggleSelectContact = (contactId: string) => {
+    setSelectedContactsForList((prevSelected) => {
+      const updated = new Set(prevSelected);
+      if (updated.has(contactId)) {
+        updated.delete(contactId);
+      } else {
+        updated.add(contactId);
+      }
+      return updated;
+    });
+  };
+
+  const handleSelectContact = (contactId: string) => {
+    if (contactId === "new") {
+      // Open Add Contact Modal or perform another action
+      console.log("Open Add Contact Modal");
+    } else {
+      // Handle other contact selections if needed
+      const contact = contacts.find((c) => c.id === contactId);
+      if (contact) {
+        handleContactClick(contact);
+      }
+    }
+  };
 
   return (
-    <section className="mb-32 bg-black text-white">
+    <section className="mb-32 bg-black min-h-screen">
       <div className="fixed top-0 left-0 w-full bg-black text-white py-4 z-10">
         <div className="max-w-6xl px-4 py-2 mx-auto sm:px-6 sm:pt-24 lg:px-8">
           <h1 className="text-4xl font-extrabold sm:text-center sm:text-6xl">
@@ -76,16 +111,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
       </div>
       <div className="pt-24"> {/* Add padding to avoid overlap with fixed header */}
         <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
-          <div className="sm:align-center sm:flex sm:flex-col">
-            <h2 className="text-3xl font-bold">Contacts</h2>
-            <input
-              type="text"
-              placeholder="Search contacts..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)} // Pass the string value
-              className="mt-4 p-2 rounded border border-gray-600 bg-gray-900 text-white"
-            />
-          </div>
+          {/* No search bar and no buttons here as per your requirement */}
         </div>
         <div className="p-4">
           {loading ? (
@@ -94,14 +120,17 @@ const ListPage = ({ params }: { params: { id: string } }) => {
             <p className="text-red-500">{error}</p>
           ) : (
             <ContactsTable
-              contacts={filteredContacts} // Use filtered contacts
+              contacts={contacts} // Use all contacts as filtering is handled within ContactsTable
               onContactClick={handleContactClick}
               onCallClick={handlePhoneClick}
-              onAddToList={handleAddToList} // Ensure this function is defined
-              searchQuery={searchQuery} // Add this prop
-              onSearchChange={handleSearchChange} // Add this prop
+              onAddToList={handleAddToList}
+              searchQuery={searchQuery} // Pass the search query
+              onSearchChange={handleSearchChange} // Pass the search change handler
               userId={userId} // Pass userId prop to ContactsTable
               selectedContacts={selectedContactsForList} // Pass selected contacts
+              onToggleSelectContact={handleToggleSelectContact} // Pass toggle handler
+              onSelectAll={handleSelectAll} // Pass select all handler
+              onSelectContact={handleSelectContact} // Pass select contact handler
             />
           )}
         </div>

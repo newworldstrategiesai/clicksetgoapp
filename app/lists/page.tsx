@@ -30,6 +30,7 @@ export default async function ListsPage() {
                     <div className="p-4">
                         <ListsTable 
                             lists={lists || []} 
+                            userId={user.id} // Pass userId to ListsTable
                         />
                     </div>
                 </section>

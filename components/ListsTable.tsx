@@ -1,13 +1,13 @@
 // components/ListsTable.tsx
-"use client"; // This is a client component
+"use client"; // Ensure this is a client component
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus } from "@fortawesome/free-solid-svg-icons";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import Modal from './ui/Modal';
-
+import CreateListModal from './CreateListModal'; // Import CreateListModal
+import { supabase } from '@/utils/supabaseClient'; // Ensure correct path
 
 interface List {
   id: string;
@@ -19,13 +19,15 @@ interface List {
 
 interface ListsTableProps {
   lists: List[];
+  userId: string; // Pass userId as prop to handle list creation
 }
 
-const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
+const ListsTable: React.FC<ListsTableProps> = ({ lists, userId }) => {
   const router = useRouter();
   const [editingList, setEditingList] = useState<{ id: string, name: string } | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [deleteConfirmation, setDeleteConfirmation] = useState<{ id: string, name: string } | null>(null);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false); // State for CreateListModal
 
   const handleEdit = (e: React.MouseEvent, listId: string, currentName: string) => {
     e.stopPropagation();
@@ -87,12 +89,21 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
     router.push(`/lists/${listId}`);
   };
 
+  const handleCreateList = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  const handleSaveCreateList = async (selectedContacts: string[], listId: string) => {
+    // Since selectedContacts is empty in this context, simply refresh the list
+    router.refresh();
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto bg-gray-900 rounded-lg shadow-lg overflow-hidden">
       <div className="flex justify-between items-center p-6 bg-gray-800">
         <h2 className="text-2xl font-bold text-white">Lists</h2>
         <button 
-          onClick={() => console.log('Open new list modal')} 
+          onClick={handleCreateList} // Open the create list modal
           className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full transition duration-300 ease-in-out flex items-center"
         >
           <FontAwesomeIcon icon={faPlus} className="mr-2" />
@@ -125,7 +136,7 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={(e) => handleEdit(e, list.id, list.name)}
-                    className="text-blue-400 hover:text-blue-300 mr-3 transition duration-150 ease-in-out"
+                    className="text-blue-400 hover:text-blue-300 transition duration-150 ease-in-out mr-3"
                   >
                     <FontAwesomeIcon icon={faEdit} />
                   </button>
@@ -141,6 +152,8 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
           </tbody>
         </table>
       </div>
+      
+      {/* Edit List Modal */}
       {isEditModalOpen && editingList && (
         <Modal isOpen={isEditModalOpen} onClose={() => setIsEditModalOpen(false)}>
           <h2 className="text-xl font-bold mb-4">Edit List</h2>
@@ -166,6 +179,8 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
           </div>
         </Modal>
       )}
+      
+      {/* Delete Confirmation Modal */}
       {deleteConfirmation && (
         <Modal isOpen={!!deleteConfirmation} onClose={() => setDeleteConfirmation(null)}>
           <h2 className="text-xl font-bold mb-4">Confirm Delete</h2>
@@ -185,6 +200,17 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists }) => {
             </button>
           </div>
         </Modal>
+      )}
+      
+      {/* Create List Modal */}
+      {isCreateModalOpen && (
+        <CreateListModal
+          isOpen={isCreateModalOpen}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSave={handleSaveCreateList}
+          selectedContactsForList={new Set()} // Empty set as no contacts are selected in this context
+          userId={userId}
+        />
       )}
     </div>
   );

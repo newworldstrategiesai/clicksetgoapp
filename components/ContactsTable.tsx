@@ -1,9 +1,18 @@
-"use client";
+// components/ContactsTable.tsx
+
+'use client';
 
 import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faStar, faClock, faUser, faTh, faVoicemail } from "@fortawesome/free-solid-svg-icons";
-import AddToListModal from "./AddToListModal";
+import {
+  faPlus,
+  faStar,
+  faClock,
+  faUser,
+  faTh,
+  faVoicemail,
+} from "@fortawesome/free-solid-svg-icons";
+import AddToListModal from "@/components/AddToListModal";
 import Link from "next/link";
 
 interface Contact {
@@ -24,6 +33,8 @@ interface ContactsTableProps {
   onAddToList: (selectedContacts: string[], listId: string) => void;
   onSelectContact?: (contactId: string) => void;
   selectedContacts: Set<string>;
+  onToggleSelectContact: (contactId: string) => void; // New prop
+  onSelectAll: () => void; // New prop
 }
 
 const ContactsTable: React.FC<ContactsTableProps> = ({
@@ -36,10 +47,12 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
   onAddToList,
   onSelectContact,
   selectedContacts,
+  onToggleSelectContact, // Destructure the new prop
+  onSelectAll, // Destructure the new prop
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectAll, setSelectAll] = useState(false);
 
+  // Handle search filtering
   const lowercasedQuery = searchQuery.toLowerCase();
   const filteredContacts = contacts.filter((contact) => {
     const firstName = contact.first_name || "";
@@ -53,31 +66,28 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
     );
   });
 
-  const groupedContacts = filteredContacts.reduce((acc: any, contact) => {
-    const firstLetter = (contact.first_name || "").charAt(0).toUpperCase();
-    if (!acc[firstLetter]) acc[firstLetter] = [];
-    acc[firstLetter].push(contact);
-    return acc;
-  }, {});
+  // Group contacts by the first letter of their first name
+  const groupedContacts = filteredContacts.reduce(
+    (acc: Record<string, Contact[]>, contact) => {
+      const firstLetter = (contact.first_name || "").charAt(0).toUpperCase();
+      if (!acc[firstLetter]) acc[firstLetter] = [];
+      acc[firstLetter].push(contact);
+      return acc;
+    },
+    {}
+  );
 
+  // Handle "Select All" checkbox
   const handleSelectAll = () => {
-    if (selectAll) {
-      selectedContacts.clear();
-    } else {
-      filteredContacts.forEach(contact => selectedContacts.add(contact.id));
-    }
-    setSelectAll(!selectAll);
+    onSelectAll();
   };
 
+  // Toggle individual contact selection
   const toggleSelectContact = (contactId: string) => {
-    if (selectedContacts.has(contactId)) {
-      selectedContacts.delete(contactId);
-    } else {
-      selectedContacts.add(contactId);
-    }
-    setSelectAll(selectedContacts.size === filteredContacts.length);
+    onToggleSelectContact(contactId);
   };
 
+  // Handle "Go" button click to add selected contacts to a list
   const handleGoClick = () => {
     if (selectedContacts.size > 0) {
       setIsModalOpen(true);
@@ -86,22 +96,28 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
     }
   };
 
+  // Handle adding selected contacts to a specific list
   const handleAddToList = (listId: string) => {
     onAddToList(Array.from(selectedContacts), listId);
     setIsModalOpen(false);
   };
 
   return (
-    <div className="bg-black text-white h-screen flex flex-col">
-      {/* Header */}
+    <div className="flex flex-col flex-grow">
+      {/* Header with "+" button */}
       <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
         <Link href="/lists">
           <button className="text-blue-500 text-lg">Lists</button>
         </Link>
-        <h1 className="text-3xl font-bold">Contacts</h1>
-        <button className="text-blue-500 text-lg">
-          <FontAwesomeIcon icon={faPlus} onClick={() => onSelectContact && onSelectContact("new")} />
-        </button>
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => onSelectContact && onSelectContact("new")}
+            className="text-blue-500 text-lg"
+            aria-label="Add Contact"
+          >
+            <FontAwesomeIcon icon={faPlus} />
+          </button>
+        </div>
       </div>
 
       {/* Search bar */}
@@ -115,13 +131,13 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         />
       </div>
 
-      {/* Select All */}
+      {/* Select All and Go Button */}
       <div className="flex justify-between px-4 py-2 border-b border-gray-700">
         <div className="flex items-center">
           <input
             type="checkbox"
             className="mr-2"
-            checked={selectAll}
+            checked={selectedContacts.size === filteredContacts.length && filteredContacts.length > 0}
             onChange={handleSelectAll}
           />
           <label className="text-gray-400">Select All</label>
@@ -133,52 +149,53 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
 
       {/* Contacts List */}
       <div className="flex-grow overflow-y-auto">
-        {Object.keys(groupedContacts).sort().map((letter) => (
-          <div key={letter} className="p-4">
-            <h2 className="text-gray-500 text-sm mb-2">{letter}</h2>
-            {groupedContacts[letter].map((contact: Contact) => (
-  <div
-    key={contact.id}
-    className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors ${
-      selectedContacts.has(contact.id) ? "bg-gray-800" : ""
-    }`}
-    onClick={() => onContactClick(contact)} // This should remain
-  >
-    <div className="flex items-center w-full">
-      {/* Checkbox at the start */}
-      <div onClick={(e) => e.stopPropagation()} className="mr-3">
-        <input
-          type="checkbox"
-          checked={selectedContacts.has(contact.id)}
-          onChange={() => toggleSelectContact(contact.id)}
-          className="cursor-pointer"
-        />
-      </div>
-      {/* Avatar */}
-      <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
-        {contact.first_name.charAt(0).toUpperCase()}
-      </div>
-      <div className="flex-grow">
-        <p className="text-lg">
-          {contact.first_name} {contact.last_name}
-        </p>
-        <p className="text-gray-400">{contact.phone}</p>
-      </div>
-    </div>
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onCallClick(contact);
-      }}
-      className="p-2 bg-green-600 rounded text-white hover:bg-green-500 transition-colors"
-    >
-      📞
-    </button>
-  </div>
-))}
-
-          </div>
-        ))}
+        {Object.keys(groupedContacts)
+          .sort()
+          .map((letter) => (
+            <div key={letter} className="p-4">
+              <h2 className="text-gray-500 text-sm mb-2">{letter}</h2>
+              {groupedContacts[letter].map((contact: Contact) => (
+                <div
+                  key={contact.id}
+                  className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors ${
+                    selectedContacts.has(contact.id) ? "bg-gray-800" : ""
+                  }`}
+                  onClick={() => onContactClick(contact)} // This should remain
+                >
+                  <div className="flex items-center w-full">
+                    {/* Checkbox at the start */}
+                    <div onClick={(e) => e.stopPropagation()} className="mr-3">
+                      <input
+                        type="checkbox"
+                        checked={selectedContacts.has(contact.id)}
+                        onChange={() => toggleSelectContact(contact.id)}
+                        className="cursor-pointer"
+                      />
+                    </div>
+                    {/* Avatar */}
+                    <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
+                      {contact.first_name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="flex-grow">
+                      <p className="text-lg">
+                        {contact.first_name} {contact.last_name}
+                      </p>
+                      <p className="text-gray-400">{contact.phone}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onCallClick(contact);
+                    }}
+                    className="p-2 bg-green-600 rounded text-white hover:bg-green-500 transition-colors"
+                  >
+                    📞
+                  </button>
+                </div>
+              ))}
+            </div>
+          ))}
       </div>
 
       {/* Add to List Modal */}
@@ -188,40 +205,6 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         onAddToList={handleAddToList}
         userId={userId}
       />
-
-      {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-700 flex justify-around py-4 text-white z-10">
-        <Link href="/favorites">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faStar} size="lg" />
-            <span className="text-xs mt-1">Favorites</span>
-          </div>
-        </Link>
-        <Link href="/recents">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faClock} size="lg" />
-            <span className="text-xs mt-1">Recents</span>
-          </div>
-        </Link>
-        <Link href="/contacts">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faUser} size="lg" />
-            <span className="text-xs mt-1">Contacts</span>
-          </div>
-        </Link>
-        <Link href="/dialer">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faTh} size="lg" />
-            <span className="text-xs mt-1">Keypad</span>
-          </div>
-        </Link>
-        <Link href="/call-logs">
-          <div className="flex flex-col items-center">
-            <FontAwesomeIcon icon={faVoicemail} size="lg" />
-            <span className="text-xs mt-1">Calls</span>
-          </div>
-        </Link>
-      </div>
     </div>
   );
 };
