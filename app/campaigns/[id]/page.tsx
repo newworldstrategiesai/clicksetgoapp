@@ -4,12 +4,11 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import axios from "axios";
 import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
-import { Switch } from '@headlessui/react'; // Import Switch component for toggle
 import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
 import 'react-toastify/dist/ReactToastify.css';
-
-
-
+import { useRouter } from 'next/navigation'; // Import useRouter
+import { useSearchParams } from 'next/navigation'; // Import useSearchParams
+import CryptoJS from 'crypto-js';
 
 interface CallTask {
   id: string;
@@ -38,6 +37,25 @@ interface CampaignPageProps {
 
 export default function CampaignPage({ params }: CampaignPageProps) {
   const { id } = params;
+  const router = useRouter(); // Initialize useRouter
+  const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
+  const userId = searchParams?.get('userId') || null; // Get encrypted userId
+  const apiKey = searchParams?.get('apiKey') || null; // Get encrypted apiKey
+  const twilioSid = searchParams?.get('twilioSid') || null; // Get encrypted twilioSid
+  const twilioAuthToken = searchParams?.get('twilioAuthToken') || null; // Get encrypted twilioAuthToken
+  const vapiKey = searchParams?.get('vapiKey') || null; // Get encrypted vapiKey
+
+  // Decrypt the keys using CryptoJS
+  const decryptedUserId = userId ? CryptoJS.AES.decrypt(userId, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8) : "";
+  const decryptedApiKey = apiKey ? CryptoJS.AES.decrypt(apiKey, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8) : "";
+  const decryptedTwilioSid = twilioSid ? CryptoJS.AES.decrypt(twilioSid, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
+  const decryptedTwilioAuthToken = twilioAuthToken ? CryptoJS.AES.decrypt(twilioAuthToken, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
+  const decryptedVapiKey = vapiKey ? CryptoJS.AES.decrypt(vapiKey, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
+
+  // Use the decrypted keys as needed
+  const credentials = { apiKey: decryptedApiKey, twilioSid: decryptedTwilioSid, twilioAuthToken: decryptedTwilioAuthToken, vapiKey: decryptedVapiKey };
+
+
   const [campaignTasks, setCampaignTasks] = useState<(CallTask & { contact_name: string })[]>([]);
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null); // Updated type
   const [error, setError] = useState<string | null>(null);
@@ -49,6 +67,30 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<CallTask | null>(null);
+
+  const [twilioNumbers, setTwilioNumbers] = useState<any[]>([]); // State to store Twilio numbers
+  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string | null>(null); // State for selected Twilio number
+
+  // Fetch Twilio numbers
+  const fetchTwilioNumbers = async () => {
+    try {
+      const userId = decryptedUserId;
+      const twilioClient = { twilioSid: credentials.twilioSid, twilioAuthToken:credentials.twilioAuthToken };
+
+      const response = await axios.post(`/api/get-twilio-numbers`, {
+        user_Id: userId,
+        twilioClient: twilioClient // Include the credentials data
+      });
+
+      setTwilioNumbers(response.data.allNumbers || []);
+      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+      }
+    } catch (error) {
+      console.error('Error fetching Twilio numbers:', error);
+      toast.error('Failed to fetch Twilio numbers. Please try again later.');
+    }
+  };
 
   // Fetch campaign details and call tasks
   useEffect(() => {
@@ -110,6 +152,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
     fetchCampaignAndTasks();
 
+    fetchTwilioNumbers(); // Fetch Twilio numbers on component mount
+
     return () => {
       isMounted = false; // Cleanup function to prevent memory leaks
     };
@@ -150,10 +194,11 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           await axios.post("/api/execute-calls", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
-            twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
+            twilioNumber: selectedTwilioNumber || campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use selected Twilio number
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-            voiceId: "CwhRBWXzGAHq8TQ4Fs17"
+            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
+            credentials
           });
 
           console.log('execute-call task completed');
@@ -261,40 +306,64 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
     try {
       for (const task of campaignTasks) {
-        // Force launch logic here, similar to handleLaunchCampaign
+        const { data: contact, error: contactError } = await supabase
+          .from("contacts")
+          .select("*")
+          .eq("id", task.contact_id)
+          .single();
+
+        if (contactError || !contact) {
+          console.error("Error fetching contact details:", contactError || "No contact found.");
+          setError(`Failed to fetch contact details for task ${task.id}.`);
+          continue;
+        }
+
+        if (!contact.phone) {
+          console.error(`Contact for task ${task.id} does not have a phone number.`);
+          setError(`Contact for task ${task.id} does not have a phone number.`);
+          continue;
+        }
+
         const contactData = {
-          // Assuming you want to use the same contact data structure
-          first_name: task.contact_name.split(' ')[0], // Example: using contact_name for demonstration
-          last_name: task.contact_name.split(' ')[1] || '',
-          phone: task.contact_id, // Assuming contact_id is used as phone for demonstration
-          user_id: task.contact_id // Assuming contact_id is used as user_id for demonstration
+          first_name: contact.first_name,
+          last_name: contact.last_name,
+          phone: contact.phone,
+          user_id: contact.user_id // Ensure user_id is included
         };
+        
+        try {
+          await axios.post("/api/make-call", {
+            contact: contactData, // Ensure this contains all necessary fields
+            reason: task.call_subject,
+            twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
+            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
+            userId: contact.user_id, // Ensure user ID is passed to fetch API keys
+            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
+            credentials
+          });
 
-        await axios.post("/api/make-call", {
-          contact: contactData,
-          reason: task.call_subject,
-          twilioNumber: campaignData?.twilioNumber || process.env.TWILIO_NUMBER,
-          firstMessage: task.first_message || `Calling ${contactData.first_name} for ${task.call_subject}`,
-          userId: contactData.user_id,
-          voiceId: "CwhRBWXzGAHq8TQ4Fs17"
-        });
+          console.log('execute-call task completed');
+          const { error: updateTaskError } = await supabase
+            .from('call_tasks')
+            .update({ call_status: 'Completed' }) // Update the status to "Completed"
+            .eq('id', task.id); // Update the specific call task row
 
-        // Update task status to "Force Launched"
-        const { error: updateTaskError } = await supabase
-          .from('call_tasks')
-          .update({ call_status: 'Force Launched' })
-          .eq('id', task.id);
-
-        if (updateTaskError) {
-          console.error('Error updating call task status:', updateTaskError.message);
-          setError(`Failed to update status for task ${task.id}.`);
+          if (updateTaskError) {
+            console.error('Error updating call task status:', updateTaskError.message);
+            setError(`Failed to update status for task ${task.id}.`);
+          } else {
+            console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
+          }
+        } catch (apiError) {
+          console.error(`Failed to initiate call for task ${task.id}:`, apiError);
+          setError(`Failed to initiate call for task ${task.id}.`);
         }
       }
 
-      alert("Campaign force launched successfully!");
+      alert("Campaign launched successfully!");
     } catch (error) {
-      console.error("Error force launching campaign:", error);
-      setError("Failed to force launch campaign. Check the console for more details.");
+      console.error("Error launching campaign:", error);
+      setError("Failed to launch campaign. Check the console for more details.");
     } finally {
       setIsLaunching(false);
     }

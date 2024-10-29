@@ -5,6 +5,7 @@ import CampModal from '@/components/CampModal'; // Import the CampModal componen
 import { createClient, PostgrestError } from '@supabase/supabase-js'; // Import Supabase client
 import { Campaign } from '@/types'; // Import the Campaign type from the types file
 import { useRouter } from 'next/navigation';
+import CryptoJS from 'crypto-js'; // Import CryptoJS for encryption
 
 interface CampaignTableProps {
   userId: string; // Receive userId as a prop
@@ -58,8 +59,22 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
 
   // Function to handle click and redirect to the campaign page
   const handleClick = (campaignId: string) => {
-    const queryString = new URLSearchParams({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }).toString();
-    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with query parameters
+    // Encrypt sensitive data
+    const encryptedUserId = CryptoJS.AES.encrypt(userId, process.env.SECRET_KEY || "").toString();
+    const encryptedApiKey = CryptoJS.AES.encrypt(apiKey, process.env.SECRET_KEY || "").toString();
+    const encryptedTwilioSid = CryptoJS.AES.encrypt(twilioSid, process.env.SECRET_KEY || "").toString();
+    const encryptedTwilioAuthToken = CryptoJS.AES.encrypt(twilioAuthToken, process.env.SECRET_KEY || "").toString();
+    const encryptedVapiKey = CryptoJS.AES.encrypt(vapiKey, process.env.SECRET_KEY || "").toString();
+
+    const queryString = new URLSearchParams({ 
+      userId: encryptedUserId, 
+      apiKey: encryptedApiKey, 
+      twilioSid: encryptedTwilioSid, 
+      twilioAuthToken: encryptedTwilioAuthToken, 
+      vapiKey: encryptedVapiKey 
+    }).toString();
+    
+    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with encrypted query parameters
   };
 
   // Open modal for campaign details

@@ -40,7 +40,7 @@ const formatPhoneNumber = (phoneNumber: string) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'IN');
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
