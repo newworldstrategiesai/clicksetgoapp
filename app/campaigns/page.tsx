@@ -11,8 +11,6 @@ export default async function CampaignsPage() {
         const supabase = createClient();
         const user = await getUser(supabase); // Get the logged-in user
 
-        console.log('User fetched:', user); // Debugging statement
-
         if (!user) {
             return redirect('/signin'); // Redirect to signin if no user
         }
