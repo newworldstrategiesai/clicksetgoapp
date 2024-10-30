@@ -233,7 +233,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null); // Reset error state
 
     try {
-      const newStatus = isPaused ? 'Resumed' : 'Paused'; // Determine new status
+      const newStatus = isPaused ? 'Scheduled' : 'Paused'; // Determine new status
       const { error: updateStatusError } = await supabase
         .from('call_tasks')
         .update({ call_status: newStatus }) // Update the status based on current state

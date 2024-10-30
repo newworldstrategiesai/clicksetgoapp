@@ -30,9 +30,15 @@ interface TwilioNumber {
 interface ContactsProps {
   userId: string;
   onAddToList: (ids: string[], listId: string) => void;
+  AllApiKeys: {
+    apiKey: string;
+    twilioSid: string;
+    twilioAuthToken: string;
+    vapiKey: string;
+  };
 }
 
-const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
+const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [detailsModalIsOpen, setDetailsModalIsOpen] = useState(false);
@@ -77,8 +83,17 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
     };
 
     const fetchTwilioNumbers = async () => {
+      const twilioClient = {
+        twilioSid: AllApiKeys.twilioSid,
+        twilioAuthToken: AllApiKeys.twilioAuthToken
+      };
+      console.log(twilioClient);
       try {
-        const response = await fetch("/api/get-twilio-numbers");
+        const response = await fetch("/api/get-twilio-numbers", {
+          method: "POST",
+          headers: {"content-type": 'application/json'},
+          body: JSON.stringify({user_Id: userId, twilioClient:twilioClient})
+        });
         const twilioNumbersData = await response.json();
         setTwilioNumbers(twilioNumbersData.allNumbers || []);
       } catch (error) {
