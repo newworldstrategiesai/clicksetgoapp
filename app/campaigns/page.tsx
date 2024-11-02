@@ -17,6 +17,22 @@ export default async function CampaignsPage() {
             return redirect('/signin'); // Redirect to signin if no user
         }
 
+        const { data, error } = await supabase
+            .from('api_keys' as any)  // Cast as 'any' to bypass type checking
+            .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
+            .eq('user_id', user.id)
+            .single();
+
+        if (error || !data) {
+            console.error('Failed to fetch Eleven Labs API key');
+            return redirect('/signin');  // Handle this case as appropriate
+        }
+
+        const apiKey = data.eleven_labs_key;
+        const twilioSid = data.twilio_sid;
+        const twilioAuthToken = data.twilio_auth_token;
+        const vapiKey = data.vapi_key;
+
         return (
             <section className="mb-32 bg-black min-h-screen">
                 <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
@@ -27,7 +43,7 @@ export default async function CampaignsPage() {
                     </div>
                 </div>
                 <div className="p-4">
-                    <CampaignTable userId={user.id} /> {/* Pass userId to CampaignTable */}
+                    <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey} /> {/* Pass userId to CampaignTable */}
                 </div>
             </section>
         );

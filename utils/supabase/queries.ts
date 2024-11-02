@@ -1,3 +1,5 @@
+// app/utils/supabase/queries.ts
+
 import { SupabaseClient } from '@supabase/supabase-js'; // Correct import for SupabaseClient
 
 // Existing functions
@@ -160,4 +162,82 @@ export async function saveApiKeys(
 
   // Return the result explicitly
   return { success: true, data };
+}
+
+// Function to get notification settings
+export async function getUserNotificationSettings(
+  supabase: SupabaseClient,
+  userId: string
+): Promise<NotificationSettings | null> {
+  try {
+    const { data, error } = await supabase
+      .from('notification_settings')
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (error && error.code !== 'PGRST116') { // 'PGRST116' is the error code for "no rows found"
+      console.error('Error fetching notification settings:', error);
+      return null;
+    }
+
+    if (!data) {
+      // Return default settings if none exist
+      return {
+        userId,
+        emailInboundCalls: true,
+        smsInboundCalls: false,
+        emailOutboundCallCompletion: true,
+        smsOutboundCalls: true,
+        campaignEmailSummary: true,
+        campaignSmsInitiation: true,
+      };
+    }
+
+    return {
+      userId: data.user_id,
+      emailInboundCalls: data.email_inbound_calls,
+      smsInboundCalls: data.sms_inbound_calls,
+      emailOutboundCallCompletion: data.email_outbound_call_completion,
+      smsOutboundCalls: data.sms_outbound_calls,
+      campaignEmailSummary: data.campaign_email_summary,
+      campaignSmsInitiation: data.campaign_sms_initiation,
+    };
+  } catch (err: any) {
+    console.error('Unexpected error fetching notification settings:', err);
+    return null;
+  }
+}
+
+// Function to save notification settings
+export async function saveNotificationSettings(
+  supabase: SupabaseClient,
+  settings: NotificationSettings
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const { data, error } = await supabase
+      .from('notification_settings')
+      .upsert(
+        {
+          user_id: settings.userId,
+          email_inbound_calls: settings.emailInboundCalls,
+          sms_inbound_calls: settings.smsInboundCalls,
+          email_outbound_call_completion: settings.emailOutboundCallCompletion,
+          sms_outbound_calls: settings.smsOutboundCalls,
+          campaign_email_summary: settings.campaignEmailSummary,
+          campaign_sms_initiation: settings.campaignSmsInitiation,
+        },
+        { onConflict: 'user_id' } // Ensures upsert based on user_id
+      );
+
+    if (error) {
+      console.error('Error saving notification settings:', error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    console.error('Unexpected error saving notification settings:', err);
+    return { success: false, error: err.message || 'An unexpected error occurred' };
+  }
 }

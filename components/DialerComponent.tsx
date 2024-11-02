@@ -40,7 +40,7 @@ const formatPhoneNumber = (phoneNumber: string) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'IN');
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -193,7 +193,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
 
     try {
       setLoading(true);
-      const response = await axios.post('/api/make-call-dialer', {
+      const response = await axios.post('/api/make-call', {
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,

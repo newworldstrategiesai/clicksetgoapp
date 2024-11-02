@@ -5,7 +5,13 @@ import axios from 'axios';
 import moment from 'moment';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faStar, faClock, faUser, faTh, faVoicemail } from '@fortawesome/free-solid-svg-icons';
+import {
+  faStar,
+  faClock,
+  faUser,
+  faTh,
+  faVoicemail,
+} from '@fortawesome/free-solid-svg-icons';
 import CallLogsList from './CallLogsList'; // Adjust the path based on your project structure
 import { CallLog } from '../types'; // Import the common CallLog type
 import { supabase } from '@/utils/supabaseClient'; // Import the Supabase client
@@ -40,7 +46,8 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             const contact = contacts.find(
               (contact: any) =>
                 contact.phone &&
-                contact.phone.replace(/\D/g, '') === log.customer?.number?.replace(/\D/g, '')
+                contact.phone.replace(/\D/g, '') ===
+                  log.customer?.number?.replace(/\D/g, '')
             );
             if (contact) {
               log.fullName = `${contact.first_name} ${contact.last_name}`;
@@ -88,11 +95,23 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
           >
             <div className="flex flex-col">
               <p className="text-lg">{log.fullName || log.customer?.number || 'Unknown'}</p>
-              <p className="text-sm text-gray-400">Unknown location</p> {/* Removed location */}
+              <p
+                className={`text-sm ${
+                  log.type === 'inboundPhoneCall' ? 'text-yellow-500' : 'text-green-500'
+                }`}
+              >
+                {log.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}
+              </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-400">{moment(log.startedAt).format('MMM D, h:mm A')}</p>
-              <p className="text-sm text-gray-400">{moment.utc(moment(log.endedAt).diff(moment(log.startedAt))).format('mm:ss')}</p>
+              <p className="text-sm text-gray-400">
+                {moment(log.startedAt).format('MMM D, h:mm A')}
+              </p>
+              <p className="text-sm text-gray-400">
+                {moment
+                  .utc(moment(log.endedAt).diff(moment(log.startedAt)))
+                  .format('mm:ss')}
+              </p>
             </div>
           </li>
         ))}
@@ -105,7 +124,10 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             {selectedLog.fullName && (
               <p>
                 <strong>Full Name:</strong>
-                <Link href={`/user-call-logs/${selectedLog.customer?.number || ''}`} legacyBehavior>
+                <Link
+                  href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
+                  legacyBehavior
+                >
                   <a className="text-blue-500 underline ml-2 cursor-pointer">
                     {selectedLog.fullName}
                   </a>
@@ -114,23 +136,49 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             )}
             <p>
               <strong>Caller:</strong>
-              <Link href={`/user-call-logs/${selectedLog.customer?.number || ''}`} legacyBehavior>
+              <Link
+                href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
+                legacyBehavior
+              >
                 <a className="text-blue-500 underline ml-2 cursor-pointer">
                   {selectedLog.customer?.number || 'Unknown'}
                 </a>
               </Link>
             </p>
-            <p><strong>Type:</strong> {selectedLog.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}</p>
-            <p><strong>Started At:</strong> {moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A')}</p>
-            <p><strong>Ended At:</strong> {moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A')}</p>
-            <p><strong>Duration:</strong> {moment.utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt))).format('HH:mm:ss')}</p>
-            <p><strong>Assistant:</strong> {selectedLog.assistant?.name || 'Unknown'}</p>
-            <p><strong>Summary:</strong> {selectedLog.summary || 'N/A'}</p>
+            <p>
+              <strong>Type:</strong>{' '}
+              {selectedLog.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}
+            </p>
+            <p>
+              <strong>Started At:</strong>{' '}
+              {moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A')}
+            </p>
+            <p>
+              <strong>Ended At:</strong>{' '}
+              {moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A')}
+            </p>
+            <p>
+              <strong>Duration:</strong>{' '}
+              {moment
+                .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
+                .format('HH:mm:ss')}
+            </p>
+            <p>
+              <strong>Assistant:</strong> {selectedLog.assistant?.name || 'Unknown'}
+            </p>
+            <p>
+              <strong>Summary:</strong> {selectedLog.summary || 'N/A'}
+            </p>
             <audio controls className="mt-4 mx-auto block">
               <source src={selectedLog.recordingUrl} type="audio/mpeg" />
               Your browser does not support the audio element.
             </audio>
-            <button onClick={closeModal} className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg">Close</button>
+            <button
+              onClick={closeModal}
+              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
+            >
+              Close
+            </button>
           </div>
         </div>
       )}
