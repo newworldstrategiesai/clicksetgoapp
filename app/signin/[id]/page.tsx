@@ -90,10 +90,10 @@ export default async function SignIn({
             viewProp === 'forgot_password'
               ? 'Reset Password'
               : viewProp === 'update_password'
-              ? 'Update Password'
-              : viewProp === 'signup'
-              ? 'Sign Up'
-              : 'Sign In'
+                ? 'Update Password'
+                : viewProp === 'signup'
+                  ? 'Sign Up'
+                  : 'Sign In'
           }
         >
           {viewProp === 'password_signin' && (
