@@ -3,7 +3,7 @@
 import React from 'react';
 import CampaignTable from '@/components/ui/CampaignTable'; // Import the new CampaignTable component
 import { redirect } from 'next/navigation';
-import { createClient } from '@/app/server';
+import { createClient } from '@/app/server.server';
 import { getUser } from '@/utils/supabase/queries';
 
 export default async function CampaignsPage() {

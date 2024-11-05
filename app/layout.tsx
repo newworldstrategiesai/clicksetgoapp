@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/Toasts/toaster';
 import { PropsWithChildren, Suspense } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname to get current route
 import 'styles/main.css';
+import { CountryProvider } from '@/context/CountryContext';
 
 export default function RootLayout({ children }: PropsWithChildren) {
   const pathname = usePathname(); // Get the current path
@@ -21,7 +22,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
           id="skip"
           className="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)]" style={{marginTop:"3.7rem"}}
         >
+          <CountryProvider>
           {children}
+          </CountryProvider>
         </main>
     
         {/* Conditionally render the Footer */}

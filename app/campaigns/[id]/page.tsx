@@ -32,8 +32,11 @@ interface CampaignData {
 }
 
 interface CampaignPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
 }
+
+
+
 
 export default function CampaignPage({ params }: CampaignPageProps) {
   const { id } = params;
@@ -54,7 +57,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   // Use the decrypted keys as needed
   const credentials = { apiKey: decryptedApiKey, twilioSid: decryptedTwilioSid, twilioAuthToken: decryptedTwilioAuthToken, vapiKey: decryptedVapiKey };
-
 
   const [campaignTasks, setCampaignTasks] = useState<(CallTask & { contact_name: string })[]>([]);
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null); // Updated type
