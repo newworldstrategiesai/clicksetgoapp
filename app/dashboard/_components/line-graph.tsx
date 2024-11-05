@@ -25,7 +25,14 @@ import {
 import axios from 'axios';
 
 export function LineGraph() {
-  const [chartData, setChartData] = useState([]);
+  // Define the type for chart data
+  type ChartData = {
+    month: string;
+    inbound: number;
+    outbound: number;
+  };
+
+  const [chartData, setChartData] = useState<ChartData[]>([]); // Specify the type here
   const [trendPercentage, setTrendPercentage] = useState(0);
 
   useEffect(() => {
@@ -34,7 +41,7 @@ export function LineGraph() {
         const response = await axios.get('/api/get-call-logs');
         const callLogs = response.data;
         const data = processCallLogs(callLogs);
-        setChartData(data);
+        setChartData(data); // This should now match the expected type
         calculateTrend(data);
       } catch (error) {
         console.error('Error fetching call logs:', error);
@@ -44,8 +51,9 @@ export function LineGraph() {
     fetchCallLogs();
   }, []);
 
-  const processCallLogs = (callLogs) => {
-    const counts = {};
+  const processCallLogs = (callLogs: { startedAt: string; type: string }[]): ChartData[] => { // Specify return type and parameter type
+    // Define the type for counts
+    const counts: { [key: string]: ChartData } = {}; // Specify the type here
 
     callLogs.forEach((log) => {
       const date = new Date(log.startedAt);
@@ -65,8 +73,8 @@ export function LineGraph() {
     });
 
     const sortedData = Object.values(counts).sort((a, b) => {
-      const dateA = new Date(a.month);
-      const dateB = new Date(b.month);
+      const dateA = new Date(a.month).getTime();
+      const dateB = new Date(b.month).getTime();
       return dateA - dateB;
     });
 
@@ -75,7 +83,7 @@ export function LineGraph() {
     return lastSixMonthsData;
   };
 
-  const calculateTrend = (data) => {
+  const calculateTrend = (data: ChartData[]) => {
     if (data.length < 2) return;
     const lastMonth = data[data.length - 1];
     const previousMonth = data[data.length - 2];
@@ -87,7 +95,7 @@ export function LineGraph() {
 
     const trend =
       ((totalLastMonth - totalPreviousMonth) / totalPreviousMonth) * 100;
-    setTrendPercentage(trend.toFixed(1));
+    setTrendPercentage(Number(trend.toFixed(1)));
   };
 
   return (

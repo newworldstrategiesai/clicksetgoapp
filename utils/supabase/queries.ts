@@ -2,6 +2,17 @@
 
 import { SupabaseClient } from '@supabase/supabase-js'; // Correct import for SupabaseClient
 
+// Define and export NotificationSettings type
+export interface NotificationSettings {
+  userId: string;
+  emailInboundCalls: boolean;
+  smsInboundCalls: boolean;
+  emailOutboundCallCompletion: boolean;
+  smsOutboundCalls: boolean;
+  campaignEmailSummary: boolean;
+  campaignSmsInitiation: boolean;
+}
+
 // Existing functions
 
 export async function getUser(supabase: SupabaseClient) {
