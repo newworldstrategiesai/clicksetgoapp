@@ -11,13 +11,14 @@ interface CallLog {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { number, page = '1' } = req.query;
+  const vapiKey = req.headers.authorization?.split(' ')[1];
 
   if (!number) {
     return res.status(400).json({ error: 'Missing number parameter' });
   }
 
   try {
-    const VAPI_API_KEY = process.env.VAPI_API_KEY;
+    const VAPI_API_KEY = vapiKey;
     const VAPI_CALL_URL = process.env.VAPI_CALL;
 
     if (!VAPI_API_KEY || !VAPI_CALL_URL) {
