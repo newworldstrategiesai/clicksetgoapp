@@ -8,7 +8,7 @@ import { getUser } from '@/utils/supabase/queries';
 
 export default async function DialerPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
 
     if (!user) {

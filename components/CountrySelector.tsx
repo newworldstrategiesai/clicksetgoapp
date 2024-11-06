@@ -23,7 +23,7 @@ const CountrySelector = () => {
   //   const fetchDefaultCountry = async () => {
   //     // Fetch the default country from Supabase
   //     const { data, error } = await supabase
-  //       .from('user_country_settings')
+  //       .from('client_settings')
   //       .select('default_country_name')
   //       .eq('user_id', user.id)
   //       .single();

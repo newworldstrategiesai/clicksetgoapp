@@ -159,7 +159,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
                 .eq('id', selectedCampaign.id);
 
               if (error) {
-                console.error('Error deleting campaign:', error);
+                console.error('Error deleting campaign:', error.message||error);
               } else {
                 console.log('Campaign deleted:', selectedCampaign.id);
                 await fetchCampaigns(); // Call the fetchCampaigns function here

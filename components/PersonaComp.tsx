@@ -67,16 +67,24 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
   // Fetch available voices from Eleven Labs
   const fetchVoices = async () => {
     try {
-      const response = await axios.get("https://api.elevenlabs.io/v1/voices", {
+      const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
         },
       });
 
       setVoices(response.data.voices);
-      if (response.data.voices.length > 0) {
-        setSelectedVoice(response.data.voices[0].voice_id); // Set default voice if available
+      // if (response.data.voices.length > 0) {
+      //   setSelectedVoice(response.data.voices[0].voice_id); // Set default voice if available
+      // }
+      if (response.data && response.data.voices) {
+        setVoices(response.data.voices);
+        if (response.data.voices.length > 0) {
+          setSelectedVoice(response.data.voices[0].voice_id);
+        }
       }
+      
     } catch (error) {
       console.error("Error fetching voices:", error);
     }
@@ -124,7 +132,7 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
         .insert(agentData)
         .select();
 
-      if (!insertError) {
+      if (data && !insertError) {
         setAgentId(data[0].id); // Save new agent ID
       }
 
