@@ -6,7 +6,7 @@ import { NewCampaign } from '@/components/new-campaign'; // ensure this path is 
 
 export default async function NewCampaignPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // Fetch the logged-in user
     const user = await getUser(supabase);

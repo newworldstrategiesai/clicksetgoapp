@@ -4,7 +4,7 @@ import { getUser } from '@/utils/supabase/queries';
 import { Home } from '@/components/Home';
 
 export default async function ContactDashboardPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUser(supabase);
 
   if (!user) {

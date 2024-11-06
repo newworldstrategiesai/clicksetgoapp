@@ -39,7 +39,7 @@
 //     setDefaultCountry({ name: selectedCountry, code: countryCode });
 
 //     const { error } = await supabase
-//       .from("user_country_settings")
+//       .from("client_settings")
 //       .update({ default_country_name: selectedCountry, default_country_code: countryCode })
 //       .eq("user_id", user.id);
 
@@ -111,18 +111,40 @@ export default function AccountContent({
   useEffect(() => {
     const fetchUserCountry = async () => {
       const { data, error } = await supabase
-        .from('user_country_settings')
+        .from('client_settings')
         .select('default_country_name')
         .eq('user_id', user.id)
         .single();
-
-      if (error) {
-        console.error('Error fetching country from Supabase:', error.message);
-      } else {
-        const countryName = data?.default_country_name || defaultCountry.name;
-        setStoredCountry(countryName);
-        setDefaultCountry({ name: countryName, code: countryCodes[countryName].code });
-      }
+        if (error && error.code === 'PGRST116') {
+          // No row exists, so we insert a new one
+          const defaultCountryName = defaultCountry.name;
+          const defaultCountryCode = countryCodes[defaultCountryName].code;
+          const { error: insertError } = await supabase
+            .from('client_settings')
+            .insert({ 
+              user_id: user.id, 
+              default_country_name: defaultCountryName, 
+              default_country_code: defaultCountryCode 
+            });
+  
+          if (insertError) {
+            console.error('Error inserting country in Supabase:', insertError.message);
+          } else {
+            setStoredCountry(defaultCountryName);
+            setDefaultCountry({ name: defaultCountryName, code: defaultCountryCode });
+          }
+        } else if (!error) {
+          const countryName = data?.default_country_name || defaultCountry.name;
+          setStoredCountry(countryName);
+          setDefaultCountry({ name: countryName, code: countryCodes[countryName].code });
+        }
+      // if (error) {
+      //   console.error('Error fetching country from Supabase:', error.message);
+      // } else {
+      //   const countryName = data?.default_country_name || defaultCountry.name;
+      //   setStoredCountry(countryName);
+      //   setDefaultCountry({ name: countryName, code: countryCodes[countryName].code });
+      // }
     };
 
     fetchUserCountry();
@@ -135,7 +157,7 @@ export default function AccountContent({
     setStoredCountry(selectedCountry);
 
     const { error } = await supabase
-      .from("user_country_settings")
+      .from("client_settings")
       .update({ default_country_name: selectedCountry, default_country_code: countryCode.code })
       .eq("user_id", user.id);
 

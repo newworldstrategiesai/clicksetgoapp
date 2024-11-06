@@ -51,7 +51,7 @@
 //         // Store in Supabase
 //         await supabase
 //         // const { error } = await supabase
-//           .from("user_country_settings")
+//           .from("client_settings")
 //           .update({ default_country_name: selectedCountry, default_country_code: countryCode })
 //           .eq("user_id", user.id);
 //       } catch (error) {
@@ -121,19 +121,16 @@ import AccountContent from '@/components/AccountContent';
 
 export default async function Account() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
 
     if (!user) {
       return redirect('/signin');
     }
 
-    // Fetch user details, subscription, and API keys
-    const [userDetails, subscription, apiKeys] = await Promise.all([
-      getUserDetails(supabase),
-      getSubscription(supabase),
-      getApiKeys(supabase, user.id),
-    ]);
+    const userDetails = await getUserDetails(supabase);
+    const subscription = await getSubscription(supabase);
+    const apiKeys = await getApiKeys(supabase, user.id);
 
     return (
       <section className="mb-32 bg-black">

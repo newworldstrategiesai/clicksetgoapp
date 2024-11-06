@@ -72,17 +72,25 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [listsResponse, schedulesResponse, agentsResponse] = await Promise.all([
-          supabase.from('lists').select('id, name').eq('user_id', userId),
-          supabase.from('schedules').select('id, name').eq('user_id', userId),
-          supabase.from('agents').select('id, agent_name')
-        ]);
+        const listsResponse = await supabase
+          .from('lists')
+          .select('id, name')
+          .eq('user_id', userId);
 
         if (listsResponse.error) toast.error('Error fetching lists');
         else setLists(listsResponse.data || []);
 
+        const schedulesResponse = await supabase
+          .from('schedules')
+          .select('id, name')
+          .eq('user_id', userId);
+
         if (schedulesResponse.error) toast.error('Error fetching schedules');
         else setSchedules(schedulesResponse.data || []);
+
+        const agentsResponse = await supabase
+          .from('agents')
+          .select('id, agent_name');
 
         if (agentsResponse.error) toast.error('Error fetching agents');
         else setAgents(agentsResponse.data || []);

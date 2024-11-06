@@ -4,7 +4,7 @@ import { getUser } from '@/utils/supabase/queries';
 import PersonaPage from '@/components/PersonaComp';
 
 export default async function PersonaDetailPage() {
-  const supabase = createClient();
+  const supabase = await createClient();
   
   // Fetch the user
   const user = await getUser(supabase);

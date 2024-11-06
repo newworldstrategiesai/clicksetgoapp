@@ -5,7 +5,7 @@ import { createClient } from '@/server';
 
 export default async function SignIn() {
   // Check if the user is already logged in
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
 
   if (user) {
@@ -13,7 +13,7 @@ export default async function SignIn() {
     return redirect('/home');
   }
   // If user is not logged in, proceed with the normal sign-in flow
-  const preferredSignInView = cookies().get('preferredSignInView')?.value || null;
+  const preferredSignInView = (await cookies()).get('preferredSignInView')?.value || null;
   const defaultView = getDefaultSignInView(preferredSignInView);  
   return redirect(`/signin/${defaultView}`);
 }

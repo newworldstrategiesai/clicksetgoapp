@@ -29,6 +29,9 @@ interface CampModalProps {
 
 // Fetch audience name based on audience
 const fetchAudienceName = async (audience: string) => {
+  if (!audience) {
+    return null; // Return null if audience is not provided
+  }
   const { data, error } = await supabase
     .from('lists')
     .select('name')
@@ -56,8 +59,10 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
   // Fetch audience name when the component mounts
   useEffect(() => {
     const getAudienceName = async () => {
-      const name = await fetchAudienceName(campaign.audience);
-      setAudienceName(name);
+      if (campaign.audience) { // Check if audience is provided
+        const name = await fetchAudienceName(campaign.audience);
+        setAudienceName(name);
+      }
     };
     getAudienceName();
   }, [campaign.audience]);

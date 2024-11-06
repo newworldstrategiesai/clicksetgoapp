@@ -5,7 +5,7 @@ import { ScheduleNewForm } from '@/components/schedule-new-form'; // Adjust this
 
 export default async function ScheduleNewFormPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Fetch the logged-in user
     const user = await getUser(supabase);

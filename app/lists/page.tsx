@@ -4,8 +4,9 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
 import { getUser, getLists } from '@/utils/supabase/queries';
 
+
 export default async function ListsPage() {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     try {
         const user = await getUser(supabase);

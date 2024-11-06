@@ -5,7 +5,7 @@ import { getUser } from '@/utils/supabase/queries';
 import { redirect } from 'next/navigation';
 
 const UploadContactsPage = async () => {
-  const supabase = createClient();
+  const supabase = await createClient();
   const user = await getUser(supabase);
 
   if (!user) {

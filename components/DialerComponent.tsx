@@ -229,6 +229,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
   };
 
   const countries = {
+    NA: { code: "", name: "Select Country" },
   US: { code: "+1", name: "United States" },
   IN: { code: "+91", name: "India" },
   FR: { code: "+33", name: "France" },
@@ -238,7 +239,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
   IT: { code: "+39", name: "Italy" },
     // Add more countries as needed
   };
-  const [selectedCountryCode, setSelectedCountryCode] = useState <keyof typeof countries>("US");
+  const [selectedCountryCode, setSelectedCountryCode] = useState <keyof typeof countries>("NA");
   const handleContactClick = (contact: Contact) => {
     const formattedPhoneNumber = formatPhoneNumber(contact.phone);
     setInput(formattedPhoneNumber || '');

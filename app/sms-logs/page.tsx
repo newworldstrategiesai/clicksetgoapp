@@ -5,7 +5,7 @@ import SMSLogsClient from '@/components/SMSLogsClient';
 
 export default async function SMSLogsPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
 
     if (!user) {

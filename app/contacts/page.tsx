@@ -11,7 +11,7 @@ import { supabase } from '@/utils/supabaseClient';
 
 export default async function ContactsPage() {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const user = await getUser(supabase);
 
         if (!user) {

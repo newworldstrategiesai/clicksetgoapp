@@ -8,7 +8,7 @@ import { getUser } from '@/utils/supabase/queries';
 
 export default async function CampaignsPage() {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const user = await getUser(supabase); // Get the logged-in user
 
         if (!user) {

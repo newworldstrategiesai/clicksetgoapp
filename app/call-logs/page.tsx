@@ -5,7 +5,7 @@ import CallLogsClient from '@/components/CallLogsClient';
 
 export default async function CallLogsPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
 
     if (!user) {
