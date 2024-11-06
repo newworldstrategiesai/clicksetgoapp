@@ -142,7 +142,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
               <p>
                 <strong>Full Name:</strong>
                 <Link
-                  href={`/user-call-logs/${selectedLog.customer?.number || ''}?vK=${encodeURIComponent(vapiKey)}`}
+                  href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
                   legacyBehavior
                 >
                   <a className="text-blue-500 underline ml-2 cursor-pointer">
@@ -154,7 +154,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
             <p>
               <strong>Caller:</strong>
               <Link
-                href={`/user-call-logs/${selectedLog.customer?.number || ''}?vK=${encodeURIComponent(vapiKey)}`}
+                href={`/user-call-logs/${selectedLog.customer?.number || ''}?user=${userId}`}
                 legacyBehavior
               >
                 <a className="text-blue-500 underline ml-2 cursor-pointer">

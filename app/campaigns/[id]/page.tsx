@@ -8,7 +8,7 @@ import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
 
 interface CallTask {
   id: string;
@@ -34,9 +34,6 @@ interface CampaignData {
 interface CampaignPageProps {
   params: Promise<{ id: string }>; // or adjust based on migration guide details
 }
-
-
-
 
 export default function CampaignPage({ params }: CampaignPageProps) {
   const { id } = params;
@@ -332,6 +329,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           phone: contact.phone,
           user_id: contact.user_id // Ensure user_id is included
         };
+
+        const userId = decryptedUserId;
         
         try {
           await axios.post("/api/make-call", {
@@ -340,6 +339,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
+            user_Id: userId,
             voiceId: "CwhRBWXzGAHq8TQ4Fs17",
             credentials
           });
