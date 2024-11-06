@@ -50,8 +50,4 @@ export default async function DialerPage() {
     console.error('Error fetching user data:', error);
     return redirect('/signin');
   }
-<<<<<<< Updated upstream
 }
-=======
-}
->>>>>>> Stashed changes
