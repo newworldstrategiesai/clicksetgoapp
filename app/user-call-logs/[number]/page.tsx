@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import moment from 'moment';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import CallLogModal from 'components/CallLogModal'; // Adjust the path based on your project structure
 
 interface CallLog {
@@ -24,8 +24,6 @@ interface CallLog {
 const UserCallLogs: React.FC = () => {
   const { number: encodedNumber } = useParams() as { number: string };
   const number = decodeURIComponent(encodedNumber);
-  const searchParams = useSearchParams();
-  const vapiKey = searchParams ? searchParams.get('vK') : null;
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -47,9 +45,7 @@ const UserCallLogs: React.FC = () => {
         setLoading(true);
 
         const [callLogsResponse, contactsResponse] = await Promise.all([
-          axios.get('/api/get-call-logs-by-number', { params: { number, page },
-          headers: { 'Authorization': `Bearer ${vapiKey}` }
-          }),
+          axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
           axios.get('/api/contacts'),
         ]);
 
@@ -83,7 +79,7 @@ const UserCallLogs: React.FC = () => {
     };
 
     fetchCallLogs();
-  }, [number, page, vapiKey]);
+  }, [number, page]);
 
   const openModal = (log: CallLog) => {
     setSelectedLog(log);
