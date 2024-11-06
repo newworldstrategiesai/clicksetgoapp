@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import moment from 'moment';
 import Link from 'next/link';
@@ -16,57 +16,61 @@ import CallLogsList from './CallLogsList'; // Adjust the path based on your proj
 import { CallLog } from '../types'; // Import the common CallLog type
 import { supabase } from '@/utils/supabaseClient'; // Import the Supabase client
 
-const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
+const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId, vapiKey }) => {
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [limit, setLimit] = useState(10);
+
+  const fetchCallLogs = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      const response = await axios.get('/api/get-call-logs', {
+        params: { userId, limit},
+        headers: {
+          'Authorization': `Bearer ${vapiKey}`, // Send vapiKey as a bearer token
+        },
+      });
+
+      const { data: contacts, error: contactsError } = await supabase
+        .from('contacts')
+        .select('*');
+
+      if (contactsError) {
+        console.error('Error fetching contacts from Supabase:', contactsError);
+        return;
+      }
+
+      const callLogsData = response.data.map((log: CallLog) => {
+        if (log.customer && log.customer.number) {
+          const contact = contacts.find(
+            (contact: any) =>
+              contact.phone &&
+              contact.phone.replace(/\D/g, '') ===
+                log.customer?.number?.replace(/\D/g, '')
+          );
+          if (contact) {
+            log.fullName = `${contact.first_name} ${contact.last_name}`;
+          }
+        }
+        return log;
+      });
+
+      setCallLogs(callLogsData);
+    } catch (error) {
+      console.error('Error fetching call logs:', error);
+      setError('Failed to fetch call logs');
+    } finally {
+      setLoading(false);
+    }
+  }, [userId, limit, vapiKey]);
 
   useEffect(() => {
-    const fetchCallLogs = async () => {
-      try {
-        setLoading(true);
-
-        const response = await axios.get('/api/get-call-logs', {
-          params: { userId },
-        });
-
-        const { data: contacts, error: contactsError } = await supabase
-          .from('contacts')
-          .select('*');
-
-        if (contactsError) {
-          console.error('Error fetching contacts from Supabase:', contactsError);
-          return;
-        }
-
-        const callLogsData = response.data.map((log: CallLog) => {
-          if (log.customer && log.customer.number) {
-            const contact = contacts.find(
-              (contact: any) =>
-                contact.phone &&
-                contact.phone.replace(/\D/g, '') ===
-                  log.customer?.number?.replace(/\D/g, '')
-            );
-            if (contact) {
-              log.fullName = `${contact.first_name} ${contact.last_name}`;
-            }
-          }
-          return log;
-        });
-
-        setCallLogs(callLogsData);
-      } catch (error) {
-        console.error('Error fetching call logs:', error);
-        setError('Failed to fetch call logs');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchCallLogs();
-  }, [userId]);
+  }, [fetchCallLogs]);
 
   const openModal = (log: CallLog) => {
     setSelectedLog(log);
@@ -76,6 +80,11 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
   const closeModal = () => {
     setSelectedLog(null);
     setIsModalOpen(false);
+  };
+  
+  const loadMoreLogs = () => {
+    setLimit((prevLimit) => prevLimit + 10); // Increase limit by 10
+    fetchCallLogs();
   };
 
   return (
@@ -117,6 +126,14 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
         ))}
       </ul>
 
+      <button
+        onClick={loadMoreLogs}
+        className={`mt-4 mx-auto px-4 py-2 text-white rounded-lg ${loading ? 'bg-blue-100': 'bg-blue-500'}`}
+        disabled={loading}
+      >
+        Load More
+      </button>
+
       {isModalOpen && selectedLog && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
           <div className="bg-black p-6 rounded-lg w-full max-w-2xl mx-auto relative">
@@ -137,7 +154,7 @@ const CallLogsClient: React.FC<{ userId: string }> = ({ userId }) => {
             <p>
               <strong>Caller:</strong>
               <Link
-                href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
+                href={`/user-call-logs/${selectedLog.customer?.number || ''}?user=${userId}`}
                 legacyBehavior
               >
                 <a className="text-blue-500 underline ml-2 cursor-pointer">

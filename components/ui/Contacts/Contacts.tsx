@@ -87,7 +87,6 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) 
         twilioSid: AllApiKeys.twilioSid,
         twilioAuthToken: AllApiKeys.twilioAuthToken
       };
-      console.log(twilioClient);
       try {
         const response = await fetch("/api/get-twilio-numbers", {
           method: "POST",

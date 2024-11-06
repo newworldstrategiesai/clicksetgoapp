@@ -5,6 +5,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { useParams } from 'next/navigation';
 import CallLogModal from 'components/CallLogModal'; // Adjust the path based on your project structure
+import { useSearchParams } from 'next/navigation';
 
 interface CallLog {
   id: string;
@@ -22,7 +23,9 @@ interface CallLog {
 }
 
 const UserCallLogs: React.FC = () => {
-  const { number: encodedNumber } = useParams() as { number: string };
+  const { number: encodedNumber} = useParams() as { number: string};
+  const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
+  const userId = searchParams?.get('user')|| '';
   const number = decodeURIComponent(encodedNumber);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,6 +56,14 @@ const UserCallLogs: React.FC = () => {
         //   axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
         //   axios.get('/api/contacts'),
         // ]);
+
+        const [callLogsResponse, contactsResponse] = await Promise.all([
+          axios.get('/api/get-call-logs-by-number', { params: { number, page },
+            headers: { 'Authorization': `Bearer ${userId}` }
+          }),
+          axios.get('/api/contacts'),
+        ]);
+        main
 
         const contacts = contactsResponse.data;
         const contact = contacts.find(

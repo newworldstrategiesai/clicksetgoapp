@@ -34,7 +34,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
               <option key={voice.voice_id} value={voice.voice_id}>
                 {voice.name} (ID: {voice.voice_id}) - {voice.gender}, {voice.accent}
               </option>
-            ))
+            ))  
           ) : (
             <option value="" disabled>No voices available</option>
           )}
@@ -44,7 +44,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
   );
 }
 
-export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey: string }) {
+export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken, vapiKey }: { userId: string; apiKey: string; twilioSid: string; twilioAuthToken: string; vapiKey: string }) {
   const [activeTab, setActiveTab] = useState('identity');
   const [agentId, setAgentId] = useState<string | null>(null);
   

@@ -11,7 +11,11 @@ const formatPhoneNumber = (phoneNumber: string): string | null => {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
-    const { contact, reason, twilioNumber, firstMessage, voiceId } = req.body;
+    const { contact, reason, twilioNumber, firstMessage, voiceId, credentials } = req.body;
+
+    const accountSid = credentials.twilioSid;
+    const authToken = credentials.twilioAuthToken;
+    const vapi_key = credentials.vapiKey;
 
     // Default voice ID
     const defaultVoiceId = '9c6NBxIEEDowC6QfhIaO';
@@ -47,8 +51,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           number: formattedContactNumber,
         },
         twilioPhoneNumber: formattedTwilioNumber,
-        twilioAccountSid: process.env.TWILIO_ACCOUNT_SID,
-        twilioAuthToken: process.env.TWILIO_AUTH_TOKEN,
+        twilioAccountSid: accountSid,
+        twilioAuthToken: authToken,
       },
       assistantId: 'a8cad288-e468-49de-85ff-00725364c107',
       assistantOverrides: {
@@ -112,14 +116,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       }
     };
 
+    const vapiCallUrl = process.env.VAPI_CALL;
+    const vapiApiKey = vapi_key;
+
+    if (!vapiCallUrl || !vapiApiKey) {
+      return res.status(500).json({ message: 'Missing environment variables' });
+    }
+
     try {
       console.log('Payload being sent:', JSON.stringify(callData, null, 2));
-      const response = await axios.post(
-        'https://api.vapi.ai/call',
+      const response = await axios.post(vapiCallUrl,
         callData,
         {
           headers: {
-            'Authorization': `Bearer ${process.env.VAPI_API_KEY}`,
+            'Authorization': `Bearer ${vapiApiKey
+            }`,
             'Content-Type': 'application/json',
           },
         }

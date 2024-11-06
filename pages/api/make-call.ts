@@ -15,15 +15,7 @@ export default async function handler(
 ) {
   if (req.method === 'POST') {
 
-    const { contact, reason, twilioNumber, firstMessage, voiceId, sendSMS, sendEmail, credentials } = req.body;
-
-    // Check if sendSMS and sendEmail are defined
-    console.log('sendSMS:', sendSMS); // Check if sendSMS is received
-    console.log('sendEmail:', sendEmail); // Check if sendEmail is received
-
-    // Convert sendSMS and sendEmail to boolean if needed
-    const isSendSMS = sendSMS === "yes";
-    const isSendEmail = sendEmail === "yes";
+    const { contact, reason, twilioNumber, firstMessage, voiceId, userId, credentials } = req.body;
 
     const accountSid = credentials.twilioSid;
     const authToken = credentials.twilioAuthToken;
