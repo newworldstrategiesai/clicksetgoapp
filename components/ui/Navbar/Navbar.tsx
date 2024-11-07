@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
     };
 
     getUser();
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     setIsOpen(false);

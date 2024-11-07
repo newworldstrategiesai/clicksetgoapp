@@ -24,6 +24,9 @@ export default async function SignIn({
   params: { id: string };
   searchParams: { disable_button: boolean };
 }) {
+  // Await the params object to resolve before using it
+  const resolvedParams = await params;
+
   const { allowOauth, allowEmail, allowPassword } = getAuthTypes();
   const viewTypes = getViewTypes();
   const redirectMethod = getRedirectMethod();
@@ -31,9 +34,9 @@ export default async function SignIn({
   // Declare 'viewProp' and initialize with the default value
   let viewProp: string;
 
-  // Assign url id to 'viewProp' if it's a valid string and ViewTypes includes it
-  if (typeof params.id === 'string' && viewTypes.includes(params.id)) {
-    viewProp = params.id;
+  // Check if params.id is valid and matches a view type
+  if (typeof resolvedParams.id === 'string' && viewTypes.includes(resolvedParams.id)) {
+    viewProp = resolvedParams.id;
   } else {
     const preferredSignInView =
       (await cookies()).get('preferredSignInView')?.value || null;
@@ -90,10 +93,10 @@ export default async function SignIn({
             viewProp === 'forgot_password'
               ? 'Reset Password'
               : viewProp === 'update_password'
-                ? 'Update Password'
-                : viewProp === 'signup'
-                  ? 'Sign Up'
-                  : 'Sign In'
+              ? 'Update Password'
+              : viewProp === 'signup'
+              ? 'Sign Up'
+              : 'Sign In'
           }
         >
           {viewProp === 'password_signin' && (
