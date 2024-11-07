@@ -117,7 +117,7 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists, userId }) => {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">List Name</th>
               <th className="px-6 py-3 text-center text-xs font-medium text-gray-300 uppercase tracking-wider">Contacts</th>
               <th className="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">Actions</th>
-            </tr>
+            </tr> 
           </thead>
           <tbody className="bg-gray-900 divide-y divide-gray-800">
             {lists.map((list) => (
