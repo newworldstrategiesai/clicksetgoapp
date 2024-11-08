@@ -16,16 +16,18 @@ import OauthSignIn from '@/components/ui/AuthForms/OauthSignIn';
 import ForgotPassword from '@/components/ui/AuthForms/ForgotPassword';
 import UpdatePassword from '@/components/ui/AuthForms/UpdatePassword';
 import SignUp from '@/components/ui/AuthForms/Signup';
+import { use } from 'react';
 
 export default async function SignIn({
   params,
   searchParams,
 }: {
-  params: { id: string };
-  searchParams: { disable_button: boolean };
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ disable_button: boolean }>;
 }) {
   // Await the params object to resolve before using it
-  const resolvedParams = await params;
+  const resolvedParams =  await params;
+  const resolvedSearchParams = await searchParams;
 
   const { allowOauth, allowEmail, allowPassword } = getAuthTypes();
   const viewTypes = getViewTypes();
@@ -109,14 +111,14 @@ export default async function SignIn({
             <EmailSignIn
               allowPassword={allowPassword}
               redirectMethod={redirectMethod}
-              disableButton={searchParams.disable_button}
+              disableButton={resolvedSearchParams.disable_button}
             />
           )}
           {viewProp === 'forgot_password' && (
             <ForgotPassword
               allowEmail={allowEmail}
               redirectMethod={redirectMethod}
-              disableButton={searchParams.disable_button}
+              disableButton={resolvedSearchParams.disable_button}
             />
           )}
           {viewProp === 'update_password' && (
