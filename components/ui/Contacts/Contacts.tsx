@@ -68,12 +68,13 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) 
           ...contact,
           first_name: contact.first_name || "",
           last_name: contact.last_name || "",
-          phone:
-            contact.phone &&
-            typeof contact.phone === "string" &&
-            contact.phone.startsWith("+")
-              ? contact.phone
-              : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
+          phone: contact.phone || "",
+          // phone:
+          //   contact.phone &&
+          //   typeof contact.phone === "string" &&
+          //   contact.phone.startsWith("+")
+          //     ? contact.phone
+          //     : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
       } catch (error) {
