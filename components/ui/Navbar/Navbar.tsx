@@ -38,6 +38,9 @@ const Navbar: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  // Determine the link destination based on user authentication
+  const homeLink = user ? '/home' : '/index.html';
+
   return (
     <nav className="navbar bg-black text-white px-4 py-3 w-full z-10 top-0">
       <a href="#skip" className="sr-only focus:not-sr-only">
@@ -45,7 +48,8 @@ const Navbar: React.FC = () => {
       </a>
       <div className="max-w-6xl px-6 mx-auto flex items-center justify-between">
         <div className="text-xl font-bold">
-          <a href="/home" className="hover:text-gray-300">CLICK SET GO</a>
+          {/* Conditional redirect for the link */}
+          <a href={homeLink} className="hover:text-gray-300">CLICK SET GO</a>
         </div>
         <div className="hidden md:flex space-x-4">
           <Navlinks user={user} />
