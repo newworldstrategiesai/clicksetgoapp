@@ -49,6 +49,7 @@ const UserCallLogs: React.FC = () => {
 
         const callLogsResponse = await axios.get('/api/get-call-logs-by-number', {
           params: { number, page },
+          headers: { 'Authorization': `Bearer ${userId}` }
         });
 
         const contactsResponse = await axios.get('/api/contacts');
@@ -57,13 +58,13 @@ const UserCallLogs: React.FC = () => {
         //   axios.get('/api/contacts'),
         // ]);
 
-        const [callLogsResponse, contactsResponse] = await Promise.all([
-          axios.get('/api/get-call-logs-by-number', { params: { number, page },
-            headers: { 'Authorization': `Bearer ${userId}` }
-          }),
-          axios.get('/api/contacts'),
-        ]);
-        main
+        // const [callLogsResponse, contactsResponse] = await Promise.all([
+        //   axios.get('/api/get-call-logs-by-number', { params: { number, page },
+        //     headers: { 'Authorization': `Bearer ${userId}` }
+        //   }),
+        //   axios.get('/api/contacts'),
+        // ]);
+        // main
 
         const contacts = contactsResponse.data;
         const contact = contacts.find(
