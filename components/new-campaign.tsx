@@ -180,7 +180,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         setDefaultCountry({ name: selectedCountry, code: countryCode });
 
         const { error } = await supabase
-          .from('user_country_settings')
+          .from('client_settings')
           .update({ campaign_country_name: selectedCountry, campaign_country_code: countryCode })
           .eq('user_id', userId);
 

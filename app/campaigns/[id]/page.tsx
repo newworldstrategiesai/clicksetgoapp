@@ -31,6 +31,7 @@ interface CampaignData {
   start_date: string;
   end_date: string;
   twilioNumber?: string; // Optional field
+  country_code?: string;
 }
 
 interface CampaignPageProps {
@@ -72,29 +73,29 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const [twilioNumbers, setTwilioNumbers] = useState<any[]>([]); // State to store Twilio numbers
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string | null>(null); // State for selected Twilio number
 
-  // Fetch Twilio numbers
-  const fetchTwilioNumbers = async () => {
-    try {
-      const userId = decryptedUserId;
+  useEffect(() => {
+    // Fetch Twilio numbers
+    const fetchTwilioNumbers = async () => {
+      try {
+        const userId = decryptedUserId;
       const twilioClient = { twilioSid: credentials.twilioSid, twilioAuthToken:credentials.twilioAuthToken };
 
-      const response = await axios.post(`/api/get-twilio-numbers`, {
-        user_Id: userId,
-        twilioClient: twilioClient // Include the credentials data
-      });
+        const response = await axios.post(`/api/get-twilio-numbers`, {
+          user_Id: userId,
+          twilioClient: twilioClient // Include the credentials data
+        });
 
-      setTwilioNumbers(response.data.allNumbers || []);
-      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        setTwilioNumbers(response.data.allNumbers || []);
+        if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        }
+      } catch (error) {
+        console.error('Error fetching Twilio numbers:', error);
+        toast.error('Failed to fetch Twilio numbers. Please try again later.');
       }
-    } catch (error) {
-      console.error('Error fetching Twilio numbers:', error);
-      toast.error('Failed to fetch Twilio numbers. Please try again later.');
-    }
-  };
+    };
 
-  // Fetch campaign details and call tasks
-  useEffect(() => {
+    // Fetch campaign details and call tasks
     let isMounted = true; // Track if component is mounted
 
     async function fetchCampaignAndTasks() {
@@ -183,14 +184,17 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           setError(`Contact for task ${task.id} does not have a phone number.`);
           continue;
         }
+        // Conditional Phone Number Dialing
+        const countryCode = campaignData?.country_code || "";
+        const phoneNumber = contact.phone.startsWith(countryCode) ? contact.phone : `${countryCode}${contact.phone}`;
 
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
           user_id: contact.user_id // Ensure user_id is included
         };
-        
+
         try {
           await axios.post("/api/execute-calls", {
             contact: contactData, // Ensure this contains all necessary fields
@@ -325,15 +329,19 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           continue;
         }
 
+        // Conditional Phone Number Dialing
+        const countryCode = campaignData?.country_code || "";
+        const phoneNumber = contact.phone.startsWith(countryCode) ? contact.phone : `${countryCode}${contact.phone}`;
+        
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
           user_id: contact.user_id // Ensure user_id is included
         };
 
         const userId = decryptedUserId;
-        
+
         try {
           await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
@@ -411,7 +419,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isLaunching}
               className={`px-4 py-2 bg-green-500 text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"
-              }`}
+                }`}
             >
               {isLaunching ? "Launching..." : "Launch Campaign"}
             </button>
@@ -420,7 +428,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isLaunching}
               className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
-              }`}
+                }`}
             >
               {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
             </button>
@@ -429,7 +437,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isPausing}
               className={`px-4 py-2 ${isPaused ? 'bg-blue-500' : 'bg-red-500'} text-white rounded-lg transition-all ${
                 isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
-              }`}
+                }`}
             >
               {isPaused ? "Resume Campaign" : "Pause Campaign"}
             </button>

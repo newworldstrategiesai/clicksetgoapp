@@ -1,6 +1,6 @@
 import { UserProvider } from '@/context/UserContext';
 import UploadContacts from 'components/ui/UploadContacts/UploadContacts';
-import { createClient } from '@/server';
+import { createClient } from '@/app/server.server';
 import { getUser } from '@/utils/supabase/queries';
 import { redirect } from 'next/navigation';
 
@@ -10,11 +10,13 @@ const UploadContactsPage = async () => {
 
   if (!user) {
     return redirect('/signin');
+  }else{
+    console.log(user)
   }
 
   return (
     <UserProvider>
-      <UploadContacts />
+      <UploadContacts user={user} />
     </UserProvider>
   );
 };
