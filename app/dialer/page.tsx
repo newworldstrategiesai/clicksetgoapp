@@ -1,4 +1,6 @@
 // pages/dialer.tsx
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
 
 import React from 'react';
 import DialerComponent from '@/components/DialerComponent';

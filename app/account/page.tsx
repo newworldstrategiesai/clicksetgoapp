@@ -105,6 +105,9 @@
 // }
 // page.tsx
 
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import CustomerPortalForm from '@/components/ui/AccountForms/CustomerPortalForm';
 import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';

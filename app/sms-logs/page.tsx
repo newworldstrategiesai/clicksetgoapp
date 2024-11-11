@@ -1,3 +1,6 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
