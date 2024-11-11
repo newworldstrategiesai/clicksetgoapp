@@ -9,6 +9,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import CryptoJS from "crypto-js";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
 
 interface CallTask {
   id: string;
@@ -385,6 +387,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
+       <button 
+        onClick={() => router.push('/campaigns')} // Navigate back to the campaign table
+        className="flex items-center mb-4 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg px-4 py-2 transition"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-600" /> 
+      </button>
       <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired

@@ -192,7 +192,7 @@ export function Home({userId, fullName }: HomeProps) {
                   <AvatarImage src="/placeholder-user.jpg" alt="Chloe" />
                   <AvatarFallback>C</AvatarFallback>
                 </Avatar>
-                <span className="text-lg font-semibold">Chloe</span>
+                <span className="text-lg text-blue-500  font-semibold">Chloe</span>
               </div>
               <MoveHorizontalIcon className="w-5 h-5" />
             </div>

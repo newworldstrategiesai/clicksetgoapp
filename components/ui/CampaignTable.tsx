@@ -6,6 +6,8 @@ import { createClient, PostgrestError } from '@supabase/supabase-js'; // Import 
 import { Campaign } from '@/types'; // Import the Campaign type from the types file
 import { useRouter } from 'next/navigation';
 import CryptoJS from 'crypto-js'; // Import CryptoJS for encryption
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CampaignTableProps {
   userId: string; // Receive userId as a prop
@@ -91,6 +93,20 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
 
   return (
     <>
+      <div className="flex justify-between mb-4">
+  <button 
+    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-800"
+    onClick={() => router.push('/home')} // Go back to the previous page
+  >
+    <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-300" /> 
+  </button>
+  <button 
+    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    onClick={() => router.push('/new-campaign')}
+  >
+    Create New Campaign
+  </button>
+</div>
       {loading ? (
         <p className="text-center text-gray-600">Loading campaigns...</p>
       ) : errorMessage ? (

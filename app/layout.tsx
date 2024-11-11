@@ -7,6 +7,7 @@ import { PropsWithChildren, Suspense } from 'react';
 import { usePathname } from 'next/navigation'; // Import usePathname to get current route
 import 'styles/main.css';
 import { CountryProvider } from '@/context/CountryContext';
+import { UserProvider } from '@/context/UserContext';
 
 export default function RootLayout({ children }: PropsWithChildren) {
   const pathname = usePathname(); // Get the current path
@@ -17,7 +18,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
   return (
     <html lang="en">
       <body className="bg-black">
+        <UserProvider>
         <Navbar />
+        </UserProvider>
         <main
           id="skip"
           className="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)]" style={{marginTop:"3rem"}}

@@ -8,6 +8,7 @@ import { supabase } from '@/utils/supabaseClient';
 import { ToastContainer } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css'; // Import Toastify CSS
 import '../styles/globals.css'; // Adjust the path as necessary
+import Navbar from '@/components/ui/Navbar';
 
 function MyApp({ Component, pageProps }: AppProps) {
   useEffect(() => {
