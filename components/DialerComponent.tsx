@@ -472,7 +472,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
       )}
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-900 flex justify-around py-4 text-white">
+      <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 text-white box-border">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
@@ -511,7 +511,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
         </Link>
       </div>
     </div>
-  );
+  );  
 };
 
 export default DialerComponent;
