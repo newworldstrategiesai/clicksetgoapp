@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faClock, faUser, faTh, faVoicemail, faSearch } from '@fortawesome/free-solid-svg-icons';
-
+import './modernSlider.css';
 interface Contact {
   id: string;
   first_name: string;
@@ -290,7 +290,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
       <div
         className={`hidden md:flex flex-col ${
           isSidebarCollapsed ? 'w-16' : 'w-1/3'
-        } p-4 bg-black h-screen overflow-y-auto transition-width duration-300`}
+        } p-4 bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between mb-4">

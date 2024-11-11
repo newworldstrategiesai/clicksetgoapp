@@ -7,6 +7,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { Button } from "@/components/ui/Home/button";
 import Link from "next/link";
+import { supabase } from "@/utils/supabaseClient";
+import { useCountry } from "@/context/CountryContext";
 
 interface HomeProps {
   userId: string;
@@ -19,7 +21,37 @@ export function Home({userId, fullName }: HomeProps) {
   const [showAIProfileSubmenu, setShowAIProfileSubmenu] = useState(false);
   // const [fullName, setFullName] = useState("User");
 
-  
+  const countryCodes: Record<string, { code: string; name: string }> = {
+    US: { code: "+1", name: "United States" },
+    IN: { code: "+91", name: "India" },
+    FR: { code: "+33", name: "France" },
+    UK: { code: "+44", name: "United Kingdom" },
+    DE: { code: "+49", name: "Germany" },
+    ES: { code: "+34", name: "Spain" },
+    IT: { code: "+39", name: "Italy" },
+    // Add more country mappings here
+  };
+  const { defaultCountry, setDefaultCountry } = useCountry();
+
+useEffect(() => {
+  const fetchUserCountry = async () => {
+    const { data, error } = await supabase
+      .from('client_settings')
+      .select('default_country_name')
+      .eq('user_id', userId)
+      .single();
+    if (error && error.code === 'PGRST116') {
+      // No row exists, so we insert a new one
+      const defaultCountryName = defaultCountry.name;
+      const defaultCountryCode = countryCodes[defaultCountryName].code;
+        setDefaultCountry({ name: defaultCountryName, code: defaultCountryCode });      
+    } else if (!error) {
+      const countryName = data?.default_country_name || defaultCountry.name;
+      setDefaultCountry({ name: countryName, code: countryCodes[countryName].code });
+    }
+  }
+  fetchUserCountry();
+}, [userId]);
 
   return (
     <div className="flex h-screen">

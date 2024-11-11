@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import { getDefaultSignInView } from '@/utils/auth-helpers/settings';
 import { cookies } from 'next/headers';
-import { createClient } from '@/server';
+import { createClient } from '@/app/server.server';
 
 export default async function SignIn() {
   // Check if the user is already logged in
