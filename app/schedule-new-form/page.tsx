@@ -1,3 +1,6 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server'; // Ensure this imports Supabase correctly
 import { getUser } from '@/utils/supabase/queries'; // Confirm this is the correct path to the getUser function

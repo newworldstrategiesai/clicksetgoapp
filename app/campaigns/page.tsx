@@ -1,5 +1,7 @@
 //app/campaigns/page.tsx
-//app/campaigns/page.tsx
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import CampaignTable from '@/components/ui/CampaignTable'; // Import the new CampaignTable component
 import { redirect } from 'next/navigation';
