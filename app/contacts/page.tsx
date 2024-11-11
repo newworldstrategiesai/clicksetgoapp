@@ -1,4 +1,6 @@
 // app/contacts/page.tsx
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
 
 import React from 'react';
 import ContactsWrapper from '@/components/ui/Contacts/ContactsWrapper'; // Adjust the import path if necessary

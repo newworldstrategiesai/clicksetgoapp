@@ -1,3 +1,6 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 // pages/new-campaign.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server'; // make sure this imports Supabase correctly
