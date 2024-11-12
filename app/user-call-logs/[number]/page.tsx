@@ -5,6 +5,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { useParams } from 'next/navigation';
 import CallLogModal from 'components/CallLogModal'; // Adjust the path based on your project structure
+import { useSearchParams } from 'next/navigation';
 
 interface CallLog {
   id: string;
@@ -22,7 +23,9 @@ interface CallLog {
 }
 
 const UserCallLogs: React.FC = () => {
-  const { number: encodedNumber } = useParams() as { number: string };
+  const { number: encodedNumber} = useParams() as { number: string};
+  const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
+  const userId = searchParams?.get('user')|| '';
   const number = decodeURIComponent(encodedNumber);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,6 +46,7 @@ const UserCallLogs: React.FC = () => {
     const fetchCallLogs = async () => {
       try {
         setLoading(true);
+<<<<<<< HEAD
 
         const [callLogsResponse, contactsResponse] = await Promise.all([
           axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
@@ -56,6 +60,35 @@ const UserCallLogs: React.FC = () => {
             contact.phone.replace(/\D/g, '') === number.replace(/\D/g, '')
         );
 
+=======
+
+        const callLogsResponse = await axios.get('/api/get-call-logs-by-number', {
+          params: { number, page },
+          headers: { 'Authorization': `Bearer ${userId}` }
+        });
+
+        const contactsResponse = await axios.get('/api/contacts');
+        // const [callLogsResponse, contactsResponse] = await Promise.all([
+        //   axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
+        //   axios.get('/api/contacts'),
+        // ]);
+
+        // const [callLogsResponse, contactsResponse] = await Promise.all([
+        //   axios.get('/api/get-call-logs-by-number', { params: { number, page },
+        //     headers: { 'Authorization': `Bearer ${userId}` }
+        //   }),
+        //   axios.get('/api/contacts'),
+        // ]);
+        // main
+
+        const contacts = contactsResponse.data;
+        const contact = contacts.find(
+          (contact: any) =>
+            contact.phone &&
+            contact.phone.replace(/\D/g, '') === number.replace(/\D/g, '')
+        );
+
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         setCallerName(
           contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown Caller'
         );
@@ -77,6 +110,7 @@ const UserCallLogs: React.FC = () => {
         setLoading(false);
       }
     };
+
 
     fetchCallLogs();
   }, [number, page]);

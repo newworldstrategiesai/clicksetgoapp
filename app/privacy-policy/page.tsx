@@ -8,12 +8,10 @@ import {
 } from '@/utils/supabase/queries';
 
 export default async function PricingPage() {
-  const supabase = createClient();
-  const [user, products, subscription] = await Promise.all([
-    getUser(supabase),
-    getProducts(supabase),
-    getSubscription(supabase)
-  ]);
+  const supabase = await createClient();
+  const user = await getUser(supabase);
+  const products = await getProducts(supabase);
+  const subscription = await getSubscription(supabase);
 
   return (
     <div className="min-h-screen bg-gray-50">

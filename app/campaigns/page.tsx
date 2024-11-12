@@ -1,17 +1,17 @@
 //app/campaigns/page.tsx
-//app/campaigns/page.tsx
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import React from 'react';
 import CampaignTable from '@/components/ui/CampaignTable'; // Import the new CampaignTable component
 import { redirect } from 'next/navigation';
-import { createClient } from '@/app/server';
+import { createClient } from '@/app/server.server';
 import { getUser } from '@/utils/supabase/queries';
 
 export default async function CampaignsPage() {
     try {
-        const supabase = createClient();
+        const supabase = await createClient();
         const user = await getUser(supabase); // Get the logged-in user
-
-        console.log('User fetched:', user); // Debugging statement
 
         if (!user) {
             return redirect('/signin'); // Redirect to signin if no user

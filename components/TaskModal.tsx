@@ -21,7 +21,7 @@ export default function TaskModal({ task, onClose, onSave }: TaskModalProps) {
   const [callSubject, setCallSubject] = useState(task ? task.call_subject : "");
   const [scheduledAt, setScheduledAt] = useState(task ? task.scheduled_at : "");
   const [priority, setPriority] = useState(task ? task.priority : "medium");
-  const [firstMessage, setFirstMessage] = useState(task ? task.first_message : "");
+  const [firstMessage, setFirstMessage] = useState(task ? task.first_message : "Hello, this is Sarah from I T Niche");
 
   const [isSaving, setIsSaving] = useState(false); // Track the save button state
   const [error, setError] = useState<string | null>(null); // Track error messages
@@ -33,7 +33,7 @@ export default function TaskModal({ task, onClose, onSave }: TaskModalProps) {
       setCallSubject(task.call_subject || "");
       setScheduledAt(task.scheduled_at || "");
       setPriority(task.priority || "medium");
-      setFirstMessage(task.first_message || "");
+      setFirstMessage(task.first_message || "Hello, this is Sarah from I T Niche");
     }
   }, [task]);
 

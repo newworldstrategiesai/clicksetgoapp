@@ -1,7 +1,13 @@
 // pages/api/get-call-logs-by-number.ts
+<<<<<<< HEAD
 
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
+=======
+import type { NextApiRequest, NextApiResponse } from 'next';
+import axios from 'axios';
+import { supabaseServer } from '@/utils/supabaseServerClient';
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 
 interface CallLog {
   id: string;
@@ -11,13 +17,34 @@ interface CallLog {
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { number, page = '1' } = req.query;
+<<<<<<< HEAD
+=======
+  const userId = req.headers.authorization?.split(' ')[1];
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 
   if (!number) {
     return res.status(400).json({ error: 'Missing number parameter' });
   }
 
   try {
+<<<<<<< HEAD
     const VAPI_API_KEY = process.env.VAPI_API_KEY;
+=======
+    // Fetch the API key directly from the database
+    const { data: apiKeysData, error } = await supabaseServer
+      .from('api_keys'as any)
+      .select('vapi_key') // Replace 'some_column' with the actual column for API key
+      .eq('user_id', userId) // Use the fetched user ID
+      .single();
+    
+    if (error || !apiKeysData) {
+      return res
+        .status(500)
+        .json({ error: 'Server error: Failed to fetch API key from the database' });
+    }
+
+    const VAPI_API_KEY = apiKeysData.vapi_key;
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
     const VAPI_CALL_URL = process.env.VAPI_CALL;
 
     if (!VAPI_API_KEY || !VAPI_CALL_URL) {

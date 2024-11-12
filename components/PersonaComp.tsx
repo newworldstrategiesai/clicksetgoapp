@@ -34,7 +34,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
               <option key={voice.voice_id} value={voice.voice_id}>
                 {voice.name} (ID: {voice.voice_id}) - {voice.gender}, {voice.accent}
               </option>
-            ))
+            ))  
           ) : (
             <option value="" disabled>No voices available</option>
           )}
@@ -44,7 +44,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
   );
 }
 
-export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey: string }) {
+export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken, vapiKey }: { userId: string; apiKey: string; twilioSid: string; twilioAuthToken: string; vapiKey: string }) {
   const [activeTab, setActiveTab] = useState('identity');
   const [agentId, setAgentId] = useState<string | null>(null);
   
@@ -67,16 +67,24 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
   // Fetch available voices from Eleven Labs
   const fetchVoices = async () => {
     try {
-      const response = await axios.get("https://api.elevenlabs.io/v1/voices", {
+      const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
         },
       });
 
       setVoices(response.data.voices);
-      if (response.data.voices.length > 0) {
-        setSelectedVoice(response.data.voices[0].voice_id); // Set default voice if available
+      // if (response.data.voices.length > 0) {
+      //   setSelectedVoice(response.data.voices[0].voice_id); // Set default voice if available
+      // }
+      if (response.data && response.data.voices) {
+        setVoices(response.data.voices);
+        if (response.data.voices.length > 0) {
+          setSelectedVoice(response.data.voices[0].voice_id);
+        }
       }
+      
     } catch (error) {
       console.error("Error fetching voices:", error);
     }
@@ -124,7 +132,7 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
         .insert(agentData)
         .select();
 
-      if (!insertError) {
+      if (data && !insertError) {
         setAgentId(data[0].id); // Save new agent ID
       }
 

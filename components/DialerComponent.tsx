@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
@@ -12,7 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStar, faClock, faUser, faTh, faVoicemail, faSearch } from '@fortawesome/free-solid-svg-icons';
-
+import './modernSlider.css';
 interface Contact {
   id: string;
   first_name: string;
@@ -76,7 +76,6 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
   const [searchQuery, setSearchQuery] = useState('');
   const [isAddressBookModalOpen, setIsAddressBookModalOpen] = useState(false); // Modal for Address Book
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // State for collapsing sidebar
-
   const handleKeyPress = useCallback((event: KeyboardEvent) => {
     if (isCallModalOpen || isAddressBookModalOpen) return;
 
@@ -152,10 +151,18 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
     fetchVoiceData();
   }, [userId, apiKey]);
 
+  // const handleButtonClick = (value: string) => {
+  //   setInput(prevInput => prevInput + value);
+  // };
   const handleButtonClick = (value: string) => {
-    setInput(prevInput => prevInput + value);
+    const callingCode = countries[selectedCountryCode].code;
+    if (!input.startsWith(callingCode)) {
+      setInput(callingCode + value);
+    } else {
+      setInput((prevInput) => prevInput + value);
+    }
   };
-
+  
   const handleBackspace = () => {
     setInput(prevInput => prevInput.slice(0, -1));
   };
@@ -193,7 +200,11 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
 
     try {
       setLoading(true);
+<<<<<<< HEAD
       const response = await axios.post('/api/make-call', {
+=======
+      const response = await axios.post('/api/make-call ', {
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,
@@ -221,6 +232,18 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
     setIsCallModalOpen(false);
   };
 
+  const countries = {
+    NA: { code: "", name: "Select Country" },
+  US: { code: "+1", name: "United States" },
+  IN: { code: "+91", name: "India" },
+  FR: { code: "+33", name: "France" },
+  UK: { code: "+44", name: "United Kingdom" },
+  DE: { code: "+49", name: "Germany" },
+  ES: { code: "+34", name: "Spain" },
+  IT: { code: "+39", name: "Italy" },
+    // Add more countries as needed
+  };
+  const [selectedCountryCode, setSelectedCountryCode] = useState <keyof typeof countries>("NA");
   const handleContactClick = (contact: Contact) => {
     const formattedPhoneNumber = formatPhoneNumber(contact.phone);
     setInput(formattedPhoneNumber || '');
@@ -271,7 +294,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
       <div
         className={`hidden md:flex flex-col ${
           isSidebarCollapsed ? 'w-16' : 'w-1/3'
-        } p-4 bg-black h-screen overflow-y-auto transition-width duration-300`}
+        } p-4 bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between mb-4">
@@ -356,7 +379,27 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
 
       {/* Right Panel for Dialer */}
       <div className="flex-grow flex flex-col items-center justify-center w-full pt-16 bg-black">
-        <div className="text-4xl text-white mb-8">{input || 'Enter Number'}</div>
+        <div className="text-4xl text-white mb-8" style={{ fontSize: "2rem"}}>
+              <div className="w-64 mb-4">
+                <select
+                  value={selectedCountryCode}
+                  onChange={(e) => {
+                    const newCountryCode = e.target.value as keyof typeof countries;
+                    setSelectedCountryCode(newCountryCode);
+                    setInput(countries[newCountryCode].code); // Reset input with the new calling code
+                  }}
+                  className="w-full p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                  style={{ textAlign: "center", fontSize: "1.2rem" }}
+                >
+                  {Object.keys(countries).map((code) => (
+                    <option key={code} value={code} style={{ textAlign: "center", fontSize: "1.2rem" }}>
+                      {countries[code as keyof typeof countries].name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {input || 'Enter Number'}
+          </div>
         <div className="grid grid-cols-3 gap-4 w-64">
           {buttons.map((button) => (
             <button
@@ -433,7 +476,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
       )}
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-900 flex justify-around py-4 text-white">
+      <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 text-white box-border">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
@@ -472,7 +515,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
         </Link>
       </div>
     </div>
-  );
+  );  
 };
 
 export default DialerComponent;

@@ -3,7 +3,7 @@ import { createClient } from '@/server'; // Server-side only
 import { getUser } from '@/utils/supabase/queries';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const supabase = createClient();
+  const supabase = await createClient();
   try {
     const user = await getUser(supabase);
 

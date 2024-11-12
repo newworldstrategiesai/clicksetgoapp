@@ -3,7 +3,7 @@ import { getApiKeys } from '@/utils/supabase/queries'; // Import the function to
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const supabase = createClient(); // Create Supabase client
+  const supabase = await createClient(); // Create Supabase client
 
   try {
     const { userId } = req.query; // Get userId from the query parameters

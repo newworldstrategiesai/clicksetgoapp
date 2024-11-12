@@ -1,9 +1,10 @@
+export const dynamic = 'force-dynamic'
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { Database } from '@/types_db';
 
-export const createClient = () => {
-  const cookieStore = cookies();
+export const createClient =async () => {
+  const cookieStore = await cookies();
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
