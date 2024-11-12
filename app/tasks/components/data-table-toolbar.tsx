@@ -1,39 +1,53 @@
-//app/tasks/components/data-table-toolbar.tsx
-"use client"
+// app/tasks/components/data-table-toolbar.tsx
 
-import { Cross2Icon } from "@radix-ui/react-icons"
-import { Table } from "@tanstack/react-table"
+"use client";
 
-import { Button } from "@/registry/default/ui/button"
-import { Input } from "@/components/ui/input"
-import { DataTableViewOptions } from "./data-table-view-options"
+import { Cross2Icon } from "@radix-ui/react-icons";
+import { Table } from "@tanstack/react-table";
 
-import { priorities, statuses } from "../data/data"
-import { DataTableFacetedFilter } from "./data-table-faceted-filter"
+import { Button } from "@/registry/new-york/ui/button";
+import { Input } from "@/components/ui/input";
+import { DataTableViewOptions } from "./data-table-view-options";
+
+import { priorities, statuses } from "../data/data";
+import { DataTableFacetedFilter } from "./data-table-faceted-filter";
+import { CustomColumnDef } from "./custom-column-def"; // Correct import
+import { YourTaskType } from "./columns"; // Import YourTaskType from columns.tsx
 
 interface DataTableToolbarProps<TData> {
-  table: Table<TData>
+  table: Table<TData>;
+  allColumns: CustomColumnDef<YourTaskType, any>[];
+  visibleColumns: string[];
+  toggleColumn: (columnId: string) => void;
 }
 
 export function DataTableToolbar<TData>({
   table,
+  allColumns,
+  visibleColumns,
+  toggleColumn,
 }: DataTableToolbarProps<TData>) {
-  const isFiltered = table.getState().columnFilters.length > 0
+  const isFiltered = table.getState().columnFilters.length > 0;
+
+  // Log available columns for debugging
+  console.log("Available Columns in Toolbar:", table.getAllColumns());
 
   return (
     <div className="flex items-center justify-between">
       <div className="flex flex-1 items-center space-x-2">
+        {/* Corrected 'call_subject' */}
         <Input
           placeholder="Filter tasks..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("call_subject")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
+            table.getColumn("call_subject")?.setFilterValue(event.target.value)
           }
           className="h-8 w-[150px] lg:w-[250px]"
         />
-        {table.getColumn("status") && (
+        {/* Corrected 'call_status' */}
+        {table.getColumn("call_status") && (
           <DataTableFacetedFilter
-            column={table.getColumn("status")}
+            column={table.getColumn("call_status")}
             title="Status"
             options={statuses}
           />
@@ -56,7 +70,12 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      {/* Pass the correct props to DataTableViewOptions */}
+      <DataTableViewOptions
+        allColumns={allColumns}
+        visibleColumns={visibleColumns}
+        toggleColumn={toggleColumn}
+      />
     </div>
-  )
+  );
 }

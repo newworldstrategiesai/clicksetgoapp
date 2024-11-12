@@ -1,131 +1,174 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { supabase } from '@/utils/supabaseClient'; // Import the Supabase client
-import { DataTable } from './components/data-table';
-import { UserNav } from './components/user-nav';
-import { columns } from './components/columns';
-import TaskModal from 'components/TaskModal';
-import DataTableRowActions from './components/data-table-row-actions'; // Import DataTableRowActions
+import { useState, useEffect } from "react";
+import Image from "next/image";
+import { supabase } from "@/utils/supabaseClient";
+import { DataTable } from "./components/data-table";
+import { UserNav } from "./components/user-nav";
+import { getColumns, YourTaskType } from "./components/columns";
+import TaskModal from "@/components/TaskModal";
+import { TooltipProvider } from "@/components/tasks/tooltip";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// Define the YourTaskType interface
-type YourTaskType = {
-  id: string;
-  name: string | null; // Make name nullable
-  campaign_id: string | null;
-  priority: string | null;
-  created_at: Date;
-  updated_at: Date;
-  call_subject: string;
-  call_status: string;
-  scheduled_at: Date | null;
-  contacts: { first_name: string; last_name: string; phone: string }[];
-  title: string | null;
-  label: string | null;
-  description: string | null;
-  due_date: Date | null;
-  status: string | null;
-};
+import { CustomColumnDef } from "./components/custom-column-def";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export default function TaskPage() {
-  const [tasks, setTasks] = useState<YourTaskType[]>([]); // Specify the type for tasks
-  const [selectedTask, setSelectedTask] = useState<YourTaskType | null>(null); // Allow selectedTask to be null
-  const [showModal, setShowModal] = useState(false); // State to control modal visibility
+  const [tasks, setTasks] = useState<YourTaskType[]>([]);
+  const [selectedTask, setSelectedTask] = useState<YourTaskType | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [allColumns, setAllColumns] = useState<CustomColumnDef<YourTaskType, any>[]>([]);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
 
-  // Function to handle editing a task (opens the modal)
   const handleEdit = (task: YourTaskType) => {
-    setSelectedTask(task); // No need for type assertion here
+    setSelectedTask(task);
     setShowModal(true);
+  };
+
+  function hasAccessorKey<TData, TValue>(
+    column: CustomColumnDef<TData, TValue>
+  ): column is CustomColumnDef<TData, TValue> & { accessorKey: string } {
+    return 'accessorKey' in column && typeof (column as any).accessorKey === 'string';
+  }
+  
+  const initializeColumns = () => {
+    const columns = getColumns(handleEdit);
+    setAllColumns(columns);
+
+    const defaultVisible = columns
+      .filter((column) => column.meta?.isDefault)
+      .map((column) => (hasAccessorKey(column) ? column.accessorKey : column.id) as string);
+
+    setVisibleColumns(defaultVisible);
+
+    console.log("Initialized Columns:", columns);
+    console.log("Default Visible Columns:", defaultVisible);
   };
 
   useEffect(() => {
     async function fetchTasks() {
       const { data: callTasks, error } = await supabase
-        .from('call_tasks')
+        .from("call_tasks")
         .select(
-          'id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)'
+          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
         );
 
       if (error) {
-        console.error('Error fetching call tasks:', error.message);
-        return; // Exit the function if there's an error
+        console.error("Error fetching call tasks:", error.message);
+        toast.error("Failed to fetch tasks.");
+        return;
       }
 
-      // Ensure formattedTasks matches YourTaskType[]
-      const formattedTasks = callTasks.map((task) => ({
+      const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
         id: task.id,
         campaign_id: task.campaign_id || null,
-        call_subject: task.call_subject || '', // Ensure this property is included
-        call_status: task.call_status || '', // Ensure this property is included
+        call_subject: task.call_subject || "",
+        call_status: task.call_status || "",
         priority: task.priority || null,
-        scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null, // Ensure this property is included
-        created_at: task.created_at ? new Date(task.created_at) : new Date(), // Default to now if not available
-        updated_at: task.updated_at ? new Date(task.updated_at) : new Date(), // Default to now if not available
-        contacts: task.contacts || [{ first_name: 'Unknown', last_name: 'Unknown', phone: '' }],
-        name: null, // Ensure these properties are not undefined
-        title: null,
-        label: null,
-        description: null,
-        due_date: null,
-        status: null,
+        scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
+        created_at: task.created_at ? new Date(task.created_at) : new Date(),
+        updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
+        contacts: Array.isArray(task.contacts)
+          ? task.contacts
+          : task.contacts
+          ? [task.contacts]
+          : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
       }));
 
-      setTasks(formattedTasks); // Ensure formattedTasks matches YourTaskType[]
+      setTasks(formattedTasks);
     }
 
     fetchTasks();
+    initializeColumns();
   }, []);
 
-  return (
-    <>
-      {/* Mobile view */}
-      <div className="md:hidden">
-        <Image
-          src="/examples/tasks-light.png"
-          width={1280}
-          height={998}
-          alt="Tasks"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/tasks-dark.png"
-          width={1280}
-          height={998}
-          alt="Tasks"
-          className="hidden dark:block"
-        />
-      </div>
+  const handleToggleColumn = (columnId: string) => {
+    setVisibleColumns((prev) => {
+      if (prev.includes(columnId)) {
+        return prev.filter((id) => id !== columnId);
+      } else {
+        return [...prev, columnId];
+      }
+    });
+  };
 
-      {/* Desktop/Table view */}
-      <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
-        <div className="flex items-center justify-between space-y-2">
-          <div>
-            <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
-            <p className="text-muted-foreground">
-              Here&apos;s a list of your call tasks!
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <UserNav />
-          </div>
+  const filteredColumns = allColumns.filter((column) => {
+    const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
+    return visibleColumns.includes(columnId);
+  });
+
+  useEffect(() => {
+    const savedColumns = localStorage.getItem("visibleColumns");
+    if (savedColumns) {
+      setVisibleColumns(JSON.parse(savedColumns));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+  if (allColumns.length === 0) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <ErrorBoundary>
+      <>
+        <ToastContainer />
+        <div className="md:hidden">
+          <Image
+            src="/examples/tasks-light.png"
+            width={1280}
+            height={998}
+            alt="Tasks"
+            className="block dark:hidden"
+          />
+          <Image
+            src="/examples/tasks-dark.png"
+            width={1280}
+            height={998}
+            alt="Tasks"
+            className="hidden dark:block"
+          />
         </div>
 
-        {/* Data table */}
-        <DataTable data={tasks} columns={columns} />
+        <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
+          <div className="flex items-center justify-between space-y-2">
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+              <p className="text-muted-foreground">
+                Here's a list of your call tasks!
+              </p>
+            </div>
+            <div className="flex items-center space-x-2">
+              <UserNav />
+            </div>
+          </div>
 
-        {/* TaskModal to edit the task */}
-        {showModal && selectedTask && (
-          <TaskModal
-            task={selectedTask}
-            onClose={() => setShowModal(false)}
-            onSave={() => {
-              setShowModal(false);
-              // Fetch updated tasks or update state after saving
-            }}
-          />
-        )}
-      </div>
-    </>
+          <TooltipProvider>
+            <DataTable
+              data={tasks}
+              columns={filteredColumns}
+              allColumns={allColumns}
+              visibleColumns={visibleColumns}
+              toggleColumn={handleToggleColumn}
+            />
+          </TooltipProvider>
+
+          {showModal && selectedTask && (
+            <TaskModal
+              task={selectedTask}
+              onClose={() => setShowModal(false)}
+              onSave={() => {
+                setShowModal(false);
+                toast.success("Task updated successfully.");
+              }}
+            />
+          )}
+        </div>
+      </>
+    </ErrorBoundary>
   );
 }
