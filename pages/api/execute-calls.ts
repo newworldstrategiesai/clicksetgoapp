@@ -44,10 +44,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: 'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
-<<<<<<< HEAD
-=======
         credentials
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         // Add your Twilio and VAPI keys as necessary
       };
       console.log("call data from execute call",callData);

@@ -5,12 +5,9 @@ import CampModal from '@/components/CampModal'; // Import the CampModal componen
 import { createClient, PostgrestError } from '@supabase/supabase-js'; // Import Supabase client
 import { Campaign } from '@/types'; // Import the Campaign type from the types file
 import { useRouter } from 'next/navigation';
-<<<<<<< HEAD
-=======
 import CryptoJS from 'crypto-js'; // Import CryptoJS for encryption
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 
 interface CampaignTableProps {
   userId: string; // Receive userId as a prop
@@ -64,10 +61,6 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
 
   // Function to handle click and redirect to the campaign page
   const handleClick = (campaignId: string) => {
-<<<<<<< HEAD
-    const queryString = new URLSearchParams({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }).toString();
-    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with query parameters
-=======
     // Encrypt sensitive data
     const encryptedUserId = CryptoJS.AES.encrypt(userId, process.env.SECRET_KEY || "").toString();
     const encryptedApiKey = CryptoJS.AES.encrypt(apiKey, process.env.SECRET_KEY || "").toString();
@@ -84,7 +77,6 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     }).toString();
     
     router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with encrypted query parameters
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
   };
 
   // Open modal for campaign details

@@ -200,11 +200,7 @@ const DialerComponent = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }
 
     try {
       setLoading(true);
-<<<<<<< HEAD
-      const response = await axios.post('/api/make-call', {
-=======
       const response = await axios.post('/api/make-call ', {
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,

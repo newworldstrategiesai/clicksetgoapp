@@ -69,50 +69,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   }, [userId, limit, vapiKey]);
 
   useEffect(() => {
-<<<<<<< HEAD
-    const fetchCallLogs = async () => {
-      try {
-        setLoading(true);
-
-        const response = await axios.get('/api/get-call-logs', {
-          params: { userId },
-        });
-
-        const { data: contacts, error: contactsError } = await supabase
-          .from('contacts')
-          .select('*');
-
-        if (contactsError) {
-          console.error('Error fetching contacts from Supabase:', contactsError);
-          return;
-        }
-
-        const callLogsData = response.data.map((log: CallLog) => {
-          if (log.customer && log.customer.number) {
-            const contact = contacts.find(
-              (contact: any) =>
-                contact.phone &&
-                contact.phone.replace(/\D/g, '') ===
-                  log.customer?.number?.replace(/\D/g, '')
-            );
-            if (contact) {
-              log.fullName = `${contact.first_name} ${contact.last_name}`;
-            }
-          }
-          return log;
-        });
-
-        setCallLogs(callLogsData);
-      } catch (error) {
-        console.error('Error fetching call logs:', error);
-        setError('Failed to fetch call logs');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-=======
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
     fetchCallLogs();
   }, [fetchCallLogs]);
 
@@ -179,70 +135,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
       </button>
 
       {isModalOpen && selectedLog && (
-<<<<<<< HEAD
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
-          <div className="bg-black p-6 rounded-lg w-full max-w-2xl mx-auto relative">
-            <h2 className="text-2xl font-bold mb-4">Call Details</h2>
-            {selectedLog.fullName && (
-              <p>
-                <strong>Full Name:</strong>
-                <Link
-                  href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
-                  legacyBehavior
-                >
-                  <a className="text-blue-500 underline ml-2 cursor-pointer">
-                    {selectedLog.fullName}
-                  </a>
-                </Link>
-              </p>
-            )}
-            <p>
-              <strong>Caller:</strong>
-              <Link
-                href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
-                legacyBehavior
-              >
-                <a className="text-blue-500 underline ml-2 cursor-pointer">
-                  {selectedLog.customer?.number || 'Unknown'}
-                </a>
-              </Link>
-            </p>
-            <p>
-              <strong>Type:</strong>{' '}
-              {selectedLog.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}
-            </p>
-            <p>
-              <strong>Started At:</strong>{' '}
-              {moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A')}
-            </p>
-            <p>
-              <strong>Ended At:</strong>{' '}
-              {moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A')}
-            </p>
-            <p>
-              <strong>Duration:</strong>{' '}
-              {moment
-                .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
-                .format('HH:mm:ss')}
-            </p>
-            <p>
-              <strong>Assistant:</strong> {selectedLog.assistant?.name || 'Unknown'}
-            </p>
-            <p>
-              <strong>Summary:</strong> {selectedLog.summary || 'N/A'}
-            </p>
-            <audio controls className="mt-4 mx-auto block">
-              <source src={selectedLog.recordingUrl} type="audio/mpeg" />
-              Your browser does not support the audio element.
-            </audio>
-            <button
-              onClick={closeModal}
-              className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg"
-            >
-              Close
-            </button>
-          </div>
-=======
   <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
     <div className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
       <h2 className="text-3xl font-semibold mb-6 text-white">Call Details</h2>
@@ -310,7 +202,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
             <source src={selectedLog.recordingUrl} type="audio/mpeg" />
             Your browser does not support the audio element.
           </audio>
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         </div>
       )}
 

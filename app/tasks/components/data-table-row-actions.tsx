@@ -49,7 +49,7 @@ export default function DataTableRowActions({
     // Ensure all contacts have a phone number
     const contactsWithPhone = parsedTask.contacts.map(contact => ({
       ...contact,
-      phone: contact.phone || '', // This ensures 'phone' is a string
+      phone: contact.phone || '', // Ensure 'phone' is a string
     }));
     task = {
       ...parsedTask,

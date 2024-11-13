@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-// app/account/page.tsx
-=======
 // import CustomerPortalForm from '@/components/ui/AccountForms/CustomerPortalForm';
 // import EmailForm from '@/components/ui/AccountForms/EmailForm';
 // import NameForm from '@/components/ui/AccountForms/NameForm';
@@ -111,7 +108,6 @@
 // Add the dynamic rendering configuration
 export const dynamic = 'force-dynamic';
 
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 import CustomerPortalForm from '@/components/ui/AccountForms/CustomerPortalForm';
 import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';
@@ -129,13 +125,7 @@ import AccountContent from '@/components/AccountContent';
 
 export default async function Account() {
   try {
-<<<<<<< HEAD
-    const supabase = createClient();
-    console.log('Supabase client initialized');
-
-=======
     const supabase = await createClient();
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
     const user = await getUser(supabase);
     console.log('Fetched user:', user);
 
@@ -164,14 +154,6 @@ export default async function Account() {
             </p>
           </div>
         </div>
-<<<<<<< HEAD
-        <div className="p-4 space-y-8">
-          <CustomerPortalForm subscription={subscription} />
-          <NameForm userName={userDetails?.full_name ?? ''} userId={user.id} />
-          <EmailForm userEmail={user.email} />
-          <ApiKeysForm userId={user.id} apiKeys={apiKeys} />
-          <NotificationsForm userId={user.id} /> {/* Integrate NotificationsForm */}
-=======
         <div className="p-4">
           <AccountContent
             user={user}
@@ -179,7 +161,6 @@ export default async function Account() {
             subscription={subscription}
             apiKeys={apiKeys}
           />
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         </div>
       </section>
     );

@@ -46,21 +46,6 @@ const UserCallLogs: React.FC = () => {
     const fetchCallLogs = async () => {
       try {
         setLoading(true);
-<<<<<<< HEAD
-
-        const [callLogsResponse, contactsResponse] = await Promise.all([
-          axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
-          axios.get('/api/contacts'),
-        ]);
-
-        const contacts = contactsResponse.data;
-        const contact = contacts.find(
-          (contact: any) =>
-            contact.phone &&
-            contact.phone.replace(/\D/g, '') === number.replace(/\D/g, '')
-        );
-
-=======
 
         const callLogsResponse = await axios.get('/api/get-call-logs-by-number', {
           params: { number, page },
@@ -88,7 +73,6 @@ const UserCallLogs: React.FC = () => {
             contact.phone.replace(/\D/g, '') === number.replace(/\D/g, '')
         );
 
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         setCallerName(
           contact ? `${contact.first_name} ${contact.last_name}` : 'Unknown Caller'
         );

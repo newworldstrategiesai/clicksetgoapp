@@ -112,12 +112,8 @@
     "lucide-react": "^0.330.0",
     "luxon": "^3.5.0",
     "moment": "^2.30.1",
-<<<<<<< HEAD
     "next": "^14.0.0",
     "next-auth": "^4.24.10",
-=======
-    "next": "15.0.2",
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
     "next-contentlayer2": "^0.5.0",
     "next-themes": "^0.3.0",
     "ngrok": "5.0.0-beta.2",

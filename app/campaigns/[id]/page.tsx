@@ -1,10 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
-import { useState, useEffect } from "react";
-=======
 import { useState, useEffect, use } from "react";
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 import { supabase } from "@/utils/supabaseClient";
 import axios from "axios";
 import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
@@ -12,13 +8,9 @@ import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-<<<<<<< HEAD
-import CryptoJS from 'crypto-js';
-=======
 import CryptoJS from "crypto-js";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 
 interface CallTask {
   id: string;
@@ -47,11 +39,7 @@ interface CampaignPageProps {
 }
 
 export default function CampaignPage({ params }: CampaignPageProps) {
-<<<<<<< HEAD
-  const { id } = params;
-=======
   const { id } = use(params);
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
   const router = useRouter(); // Initialize useRouter
   const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
   const userId = searchParams?.get('userId') || null; // Get encrypted userId
@@ -84,30 +72,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   const [twilioNumbers, setTwilioNumbers] = useState<any[]>([]); // State to store Twilio numbers
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string | null>(null); // State for selected Twilio number
-<<<<<<< HEAD
-
-  // Fetch Twilio numbers
-  const fetchTwilioNumbers = async () => {
-    try {
-      const userId = decryptedUserId;
-      const twilioClient = { twilioSid: credentials.twilioSid, twilioAuthToken:credentials.twilioAuthToken };
-
-      const response = await axios.post(`/api/get-twilio-numbers`, {
-        user_Id: userId,
-        twilioClient: twilioClient // Include the credentials data
-      });
-
-      setTwilioNumbers(response.data.allNumbers || []);
-      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
-      }
-    } catch (error) {
-      console.error('Error fetching Twilio numbers:', error);
-      toast.error('Failed to fetch Twilio numbers. Please try again later.');
-    }
-  };
-=======
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
 
   useEffect(() => {
     // Fetch Twilio numbers
@@ -227,11 +191,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-<<<<<<< HEAD
-          phone: contact.phone,
-=======
           phone: phoneNumber,
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
           user_id: contact.user_id // Ensure user_id is included
         };
         
@@ -369,15 +329,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           continue;
         }
 
-<<<<<<< HEAD
-        const contactData = {
-          first_name: contact.first_name,
-          last_name: contact.last_name,
-          phone: contact.phone,
-          user_id: contact.user_id // Ensure user_id is included
-        };
-        
-=======
         // Conditional Phone Number Dialing
         const countryCode = campaignData?.country_code || "";
         const phoneNumber = contact.phone.startsWith(countryCode) ? contact.phone : `${countryCode}${contact.phone}`;
@@ -391,7 +342,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
         const userId = decryptedUserId;
 
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         try {
           await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
@@ -399,10 +349,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-<<<<<<< HEAD
-=======
             user_Id: userId,
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
             voiceId: "CwhRBWXzGAHq8TQ4Fs17",
             credentials
           });
@@ -440,15 +387,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
-<<<<<<< HEAD
-=======
        <button 
         onClick={() => router.push('/campaigns')} // Navigate back to the campaign table
         className="flex items-center mb-4 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg px-4 py-2 transition"
       >
         <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-600" /> 
       </button>
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
       <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired
@@ -484,19 +428,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isLaunching}
               className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
-<<<<<<< HEAD
-              }`}
-            >
-              {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
-            </button>
-            <button
-              onClick={handlePauseCampaign}
-              disabled={isPausing}
-              className={`px-4 py-2 ${isPaused ? 'bg-blue-500' : 'bg-red-500'} text-white rounded-lg transition-all ${
-                isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
-              }`}
-            >
-=======
                 }`}
             >
               {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
@@ -508,7 +439,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
                 }`}
             >
->>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
               {isPaused ? "Resume Campaign" : "Pause Campaign"}
             </button>
             <button
