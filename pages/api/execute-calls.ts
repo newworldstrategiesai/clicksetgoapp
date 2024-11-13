@@ -4,12 +4,16 @@ import { supabase } from '@/utils/supabaseClient';
 import axios from 'axios';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+
+  const credentials = req.body.credentials;
+
   if (req.method === 'POST') {
     const { data: tasks, error: fetchError } = await supabase
       .from('call_tasks')
       .select('*')
       .eq('call_status', 'Pending') // Only get pending tasks
       .lt('scheduled_at', new Date().toISOString()); // Check if scheduled_at is in the past
+      console.log("execute call tasks",tasks);
 
     if (fetchError) {
       console.error('Error fetching call tasks:', fetchError.message);
@@ -40,8 +44,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: 'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
+        credentials
         // Add your Twilio and VAPI keys as necessary
       };
+      console.log("call data from execute call",callData);
 
       try {
         const response = await axios.post('/api/make-call', callData); // Adjust the URL if necessary

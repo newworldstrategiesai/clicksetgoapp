@@ -32,7 +32,7 @@ export default function PasswordSignIn({
   };
 
   return (
-    <div className="my-8 pt-8"> {/* Added padding-top here */}
+    <div className="my-8"> {/* Added padding-top here */}
       <form
         noValidate={true}
         className="mb-4"

@@ -28,7 +28,7 @@ const Navbar: React.FC = () => {
     };
 
     getUser();
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     setIsOpen(false);
@@ -38,26 +38,34 @@ const Navbar: React.FC = () => {
     return <div>Loading...</div>;
   }
 
+  // Determine the link destination based on user authentication
+  const homeLink = user ? '/home' : '/index.html';
+
   return (
     <nav className="navbar bg-black text-white px-4 py-3 w-full z-10 top-0">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
-      <div className="max-w-6xl px-6 mx-auto flex items-center justify-between">
-        <div className="text-xl font-bold">
-          <a href="/home" className="hover:text-gray-300">CLICK SET GO</a>
+      <div className="max-w-8xl px-6 flex items-center justify-between">
+        <div className="text-xl mr-6 font-bold">
+          {/* Conditional redirect for the link */}
+          <a 
+            href={homeLink} 
+            className="hover:text-gray-300 text-lg sm:text-xl md:text-2xl lg:text-2xl whitespace-nowrap">
+            CLICK SET GO
+          </a>
         </div>
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden lg:flex space-x-4">
           <Navlinks user={user} />
         </div>
-        <div className="md:hidden">
+        <div className="lg:hidden">
           <button
             onClick={toggleMenu}
             className="text-white focus:outline-none"
             aria-label="Toggle menu"
           >
             <svg
-              className="w-6 h-6"
+              className="w-6 h-6" // Add rotate class for medium to large screens
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -73,7 +81,7 @@ const Navbar: React.FC = () => {
         </div>
       </div>
       {isOpen && (
-        <div className="md:hidden absolute inset-x-0 top-full bg-black p-4 space-y-2">
+        <div className="lg:hidden absolute inset-x-0 top-full bg-black p-4 space-y-2">
           <Navlinks user={user} />
         </div>
       )}

@@ -14,8 +14,12 @@ interface Contact {
   email_address: string;
   user_id?: string;
 }
-
-const UploadContacts = () => {
+interface UploadContactsProps {
+  user: {
+    id: string;
+  };
+}
+const UploadContacts: React.FC<UploadContactsProps> = ({user}) => {
   const fileInputRef = useRef<HTMLInputElement | null>(null); // Ref for the file input
   const { userId, loading } = useUser();
   const [csvFile, setCsvFile] = useState<File | null>(null);
@@ -26,10 +30,10 @@ const UploadContacts = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (userId) {
-      console.log('User ID from context:', userId);
+    if (user) {
+      console.log('User ID from context:', user.id);
     }
-  }, [userId]);
+  }, [user]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -52,9 +56,10 @@ const UploadContacts = () => {
           .map(contact => ({
             first_name: contact.first_name || '',
             last_name: contact.last_name || '',
-            phone: contact.phone ? (contact.phone.startsWith('+1') ? contact.phone : `+1${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+            // phone: contact.phone ? (contact.phone.startsWith('+1') ? contact.phone : `+1${contact.phone.replace(/[^0-9]/g, '')}`) : '',
+            phone: contact.phone ? `${contact.phone.replace(/[^0-9]/g, '')}`: '',
             email_address: contact.email_address || '',
-            user_id: userId || '' // Use empty string if userId is null
+            user_id: user.id || '' // Use empty string if userId is null
           }));
         setContacts(parsedContacts);
         console.log('Parsed contacts with user ID:', parsedContacts);
@@ -67,21 +72,21 @@ const UploadContacts = () => {
   };
 
   const handleFileUpload = async () => {
-    if (!csvFile || !userId) {
+    if (!csvFile || !user.id) {
       setError('Please select a file and ensure you are logged in.');
       return;
     }
     setUploading(true);
     setError('');
     setSuccess(false);
-
+    const clientID = user.id;
     try {
       const response = await fetch('/api/upload-contacts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ contacts, userId }),
+        body: JSON.stringify({ contacts, clientID }),
       });
 
       if (!response.ok) {

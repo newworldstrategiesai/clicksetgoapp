@@ -1,3 +1,6 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server'; // Ensure this imports Supabase correctly
 import { getUser } from '@/utils/supabase/queries'; // Confirm this is the correct path to the getUser function
@@ -5,7 +8,7 @@ import { ScheduleNewForm } from '@/components/schedule-new-form'; // Adjust this
 
 export default async function ScheduleNewFormPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
 
     // Fetch the logged-in user
     const user = await getUser(supabase);

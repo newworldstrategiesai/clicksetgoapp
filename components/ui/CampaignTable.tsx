@@ -5,6 +5,9 @@ import CampModal from '@/components/CampModal'; // Import the CampModal componen
 import { createClient, PostgrestError } from '@supabase/supabase-js'; // Import Supabase client
 import { Campaign } from '@/types'; // Import the Campaign type from the types file
 import { useRouter } from 'next/navigation';
+import CryptoJS from 'crypto-js'; // Import CryptoJS for encryption
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 interface CampaignTableProps {
   userId: string; // Receive userId as a prop
@@ -58,8 +61,22 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
 
   // Function to handle click and redirect to the campaign page
   const handleClick = (campaignId: string) => {
-    const queryString = new URLSearchParams({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }).toString();
-    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with query parameters
+    // Encrypt sensitive data
+    const encryptedUserId = CryptoJS.AES.encrypt(userId, process.env.SECRET_KEY || "").toString();
+    const encryptedApiKey = CryptoJS.AES.encrypt(apiKey, process.env.SECRET_KEY || "").toString();
+    const encryptedTwilioSid = CryptoJS.AES.encrypt(twilioSid, process.env.SECRET_KEY || "").toString();
+    const encryptedTwilioAuthToken = CryptoJS.AES.encrypt(twilioAuthToken, process.env.SECRET_KEY || "").toString();
+    const encryptedVapiKey = CryptoJS.AES.encrypt(vapiKey, process.env.SECRET_KEY || "").toString();
+
+    const queryString = new URLSearchParams({ 
+      userId: encryptedUserId, 
+      apiKey: encryptedApiKey, 
+      twilioSid: encryptedTwilioSid, 
+      twilioAuthToken: encryptedTwilioAuthToken, 
+      vapiKey: encryptedVapiKey 
+    }).toString();
+    
+    router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with encrypted query parameters
   };
 
   // Open modal for campaign details
@@ -68,6 +85,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     setShowModal(true);
   };
 
+  
   // Close modal
   const closeModal = () => {
     setShowModal(false);
@@ -76,6 +94,20 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
 
   return (
     <>
+      <div className="flex justify-between mb-4">
+  <button 
+    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-800"
+    onClick={() => router.push('/home')} // Go back to the previous page
+  >
+    <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-300" /> 
+  </button>
+  <button 
+    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    onClick={() => router.push('/new-campaign')}
+  >
+    Create New Campaign
+  </button>
+</div>
       {loading ? (
         <p className="text-center text-gray-600">Loading campaigns...</p>
       ) : errorMessage ? (
@@ -144,7 +176,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
                 .eq('id', selectedCampaign.id);
 
               if (error) {
-                console.error('Error deleting campaign:', error);
+                console.error('Error deleting campaign:', error.message||error);
               } else {
                 console.log('Campaign deleted:', selectedCampaign.id);
                 await fetchCampaigns(); // Call the fetchCampaigns function here

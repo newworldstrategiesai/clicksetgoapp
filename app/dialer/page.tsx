@@ -1,4 +1,6 @@
 // pages/dialer.tsx
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
 
 import React from 'react';
 import DialerComponent from '@/components/DialerComponent';
@@ -8,7 +10,7 @@ import { getUser } from '@/utils/supabase/queries';
 
 export default async function DialerPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
 
     if (!user) {
@@ -34,7 +36,7 @@ export default async function DialerPage() {
 
     return (
       <section className="min-h-screen bg-black text-white">
-        <div className="pt-[60px] p-4">
+        <div className="pt-[45px] p-4">
           {/* Adjust the padding-top to match the height of your navbar */}
           <DialerComponent
             userId={user.id}

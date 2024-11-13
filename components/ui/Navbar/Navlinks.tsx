@@ -25,8 +25,11 @@ export default function Navlinks({ user }: NavlinksProps) {
   };
 
   return (
-    <div className="flex flex-col md:flex-row md:space-x-4">
-      <Link href="/pricing" className={s.link}>
+    <div className="flex flex-col lg:flex-row lg:space-x-4">
+      <Link 
+        href={user ? "/pricing" : "/pricing.html"} 
+        className={s.link}
+      >
         Pricing
       </Link>
       {user && (

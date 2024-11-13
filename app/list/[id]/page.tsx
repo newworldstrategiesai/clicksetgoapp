@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 interface Contact {
   id: string;
@@ -16,7 +16,12 @@ interface List {
   contacts: Contact[];
 }
 
-const ListPage = ({ params }: { params: { id: string } }) => {
+interface ListPage {
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
+}
+
+const ListPage = ({ params }: ListPage ) => {
+  const { id } = use(params);
   const [list, setList] = useState<List | null>(null);
   const [navbarHeight, setNavbarHeight] = useState<number>(0);
   const router = useRouter();
@@ -24,7 +29,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchList = async () => {
       try {
-        const response = await fetch(`/api/lists/${params.id}`);
+        const response = await fetch(`/api/lists/${id}`);
         const data = await response.json();
         setList(data);
       } catch (error) {
@@ -33,7 +38,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchList();
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     const handleResize = () => {

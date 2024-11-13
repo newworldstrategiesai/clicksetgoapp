@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { supabase } from "@/utils/supabaseClient";
 import axios from "axios";
 import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
@@ -8,7 +8,9 @@ import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
-import CryptoJS from 'crypto-js';
+import CryptoJS from "crypto-js";
+import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
 
 interface CallTask {
   id: string;
@@ -29,14 +31,15 @@ interface CampaignData {
   start_date: string;
   end_date: string;
   twilioNumber?: string; // Optional field
+  country_code?: string;
 }
 
 interface CampaignPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
 }
 
 export default function CampaignPage({ params }: CampaignPageProps) {
-  const { id } = params;
+  const { id } = use(params);
   const router = useRouter(); // Initialize useRouter
   const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
   const userId = searchParams?.get('userId') || null; // Get encrypted userId
@@ -70,29 +73,29 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const [twilioNumbers, setTwilioNumbers] = useState<any[]>([]); // State to store Twilio numbers
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string | null>(null); // State for selected Twilio number
 
-  // Fetch Twilio numbers
-  const fetchTwilioNumbers = async () => {
-    try {
-      const userId = decryptedUserId;
+  useEffect(() => {
+    // Fetch Twilio numbers
+    const fetchTwilioNumbers = async () => {
+      try {
+        const userId = decryptedUserId;
       const twilioClient = { twilioSid: credentials.twilioSid, twilioAuthToken:credentials.twilioAuthToken };
 
-      const response = await axios.post(`/api/get-twilio-numbers`, {
-        user_Id: userId,
-        twilioClient: twilioClient // Include the credentials data
-      });
+        const response = await axios.post(`/api/get-twilio-numbers`, {
+          user_Id: userId,
+          twilioClient: twilioClient // Include the credentials data
+        });
 
-      setTwilioNumbers(response.data.allNumbers || []);
-      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        setTwilioNumbers(response.data.allNumbers || []);
+        if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        }
+      } catch (error) {
+        console.error('Error fetching Twilio numbers:', error);
+        toast.error('Failed to fetch Twilio numbers. Please try again later.');
       }
-    } catch (error) {
-      console.error('Error fetching Twilio numbers:', error);
-      toast.error('Failed to fetch Twilio numbers. Please try again later.');
-    }
-  };
+    };
 
-  // Fetch campaign details and call tasks
-  useEffect(() => {
+    // Fetch campaign details and call tasks
     let isMounted = true; // Track if component is mounted
 
     async function fetchCampaignAndTasks() {
@@ -181,11 +184,14 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           setError(`Contact for task ${task.id} does not have a phone number.`);
           continue;
         }
+        // Conditional Phone Number Dialing
+        const countryCode = campaignData?.country_code || "";
+        const phoneNumber = contact.phone.startsWith(countryCode) ? contact.phone : `${countryCode}${contact.phone}`;
 
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
           user_id: contact.user_id // Ensure user_id is included
         };
         
@@ -323,13 +329,19 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           continue;
         }
 
+        // Conditional Phone Number Dialing
+        const countryCode = campaignData?.country_code || "";
+        const phoneNumber = contact.phone.startsWith(countryCode) ? contact.phone : `${countryCode}${contact.phone}`;
+        
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
           user_id: contact.user_id // Ensure user_id is included
         };
-        
+
+        const userId = decryptedUserId;
+
         try {
           await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
@@ -337,6 +349,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
             firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
+            user_Id: userId,
             voiceId: "CwhRBWXzGAHq8TQ4Fs17",
             credentials
           });
@@ -374,6 +387,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
+       <button 
+        onClick={() => router.push('/campaigns')} // Navigate back to the campaign table
+        className="flex items-center mb-4 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg px-4 py-2 transition"
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-600" /> 
+      </button>
       <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired
@@ -400,7 +419,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isLaunching}
               className={`px-4 py-2 bg-green-500 text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"
-              }`}
+                }`}
             >
               {isLaunching ? "Launching..." : "Launch Campaign"}
             </button>
@@ -409,7 +428,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isLaunching}
               className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
-              }`}
+                }`}
             >
               {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
             </button>
@@ -418,7 +437,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               disabled={isPausing}
               className={`px-4 py-2 ${isPaused ? 'bg-blue-500' : 'bg-red-500'} text-white rounded-lg transition-all ${
                 isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
-              }`}
+                }`}
             >
               {isPaused ? "Resume Campaign" : "Pause Campaign"}
             </button>

@@ -30,9 +30,15 @@ interface TwilioNumber {
 interface ContactsProps {
   userId: string;
   onAddToList: (ids: string[], listId: string) => void;
+  AllApiKeys: {
+    apiKey: string;
+    twilioSid: string;
+    twilioAuthToken: string;
+    vapiKey: string;
+  };
 }
 
-const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
+const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [detailsModalIsOpen, setDetailsModalIsOpen] = useState(false);
@@ -62,12 +68,13 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
           ...contact,
           first_name: contact.first_name || "",
           last_name: contact.last_name || "",
-          phone:
-            contact.phone &&
-            typeof contact.phone === "string" &&
-            contact.phone.startsWith("+")
-              ? contact.phone
-              : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
+          phone: contact.phone || "",
+          // phone:
+          //   contact.phone &&
+          //   typeof contact.phone === "string" &&
+          //   contact.phone.startsWith("+")
+          //     ? contact.phone
+          //     : `+${(contact.phone || "").replace(/[^0-9]/g, "")}`,
         }));
         setContacts(parsedContacts);
       } catch (error) {
@@ -77,8 +84,16 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList }) => {
     };
 
     const fetchTwilioNumbers = async () => {
+      const twilioClient = {
+        twilioSid: AllApiKeys.twilioSid,
+        twilioAuthToken: AllApiKeys.twilioAuthToken
+      };
       try {
-        const response = await fetch("/api/get-twilio-numbers");
+        const response = await fetch("/api/get-twilio-numbers", {
+          method: "POST",
+          headers: {"content-type": 'application/json'},
+          body: JSON.stringify({user_Id: userId, twilioClient:twilioClient})
+        });
         const twilioNumbersData = await response.json();
         setTwilioNumbers(twilioNumbersData.allNumbers || []);
       } catch (error) {

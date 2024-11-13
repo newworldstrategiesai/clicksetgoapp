@@ -109,7 +109,9 @@ export const Dashboard3: FC<Dashboard3Props> = ({ userId }) => {
     }
   
     async function fetchData() {
-      await Promise.all([fetchContacts(), fetchSMSData(), fetchCallData()]);
+      await fetchContacts();
+      await fetchSMSData();
+      await fetchCallData();
       setLoading(false);
     }
   

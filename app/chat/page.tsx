@@ -46,6 +46,7 @@ export default function Chats() {
     (acc: Record<string, Convo[]>, obj) => {
       const key = dayjs(obj.timestamp).format('D MMM, YYYY')
 
+<<<<<<< HEAD
       // Create an array for the category if it doesn't exist
       if (!acc[key]) {
         acc[key] = []
@@ -67,6 +68,49 @@ export default function Chats() {
         <div className='ml-auto flex items-center space-x-4'>
           <ThemeSwitch />
           <UserNav />
+=======
+            if (res.ok) {
+                const data: ChatCompletionResponse = await res.json();
+                setResponse(data);
+            } else {
+                console.error('Failed to get response from API:', await res.text());
+                setResponse(null);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setResponse(null);
+        } finally {
+            setLoading(false);
+        }
+    };
+    return (
+        <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center p-4">
+            <div className="w-full max-w-2xl">
+                <textarea
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    placeholder="Type your message here..."
+                    rows={4}
+                    className="w-full p-3 bg-gray-800 text-white rounded-md border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                    onClick={handleChatSubmit}
+                    disabled={loading}
+                    className={`w-full mt-3 py-2 rounded-md text-white font-semibold ${
+                        loading
+                            ? 'bg-blue-700 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600'
+                    }`}
+                >
+                    {loading ? 'Loading...' : 'Send'}
+                </button>
+                {response && (
+                    <pre className="mt-4 p-3 bg-gray-800 rounded-md text-white whitespace-pre-wrap">
+                        {JSON.stringify(response, null, 2)}
+                    </pre>
+                )}
+            </div>
+>>>>>>> b921da4aa6757c2ccf27ac0aae6cc2437b0eda62
         </div>
       </Layout.Header>
 
