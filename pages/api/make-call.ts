@@ -68,7 +68,7 @@ export default async function handler(
       },
       // d1070629-bbd4-4a39-bb68-f0bcef1da950
       // a8cad288-e468-49de-85ff-00725364c107
-      assistantId: 'd1070629-bbd4-4a39-bb68-f0bcef1da950',
+      assistantId: '3e90c863-0890-4369-8d4b-512cdb2b6981',
       assistantOverrides: {
         firstMessage: customizedFirstMessage,
         voice: {
@@ -85,7 +85,7 @@ export default async function handler(
             {
               role: 'system',
               //Introduce a promotion, where I T Niche is providing free website for Individual or a business, which will help them generate leads and boost their brands online presence.
-              content: `You are Sarah, a Sales representative from I T Niche.
+              content: `You are Ben, a Sales representative from I T Niche.
                         Purpose of Call: "The purpose of the call is to ${reason}."
                         In the opening script, introduce the product and the reason for the call, then ask if the user is interested.
                         Be friendly and personable.

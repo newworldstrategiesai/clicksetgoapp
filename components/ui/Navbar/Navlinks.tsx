@@ -37,6 +37,12 @@ export default function Navlinks({ user }: NavlinksProps) {
           <Link href="/overview" className={s.link}>
             Overview
           </Link>
+          <Link href="/tasks" className={s.link}>
+            Tasks
+          </Link>
+          <Link href="/chat" className={s.link}>
+            Chat
+          </Link>
           
           {/* Campaigns Dropdown */}
           <div className="relative">
