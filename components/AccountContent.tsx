@@ -9,7 +9,8 @@ import EmailForm from '@/components/ui/AccountForms/EmailForm';
 import NameForm from '@/components/ui/AccountForms/NameForm';
 import ApiKeysForm from '@/components/ui/AccountForms/ApiKeysForm';
 import NotificationsForm from '@/components/ui/AccountForms/NotificationsForm'; // Import NotificationsForm
-import { supabase } from '@/utils/supabaseClient';
+import CompanySettings from '@/components/ui/AccountForms/CompanySettings'; // Import CompanySettings
+import { supabase } from '@/utils/supabaseClient'; // Ensure correct path
 
 const countryCodes: Record<string, { code: string; name: string }> = {
   US: { code: '+1', name: 'United States' },
@@ -30,6 +31,13 @@ export default function AccountContent({
   subscription,
   apiKeys,
 }: AccountContentProps) {
+  console.log('AccountContent user:', user);
+  console.log('user.id:', user.id);
+
+  if (!user || !user.id) {
+    return <div className="text-red-500">User information is missing. Please log in again.</div>;
+  }
+
   const { defaultCountry, setDefaultCountry } = useCountry();
   const [storedCountry, setStoredCountry] = useState(defaultCountry.name);
 
@@ -58,8 +66,8 @@ export default function AccountContent({
           setStoredCountry(defaultCountryName);
           setDefaultCountry({ name: defaultCountryName, code: defaultCountryCode });
         }
-      } else if (!error) {
-        const countryName = data?.default_country_name || defaultCountry.name;
+      } else if (!error && data) {
+        const countryName = data.default_country_name || defaultCountry.name;
         setStoredCountry(countryName);
         setDefaultCountry({ name: countryName, code: countryCodes[countryName].code });
       }
@@ -68,7 +76,9 @@ export default function AccountContent({
     fetchUserCountry();
   }, [user.id, setDefaultCountry, defaultCountry.name]);
 
-  const handleAccountCountryChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleAccountCountryChange = async (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
     const selectedCountry = event.target.value;
     const countryCode = countryCodes[selectedCountry];
     setDefaultCountry({ name: selectedCountry, code: countryCode.code });
@@ -87,11 +97,11 @@ export default function AccountContent({
 
   return (
     <div className="p-4">
-      <div style={{ textAlign: 'center' }}>
+      <div className="text-center mb-6">
         <select
           value={defaultCountry.name || 'US'}
           onChange={handleAccountCountryChange}
-          style={{ boxShadow: '0 0 5px 5px #2E1065' }}
+          className="bg-gray-800 text-white p-2 rounded shadow"
         >
           {Object.entries(countryCodes).map(([code, { name }]) => (
             <option key={code} value={code}>
@@ -107,6 +117,9 @@ export default function AccountContent({
 
       {/* Add the NotificationsForm */}
       <NotificationsForm userId={user.id} />
+
+      {/* Add the CompanySettings */}
+      <CompanySettings userId={user.id} />
     </div>
   );
 }

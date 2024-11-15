@@ -25,7 +25,30 @@
   <script>!function(window){const host="https://app.heygen.com",url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJCcmlhbmFfcHVibGljXzNfMjAyNDAxMTAi%0D%0ALCJ2b2ljZSI6eyJ2b2ljZV9pZCI6ImMyOTU4ZDY3ZjFlNzQ0MDNhMDAzOGUzNDQ1ZDkzZDUwIn0s%0D%0AInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzLmhleWdlbi5haS9hdmF0YXIvdjMvZTUwYTA5N2Y1%0D%0AMGI1NDE3NDljMzE4ZGZlZGZlOWM2NDBfMTMzMTEvcHJldmlld190YWxrXzQud2VicCIsIm5lZWRS%0D%0AZW1vdmVCYWNrZ3JvdW5kIjp0cnVlLCJ1c2VybmFtZSI6ImM3ZTZmY2MwMzNkMjRlNDU4OGM2ODcw%0D%0AYzNkOTY5ZThjIn0%3D&inIFrame=1",clientWidth=document.body.clientWidth,wrapDiv=document.createElement("div");wrapDiv.id="heygen-streaming-embed";const container=document.createElement("div");container.id="heygen-streaming-container";const stylesheet=document.createElement("style");stylesheet.innerHTML=`\n  #heygen-streaming-embed {\n    z-index: 9999;\n    position: fixed;\n    left: 40px;\n    bottom: 40px;\n    width: 200px;\n    height: 200px;\n    border-radius: 50%;\n    border: 2px solid #fff;\n    box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);\n    transition: all linear 0.1s;\n    overflow: hidden;\n\n    opacity: 0;\n    visibility: hidden;\n  }\n  #heygen-streaming-embed.show {\n    opacity: 1;\n    visibility: visible;\n  }\n  #heygen-streaming-embed.expand {\n    ${clientWidth<540?"height: 266px; width: 96%; left: 50%; transform: translateX(-50%);":"height: 366px; width: calc(366px * 16 / 9);"}\n    border: 0;\n    border-radius: 8px;\n  }\n  #heygen-streaming-container {\n    width: 100%;\n    height: 100%;\n  }\n  #heygen-streaming-container iframe {\n    width: 100%;\n    height: 100%;\n    border: 0;\n  }\n  `;const iframe=document.createElement("iframe");iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.src=url;let visible=!1,initial=!1;window.addEventListener("message",(e=>{e.origin===host&&e.data&&e.data.type&&"streaming-embed"===e.data.type&&("init"===e.data.action?(initial=!0,wrapDiv.classList.toggle("show",initial)):"show"===e.data.action?(visible=!0,wrapDiv.classList.toggle("expand",visible)):"hide"===e.data.action&&(visible=!1,wrapDiv.classList.toggle("expand",visible)))})),container.appendChild(iframe),wrapDiv.appendChild(stylesheet),wrapDiv.appendChild(container),document.body.appendChild(wrapDiv)}(globalThis);</script><!--  CSS for Splide JS  -->
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
   <link href="https://cdn.jsdelivr.net/npm/@n8n/chat/style.css" rel="stylesheet">
-  
+  <style>
+    /* Base Styles for Desktop and Larger Screens */
+    .convai-widget-container {
+      position: fixed;
+      bottom: 20px; /* Distance from the bottom */
+      right: 20px;  /* Distance from the right */
+      z-index: 1000; /* Ensure the widget appears above other elements */
+      /* Optional: Add shadow or border for better visibility */
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    /* Responsive Styles for Mobile Devices */
+    @media (max-width: 768px) {
+      .convai-widget-container {
+        left: 50%; /* Position the left edge at the center of the screen */
+        transform: translateX(-50%); /* Shift left by 50% of its own width to center */
+        right: auto; /* Remove the right offset */
+        max-width: 90%; /* Prevent the widget from exceeding 90% of the screen width */
+        width: 300px; /* Set a fixed width suitable for mobile screens */
+        bottom: 20px; /* Maintain the bottom distance */
+      }
+    }
+  </style>
 </head>
 <body>
 
@@ -1204,7 +1227,10 @@ for ( let i = 0, splideLength = splides.length; i < splideLength; i++ ) {
 }
 features();
 </script>
-<script>!function(window){const host="https://labs.heygen.com",url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiJCcmlhbmFfcHVibGljXzNfMjAyNDAxMTAi%0D%0ALCJ2b2ljZSI6eyJ2b2ljZV9pZCI6ImMyOTU4ZDY3ZjFlNzQ0MDNhMDAzOGUzNDQ1ZDkzZDUwIn0s%0D%0AInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzL2U1MGEwOTdm%0D%0ANTBiNTQxNzQ5YzMxOGRmZWRmZTljNjQwXzEzMzExL3ByZXZpZXdfdGFsa180LndlYnAiLCJuZWVk%0D%0AUmVtb3ZlQmFja2dyb3VuZCI6dHJ1ZSwia25vd2xlZGdlQmFzZUlkIjpudWxsLCJ1c2VybmFtZSI6%0D%0AImM3ZTZmY2MwMzNkMjRlNDU4OGM2ODcwYzNkOTY5ZThjIn0%3D&inIFrame=1",clientWidth=document.body.clientWidth,wrapDiv=document.createElement("div");wrapDiv.id="heygen-streaming-embed";const container=document.createElement("div");container.id="heygen-streaming-container";const stylesheet=document.createElement("style");stylesheet.innerHTML=`\n  #heygen-streaming-embed {\n    z-index: 9999;\n    position: fixed;\n    left: 40px;\n    bottom: 40px;\n    width: ${clientWidth<540?"150px":"200px"};\n    height: ${clientWidth<540?"150px":"200px"};\n    border-radius: 50%;\n    border: 2px solid #fff;\n    box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);\n    transition: all linear 0.1s;\n    overflow: hidden;\n\n    opacity: 0;\n    visibility: hidden;\n  }\n  #heygen-streaming-embed.show {\n    opacity: 1;\n    visibility: visible;\n  }\n  #heygen-streaming-embed.expand {\n    ${clientWidth<540?"height: 266px; width: 96%; left: 50%; transform: translateX(-50%);":"height: 366px; width: calc(366px * 16 / 9);"}\n    border: 0;\n    border-radius: 8px;\n  }\n  #heygen-streaming-container {\n    width: 100%;\n    height: 100%;\n  }\n  #heygen-streaming-container iframe {\n    width: 100%;\n    height: 100%;\n    border: 0;\n  }\n  `;const iframe=document.createElement("iframe");iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.allow="microphone",iframe.src=url;let visible=!1,initial=!1;window.addEventListener("message",(e=>{e.origin===host&&e.data&&e.data.type&&"streaming-embed"===e.data.type&&("init"===e.data.action?(initial=!0,wrapDiv.classList.toggle("show",initial)):"show"===e.data.action?(visible=!0,wrapDiv.classList.toggle("expand",visible)):"hide"===e.data.action&&(visible=!1,wrapDiv.classList.toggle("expand",visible)))})),container.appendChild(iframe),wrapDiv.appendChild(stylesheet),wrapDiv.appendChild(container),document.body.appendChild(wrapDiv)}(globalThis);</script>
+<div class="convai-widget-container">
+  <elevenlabs-convai agent-id="nLw9sdvgF1d4cdi4emJl"></elevenlabs-convai>
+</div>
+<script src="https://elevenlabs.io/convai-widget/index.js" async type="text/javascript"></script>
 </body>
 
 </html>

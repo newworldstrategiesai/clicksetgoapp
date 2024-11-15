@@ -18,6 +18,14 @@ interface CallConfirmationModalProps {
   setCallReason: React.Dispatch<React.SetStateAction<string>>;
   firstMessage: string;
   setFirstMessage: React.Dispatch<React.SetStateAction<string>>;
+  agentName: string;
+  setAgentName: React.Dispatch<React.SetStateAction<string>>;
+  role: string;
+  setRole: React.Dispatch<React.SetStateAction<string>>;
+  companyName: string;
+  setCompanyName: React.Dispatch<React.SetStateAction<string>>;
+  prompt: string;
+  setPrompt: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
@@ -36,6 +44,14 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
   setCallReason,
   firstMessage,
   setFirstMessage,
+  agentName,
+  setAgentName,
+  role,
+  setRole,
+  companyName,
+  setCompanyName,
+  prompt,
+  setPrompt,
 }) => {
   if (!isOpen) return null;
 

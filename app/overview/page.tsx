@@ -2,7 +2,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
-import { Home } from '@/components/Home';
+import { Home } from '@/components/HomeSidebar';
 
 export default async function ContactDashboardPage() {
   const supabase = await createClient();

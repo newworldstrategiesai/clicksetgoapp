@@ -1,4 +1,4 @@
-// pages/dialer.tsx
+// app/dialer/page.tsx
 // Add the dynamic rendering configuration
 export const dynamic = 'force-dynamic';
 

@@ -5,6 +5,7 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getURL, getErrorRedirect, getStatusRedirect } from 'utils/helpers';
 import { getAuthTypes } from 'utils/auth-helpers/settings';
+import { supabase } from '@/utils/supabaseClient';
 
 function isValidEmail(email: string) {
   var regex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
@@ -296,4 +297,28 @@ export async function updateName(formData: FormData) {
     'Success!',
     'Your name has been updated.'
   );
+}
+
+export async function createAgent(userId: string, agentData: any) {
+  const { data, error } = await supabase
+    .from('agents')
+    .insert([
+      {
+        user_id: userId,
+        agent_name: agentData.assistantName,
+        company_name: agentData.companyName || '',
+        company_description: agentData.additionalInstructions || '',
+        primary_role: agentData.primaryRole,
+        // Add other fields as necessary
+      },
+    ]);
+
+  if (error) {
+    console.error('Error creating agent:', error.message);
+    alert(error.message); // Replace with your error handling mechanism
+    return;
+  }
+
+  console.log('Agent created:', data);
+  // Additional logic after successful Agent creation if needed
 }
