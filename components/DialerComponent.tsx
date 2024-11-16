@@ -7,6 +7,7 @@ import { parsePhoneNumberFromString } from 'libphonenumber-js';
 import VoiceDropdown from './VoiceDropdown';
 import ContactsModal from './ContactsModal';
 import CallConfirmationModal from './CallConfirmationModal';
+import AddCallerIDModal from './AddCallerIDModal';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Link from 'next/link';
@@ -105,10 +106,100 @@ const DialerComponent = ({
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [prompt, setPrompt] = useState<string>('');
 
+  // State for Add Caller ID Modal
+  const [isAddCallerIDModalOpen, setIsAddCallerIDModalOpen] = useState(false);
+
   // Default agent settings (will be fetched from Supabase)
   const defaultAgentName = agentName;
   const defaultRole = role;
   const defaultCompanyName = companyName;
+
+  // Function to handle adding a new caller ID successfully
+  const handleAddCallerIDSuccess = () => {
+    fetchTwilioNumbers();
+    toast.success('Phone number verified successfully!');
+  };
+
+  const fetchTwilioNumbers = useCallback(async () => {
+    try {
+      const twilioClient = { twilioSid, twilioAuthToken };
+
+      // Send credentials along with userId to the API
+      const response = await axios.post('/api/get-twilio-numbers', {
+        userId,
+        twilioClient,
+      });
+
+      // Set the fetched Twilio numbers
+      setTwilioNumbers(response.data.allNumbers || []);
+      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+      }
+    } catch (error) {
+      console.error('Error fetching Twilio numbers:', error);
+      toast.error('Failed to fetch Twilio numbers. Please try again later.');
+    }
+  }, [twilioSid, twilioAuthToken, userId]);
+
+  const fetchContacts = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('user_id', userId);
+      if (error) throw error;
+      setContacts(data || []);
+    } catch (error) {
+      console.error('Error fetching contacts:', error);
+      toast.error(
+        'Failed to fetch contacts. Please refresh the page or try again later.'
+      );
+    }
+  };
+
+  const fetchVoiceData = async () => {
+    try {
+      const voicesData = await fetchVoices(apiKey);
+      setVoices(voicesData);
+      if (voicesData.length > 0) {
+        setSelectedVoice(voicesData[0].voice_id);
+      }
+    } catch (error) {
+      console.error('Error fetching voices:', error);
+      toast.error('Failed to fetch voices. Please try again.');
+    }
+  };
+
+  const fetchAgentSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('agents')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Error fetching agent settings:', error);
+      } else if (data && data.length > 0) {
+        const latestAgent = data[0];
+        setAgentName(latestAgent.agent_name || '');
+        setCompanyName(latestAgent.company_name || '');
+        setCompanyWebsite(latestAgent.company_website || '');
+        setRole(latestAgent.role || ''); // Set the 'role' state variable
+        // Set other fields as needed
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching agent settings:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTwilioNumbers();
+    fetchContacts();
+    fetchVoiceData();
+    fetchAgentSettings();
+  }, [fetchTwilioNumbers]);
 
   const handleKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -127,92 +218,11 @@ const DialerComponent = ({
   );
 
   useEffect(() => {
-    window.addEventListener('keydown', handleKeyPress as any);
+    window.addEventListener('keydown', handleKeyPress);
     return () => {
-      window.removeEventListener('keydown', handleKeyPress as any);
+      window.removeEventListener('keydown', handleKeyPress);
     };
   }, [handleKeyPress]);
-
-  useEffect(() => {
-    const fetchTwilioNumbers = async () => {
-      try {
-        const twilioClient = { twilioSid, twilioAuthToken };
-
-        // Send credentials along with userId to the API
-        const response = await axios.post(`/api/get-twilio-numbers`, {
-          userId,
-          twilioClient,
-        });
-
-        // Set the fetched Twilio numbers
-        setTwilioNumbers(response.data.allNumbers || []);
-        if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
-        }
-      } catch (error) {
-        console.error('Error fetching Twilio numbers:', error);
-        toast.error('Failed to fetch Twilio numbers. Please try again later.');
-      }
-    };
-
-    const fetchContacts = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('contacts')
-          .select('*')
-          .eq('user_id', userId);
-        if (error) throw error;
-        setContacts(data || []);
-      } catch (error) {
-        console.error('Error fetching contacts:', error);
-        toast.error(
-          'Failed to fetch contacts. Please refresh the page or try again later.'
-        );
-      }
-    };
-
-    const fetchVoiceData = async () => {
-      try {
-        const voicesData = await fetchVoices(apiKey);
-        setVoices(voicesData);
-        if (voicesData.length > 0) {
-          setSelectedVoice(voicesData[0].voice_id);
-        }
-      } catch (error) {
-        console.error('Error fetching voices:', error);
-        toast.error('Failed to fetch voices. Please try again.');
-      }
-    };
-
-    const fetchAgentSettings = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('agents')
-          .select('*')
-          .eq('user_id', userId)
-          .order('created_at', { ascending: false })
-          .limit(1);
-
-        if (error) {
-          console.error('Error fetching agent settings:', error);
-        } else if (data && data.length > 0) {
-          const latestAgent = data[0];
-          setAgentName(latestAgent.agent_name || '');
-          setCompanyName(latestAgent.company_name || '');
-          setCompanyWebsite(latestAgent.company_website || '');
-          setRole(latestAgent.role || ''); // Set the 'role' state variable
-          // Set other fields as needed
-        }
-      } catch (error) {
-        console.error('Unexpected error fetching agent settings:', error);
-      }
-    };
-
-    fetchTwilioNumbers();
-    fetchContacts();
-    fetchVoiceData();
-    fetchAgentSettings();
-  }, [userId, apiKey, twilioSid, twilioAuthToken]);
 
   const handleButtonClick = (value: string) => {
     const callingCode = countries[selectedCountryCode].code;
@@ -262,6 +272,8 @@ const DialerComponent = ({
     const formattedPhoneNumber = formatPhoneNumber(input);
     const twilioNumberToUse = selectedTwilioNumber || DEFAULT_TWILIO_NUMBER;
     const credentials = { twilioSid, twilioAuthToken, vapiKey };
+
+    console.log('Sending Credentials:', credentials);
 
     try {
       setLoading(true);
@@ -491,7 +503,7 @@ const DialerComponent = ({
               onChange={(e) => {
                 const newCountryCode = e.target.value as keyof typeof countries;
                 setSelectedCountryCode(newCountryCode);
-                setInput(countries[newCountryCode].code);
+                setInput(countries[newCountryCode].code); // Reset input with the new calling code
               }}
               className="w-full p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
               style={{ textAlign: 'center', fontSize: '1.2rem' }}
@@ -535,6 +547,7 @@ const DialerComponent = ({
           </button>
         </div>
         <div className="mt-6 w-64 pb-24">
+          {/* Added padding-bottom to prevent overlap with footer */}
           <label className="block mb-2">
             <span className="block text-gray-400">Select Twilio Number:</span>
             <select
@@ -557,6 +570,13 @@ const DialerComponent = ({
             selectedVoice={selectedVoice}
             setSelectedVoice={setSelectedVoice}
           />
+          {/* Add Verified Caller ID Button */}
+          <button
+            onClick={() => setIsAddCallerIDModalOpen(true)}
+            className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-500 w-full"
+          >
+            Add Verified Caller ID
+          </button>
         </div>
       </div>
 
@@ -601,6 +621,15 @@ const DialerComponent = ({
           onSearchChange={handleSearchChange}
         />
       )}
+
+      {/* Add Verified Caller ID Modal */}
+      <AddCallerIDModal
+        isOpen={isAddCallerIDModalOpen}
+        onClose={() => setIsAddCallerIDModalOpen(false)}
+        onSuccess={handleAddCallerIDSuccess}
+        twilioSid={twilioSid}
+        twilioAuthToken={twilioAuthToken}
+      />
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 text-white box-border">
