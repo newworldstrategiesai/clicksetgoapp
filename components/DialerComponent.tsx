@@ -1,19 +1,16 @@
-// components/DialerComponent.tsx
-
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
-import axios from "axios";
-import { supabase } from "@/utils/supabaseClient";
-import { parsePhoneNumberFromString } from "libphonenumber-js";
-import VoiceDropdown from "./VoiceDropdown";
-import ContactsModal from "./ContactsModal";
-import CallConfirmationModal from "./CallConfirmationModal";
-import AddCallerIDModal from "./AddCallerIDModal";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import Link from "next/link";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import { supabase } from '@/utils/supabaseClient';
+import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import VoiceDropdown from './VoiceDropdown';
+import ContactsModal from './ContactsModal';
+import CallConfirmationModal from './CallConfirmationModal';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import Link from 'next/link';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faStar,
   faClock,
@@ -21,8 +18,8 @@ import {
   faTh,
   faVoicemail,
   faSearch,
-} from "@fortawesome/free-solid-svg-icons";
-import "./modernSlider.css";
+} from '@fortawesome/free-solid-svg-icons';
+import './modernSlider.css';
 
 interface Contact {
   id: string;
@@ -45,27 +42,27 @@ interface Voice {
   preview_url: string;
 }
 
-const DEFAULT_TWILIO_NUMBER = process.env.NEXT_PUBLIC_TWILIO_NUMBER || "";
+const DEFAULT_TWILIO_NUMBER = process.env.TWILIO_NUMBER || '';
 
 const formatPhoneNumber = (phoneNumber: string) => {
-  if (typeof phoneNumber !== "string") {
+  if (typeof phoneNumber !== 'string') {
     return null;
   }
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, "US");
-  return phoneNumberObject ? phoneNumberObject.format("E.164") : null;
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
+  return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
 const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
   try {
-    const response = await axios.get("https://api.elevenlabs.io/v1/voices", {
+    const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
       headers: {
-        "Content-Type": "application/json",
-        "xi-api-key": apiKey,
+        'Content-Type': 'application/json',
+        'xi-api-key': apiKey,
       },
     });
     return response.data.voices || [];
   } catch (error) {
-    throw new Error("Failed to fetch voices");
+    throw new Error('Failed to fetch voices');
   }
 };
 
@@ -82,76 +79,94 @@ const DialerComponent = ({
   twilioAuthToken: string;
   vapiKey: string;
 }) => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState('');
   const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
   const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>(
     DEFAULT_TWILIO_NUMBER
   );
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
-  const [newFirstName, setNewFirstName] = useState("");
-  const [newLastName, setNewLastName] = useState("");
-  const [callReason, setCallReason] = useState("");
-  const [firstMessage, setFirstMessage] = useState("");
+  const [newFirstName, setNewFirstName] = useState('');
+  const [newLastName, setNewLastName] = useState('');
+  const [callReason, setCallReason] = useState('');
+  const [firstMessage, setFirstMessage] = useState('');
   const [isCallModalOpen, setIsCallModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [voices, setVoices] = useState<Voice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedVoice, setSelectedVoice] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [isAddressBookModalOpen, setIsAddressBookModalOpen] = useState(false);
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
 
-  // Advanced Fields State
-  const [agentName, setAgentName] = useState("");
-  const [role, setRole] = useState("");
-  const [companyName, setCompanyName] = useState("");
-  const [prompt, setPrompt] = useState("");
+  // Agent settings state variables
+  const [agentName, setAgentName] = useState<string>('');
+  const [role, setRole] = useState<string>(''); // Added 'role' state variable
+  const [companyName, setCompanyName] = useState<string>('');
+  const [companyWebsite, setCompanyWebsite] = useState<string>('');
+  const [prompt, setPrompt] = useState<string>('');
 
-  // State for Add Caller ID Modal
-  const [isAddCallerIDModalOpen, setIsAddCallerIDModalOpen] = useState(false);
+  // Default agent settings (will be fetched from Supabase)
+  const defaultAgentName = agentName;
+  const defaultRole = role;
+  const defaultCompanyName = companyName;
 
-  // Function to handle adding a new caller ID successfully
-  const handleAddCallerIDSuccess = () => {
-    fetchTwilioNumbers();
-    toast.success("Phone number verified successfully!");
-  };
+  const handleKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (isCallModalOpen || isAddressBookModalOpen) return;
 
-  const fetchTwilioNumbers = useCallback(async () => {
-    try {
-      const twilioClient = { twilioSid, twilioAuthToken };
-
-      // Send credentials along with user_Id to the API
-      const response = await axios.post("/api/get-twilio-numbers", {
-        user_Id: userId,
-        twilioClient: twilioClient,
-      });
-
-      // Set the fetched Twilio numbers
-      setTwilioNumbers(response.data.allNumbers || []);
-      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+      const key = event.key;
+      if (/^[0-9*#]$/.test(key)) {
+        setInput((prevInput) => prevInput + key);
+      } else if (key === 'Backspace') {
+        setInput((prevInput) => prevInput.slice(0, -1));
+      } else if (key === 'Enter') {
+        handleCall();
       }
-    } catch (error) {
-      console.error("Error fetching Twilio numbers:", error);
-      toast.error("Failed to fetch Twilio numbers. Please try again later.");
-    }
-  }, [userId, twilioSid, twilioAuthToken]);
+    },
+    [isCallModalOpen, isAddressBookModalOpen]
+  );
 
   useEffect(() => {
-    fetchTwilioNumbers();
+    window.addEventListener('keydown', handleKeyPress as any);
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress as any);
+    };
+  }, [handleKeyPress]);
+
+  useEffect(() => {
+    const fetchTwilioNumbers = async () => {
+      try {
+        const twilioClient = { twilioSid, twilioAuthToken };
+
+        // Send credentials along with userId to the API
+        const response = await axios.post(`/api/get-twilio-numbers`, {
+          userId,
+          twilioClient,
+        });
+
+        // Set the fetched Twilio numbers
+        setTwilioNumbers(response.data.allNumbers || []);
+        if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        }
+      } catch (error) {
+        console.error('Error fetching Twilio numbers:', error);
+        toast.error('Failed to fetch Twilio numbers. Please try again later.');
+      }
+    };
 
     const fetchContacts = async () => {
       try {
         const { data, error } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("user_id", userId);
+          .from('contacts')
+          .select('*')
+          .eq('user_id', userId);
         if (error) throw error;
-        setContacts(data);
+        setContacts(data || []);
       } catch (error) {
-        console.error("Error fetching contacts:", error);
+        console.error('Error fetching contacts:', error);
         toast.error(
-          "Failed to fetch contacts. Please refresh the page or try again later."
+          'Failed to fetch contacts. Please refresh the page or try again later.'
         );
       }
     };
@@ -164,37 +179,40 @@ const DialerComponent = ({
           setSelectedVoice(voicesData[0].voice_id);
         }
       } catch (error) {
-        console.error("Error fetching voices:", error);
-        toast.error("Failed to fetch voices. Please try again.");
+        console.error('Error fetching voices:', error);
+        toast.error('Failed to fetch voices. Please try again.');
       }
     };
 
+    const fetchAgentSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('agents')
+          .select('*')
+          .eq('user_id', userId)
+          .order('created_at', { ascending: false })
+          .limit(1);
+
+        if (error) {
+          console.error('Error fetching agent settings:', error);
+        } else if (data && data.length > 0) {
+          const latestAgent = data[0];
+          setAgentName(latestAgent.agent_name || '');
+          setCompanyName(latestAgent.company_name || '');
+          setCompanyWebsite(latestAgent.company_website || '');
+          setRole(latestAgent.role || ''); // Set the 'role' state variable
+          // Set other fields as needed
+        }
+      } catch (error) {
+        console.error('Unexpected error fetching agent settings:', error);
+      }
+    };
+
+    fetchTwilioNumbers();
     fetchContacts();
     fetchVoiceData();
-  }, [userId, apiKey, twilioSid, twilioAuthToken, fetchTwilioNumbers]);
-
-  const handleKeyPress = useCallback(
-    (event: KeyboardEvent) => {
-      if (isCallModalOpen || isAddressBookModalOpen) return;
-
-      const key = event.key;
-      if (/^[0-9*#]$/.test(key)) {
-        setInput((prevInput) => prevInput + key);
-      } else if (key === "Backspace") {
-        setInput((prevInput) => prevInput.slice(0, -1));
-      } else if (key === "Enter") {
-        handleCall();
-      }
-    },
-    [isCallModalOpen, isAddressBookModalOpen]
-  );
-
-  useEffect(() => {
-    window.addEventListener("keydown", handleKeyPress);
-    return () => {
-      window.removeEventListener("keydown", handleKeyPress);
-    };
-  }, [handleKeyPress]);
+    fetchAgentSettings();
+  }, [userId, apiKey, twilioSid, twilioAuthToken]);
 
   const handleButtonClick = (value: string) => {
     const callingCode = countries[selectedCountryCode].code;
@@ -211,7 +229,7 @@ const DialerComponent = ({
 
   const handleCall = async () => {
     if (!input) {
-      toast.error("Please enter a number.");
+      toast.error('Please enter a number.');
       return;
     }
 
@@ -227,8 +245,8 @@ const DialerComponent = ({
       setNewLastName(contact.last_name);
     } else {
       setSelectedContact(null);
-      setNewFirstName("");
-      setNewLastName("");
+      setNewFirstName('');
+      setNewLastName('');
     }
     setIsCallModalOpen(true);
   };
@@ -236,19 +254,20 @@ const DialerComponent = ({
   const handleModalSubmit = async () => {
     if (!newFirstName || !callReason || !input) {
       toast.error(
-        "Please fill in the first name, phone number, and reason for calling."
+        'Please fill in the first name, phone number, and reason for calling.'
       );
       return;
     }
 
     const formattedPhoneNumber = formatPhoneNumber(input);
     const twilioNumberToUse = selectedTwilioNumber || DEFAULT_TWILIO_NUMBER;
+    const credentials = { twilioSid, twilioAuthToken, vapiKey };
 
     try {
       setLoading(true);
-      await axios.post("/api/make-call", {
+      await axios.post('/api/make-call', {
         contact: {
-          id: selectedContact?.id || "",
+          id: selectedContact?.id || '',
           first_name: newFirstName,
           last_name: newLastName,
           phone: formattedPhoneNumber,
@@ -258,24 +277,26 @@ const DialerComponent = ({
         twilioNumber: twilioNumberToUse,
         voiceId: selectedVoice,
         userId,
-        // Pass the new advanced fields
-        agentName,
-        role,
-        companyName,
-        prompt,
+        credentials,
+        agentSettings: {
+          agentName,
+          role, // Include 'role' in agentSettings
+          companyName,
+          prompt,
+        },
       });
       toast.success(
-        `Call to ${newFirstName} ${newLastName || ""} initialized.`
+        `Call to ${newFirstName} ${newLastName || ''} initialized.`
       );
       setIsCallModalOpen(false);
     } catch (error) {
       console.error(
-        "Error initiating call:",
+        'Error initiating call:',
         (error as any).response?.data || (error as Error).message
       );
       toast.error(
-        "Failed to initiate call: " +
-          ((error as any).response?.data?.message || "Unknown error")
+        'Failed to initiate call: ' +
+          ((error as any).response?.data?.message || 'Unknown error')
       );
     } finally {
       setLoading(false);
@@ -287,23 +308,23 @@ const DialerComponent = ({
   };
 
   const countries = {
-    NA: { code: "", name: "Select Country" },
-    US: { code: "+1", name: "United States" },
-    IN: { code: "+91", name: "India" },
-    FR: { code: "+33", name: "France" },
-    UK: { code: "+44", name: "United Kingdom" },
-    DE: { code: "+49", name: "Germany" },
-    ES: { code: "+34", name: "Spain" },
-    IT: { code: "+39", name: "Italy" },
+    NA: { code: '', name: 'Select Country' },
+    US: { code: '+1', name: 'United States' },
+    IN: { code: '+91', name: 'India' },
+    FR: { code: '+33', name: 'France' },
+    UK: { code: '+44', name: 'United Kingdom' },
+    DE: { code: '+49', name: 'Germany' },
+    ES: { code: '+34', name: 'Spain' },
+    IT: { code: '+39', name: 'Italy' },
     // Add more countries as needed
   };
   const [selectedCountryCode, setSelectedCountryCode] = useState<
     keyof typeof countries
-  >("NA");
+  >('NA');
 
   const handleContactClick = (contact: Contact) => {
     const formattedPhoneNumber = formatPhoneNumber(contact.phone);
-    setInput(formattedPhoneNumber || "");
+    setInput(formattedPhoneNumber || '');
     setNewFirstName(contact.first_name);
     setNewLastName(contact.last_name);
     setIsAddressBookModalOpen(false);
@@ -314,18 +335,18 @@ const DialerComponent = ({
   };
 
   const buttons = [
-    { value: "1", letters: "" },
-    { value: "2", letters: "ABC" },
-    { value: "3", letters: "DEF" },
-    { value: "4", letters: "GHI" },
-    { value: "5", letters: "JKL" },
-    { value: "6", letters: "MNO" },
-    { value: "7", letters: "PQRS" },
-    { value: "8", letters: "TUV" },
-    { value: "9", letters: "WXYZ" },
-    { value: "*", letters: "" },
-    { value: "0", letters: "+" },
-    { value: "#", letters: "" },
+    { value: '1', letters: '' },
+    { value: '2', letters: 'ABC' },
+    { value: '3', letters: 'DEF' },
+    { value: '4', letters: 'GHI' },
+    { value: '5', letters: 'JKL' },
+    { value: '6', letters: 'MNO' },
+    { value: '7', letters: 'PQRS' },
+    { value: '8', letters: 'TUV' },
+    { value: '9', letters: 'WXYZ' },
+    { value: '*', letters: '' },
+    { value: '0', letters: '+' },
+    { value: '#', letters: '' },
   ];
 
   // Filtered Contacts based on Search Query
@@ -352,7 +373,7 @@ const DialerComponent = ({
       {/* Left Panel for Address Book */}
       <div
         className={`hidden md:flex flex-col ${
-          isSidebarCollapsed ? "w-16" : "w-1/3"
+          isSidebarCollapsed ? 'w-16' : 'w-1/3'
         } p-4 bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
       >
         {/* Sidebar Header */}
@@ -364,7 +385,7 @@ const DialerComponent = ({
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
             className="text-gray-400 hover:text-white focus:outline-none"
             aria-label={
-              isSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"
+              isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'
             }
           >
             <svg
@@ -462,7 +483,7 @@ const DialerComponent = ({
       <div className="flex-grow flex flex-col items-center justify-center w-full pt-16 bg-black">
         <div
           className="text-4xl text-white mb-8"
-          style={{ fontSize: "2rem" }}
+          style={{ fontSize: '2rem' }}
         >
           <div className="w-64 mb-4">
             <select
@@ -470,23 +491,23 @@ const DialerComponent = ({
               onChange={(e) => {
                 const newCountryCode = e.target.value as keyof typeof countries;
                 setSelectedCountryCode(newCountryCode);
-                setInput(countries[newCountryCode].code); // Reset input with the new calling code
+                setInput(countries[newCountryCode].code);
               }}
               className="w-full p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
-              style={{ textAlign: "center", fontSize: "1.2rem" }}
+              style={{ textAlign: 'center', fontSize: '1.2rem' }}
             >
               {Object.keys(countries).map((code) => (
                 <option
                   key={code}
                   value={code}
-                  style={{ textAlign: "center", fontSize: "1.2rem" }}
+                  style={{ textAlign: 'center', fontSize: '1.2rem' }}
                 >
                   {countries[code as keyof typeof countries].name}
                 </option>
               ))}
             </select>
           </div>
-          {input || "Enter Number"}
+          {input || 'Enter Number'}
         </div>
         <div className="grid grid-cols-3 gap-4 w-64">
           {buttons.map((button) => (
@@ -510,11 +531,10 @@ const DialerComponent = ({
             className="flex flex-col items-center justify-center h-20 w-20 bg-green-600 rounded-full text-3xl hover:bg-green-500 focus:outline-none transition-colors duration-200"
             disabled={loading}
           >
-            {loading ? "Calling..." : "📞"}
+            {loading ? 'Calling...' : '📞'}
           </button>
         </div>
         <div className="mt-6 w-64 pb-24">
-          {/* Added padding-bottom to prevent overlap with footer */}
           <label className="block mb-2">
             <span className="block text-gray-400">Select Twilio Number:</span>
             <select
@@ -537,22 +557,14 @@ const DialerComponent = ({
             selectedVoice={selectedVoice}
             setSelectedVoice={setSelectedVoice}
           />
-
-          {/* Add Verified Caller ID Button */}
-          <button
-            onClick={() => setIsAddCallerIDModalOpen(true)}
-            className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-500 w-full"
-          >
-            Add Verified Caller ID
-          </button>
         </div>
       </div>
 
       {/* Modal for Call Confirmation */}
       <CallConfirmationModal
         isOpen={isCallModalOpen}
-        onClose={() => setIsCallModalOpen(false)}
-        modalMode={"existing"} // or 'new' based on your logic
+        onClose={handleCancel}
+        modalMode={selectedContact ? 'existing' : 'new'}
         contactName={`${newFirstName} ${newLastName}`}
         handleModalSubmit={handleModalSubmit}
         loading={loading}
@@ -565,15 +577,17 @@ const DialerComponent = ({
         setCallReason={setCallReason}
         firstMessage={firstMessage}
         setFirstMessage={setFirstMessage}
-       // Advanced Fields
         agentName={agentName}
         setAgentName={setAgentName}
-        role={role}
-        setRole={setRole}
+        role={role} // Pass 'role' to the modal
+        setRole={setRole} // Pass 'setRole' to the modal
         companyName={companyName}
         setCompanyName={setCompanyName}
         prompt={prompt}
         setPrompt={setPrompt}
+        defaultAgentName={defaultAgentName}
+        defaultRole={defaultRole}
+        defaultCompanyName={defaultCompanyName}
       />
 
       {/* Modal for Address Book */}
@@ -587,15 +601,6 @@ const DialerComponent = ({
           onSearchChange={handleSearchChange}
         />
       )}
-
-      {/* Add Verified Caller ID Modal */}
-      <AddCallerIDModal
-        isOpen={isAddCallerIDModalOpen}
-        onClose={() => setIsAddCallerIDModalOpen(false)}
-        onSuccess={handleAddCallerIDSuccess}
-        twilioSid={twilioSid}
-        twilioAuthToken={twilioAuthToken}
-      />
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 text-white box-border">
@@ -616,9 +621,9 @@ const DialerComponent = ({
           className="flex flex-col items-center cursor-pointer"
           onClick={() => {
             if (window.innerWidth >= 768) {
-              window.location.href = "/contacts"; // Navigate to /contacts for desktop
+              window.location.href = '/contacts';
             } else {
-              setIsAddressBookModalOpen(true); // Open modal for mobile
+              setIsAddressBookModalOpen(true);
             }
           }}
         >

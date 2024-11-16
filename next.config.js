@@ -1,11 +1,7 @@
-const { NextConfig } = require('next');
+// next.config.js
 
 module.exports = {
-  experimental: {
-    turbo: { // Correcting this to be an object
-      enabled: true, // Enables Turbopack
-    },
-  },
+  reactStrictMode: true,
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {
@@ -17,23 +13,7 @@ module.exports = {
   },
   async redirects() {
     return [
-      {
-        source: '/',
-        has: [
-          {
-            type: 'query',
-            key: 'status',
-            value: 'Success!',
-          },
-        ],
-        destination: '/home', // Redirect to your custom confirmation page
-        permanent: false,
-      },
-      {
-        source: '/',
-        destination: '/index.html', // Ensure this is intended
-        permanent: true,
-      },
+      // Your redirects here
     ];
   },
 };
