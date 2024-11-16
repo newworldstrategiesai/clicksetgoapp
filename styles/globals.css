@@ -92,3 +92,14 @@ body {
     text-align: left;
   }
 }
+
+
+/* Add custom styles if necessary */
+
+.table-responsive {
+  @apply overflow-x-auto;
+}
+
+table {
+  @apply w-full min-w-max;
+}

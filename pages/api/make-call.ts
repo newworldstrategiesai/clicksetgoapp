@@ -17,7 +17,7 @@ interface AgentSettings {
   agentName: string;
   role: string;
   companyName: string;
-  prompt: string;
+  prompt?: string; // Make prompt optional
 }
 
 interface Credentials {
@@ -47,6 +47,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  // Only allow POST requests
   if (req.method !== 'POST') {
     console.error('Method Not Allowed:', req.method);
     return res.status(405).json({ message: 'Method Not Allowed' });
@@ -54,7 +55,7 @@ export default async function handler(
 
   const body: MakeCallRequestBody = req.body;
 
-  // Log the entire request body
+  // Log the entire request body for debugging
   console.log('Received /api/make-call POST request:', JSON.stringify(body, null, 2));
 
   const {
@@ -82,7 +83,7 @@ export default async function handler(
     return res.status(400).json({ message: 'Incomplete credentials' });
   }
 
-  // Check for required fields
+  // Check for required contact fields
   if (
     !contact ||
     !contact.first_name ||
@@ -92,22 +93,25 @@ export default async function handler(
     return res.status(400).json({ message: 'Missing required contact fields' });
   }
 
+  // Check for required call reason
   if (!reason) {
     console.error('Missing reason for call');
     return res.status(400).json({ message: 'Missing reason for call' });
   }
 
+  // Check for Twilio number
   if (!twilioNumber) {
     console.error('Missing Twilio number');
     return res.status(400).json({ message: 'Missing Twilio number' });
   }
 
+  // **Modified Validation: Make 'prompt' Optional**
   if (
     !agentSettings ||
     !agentSettings.agentName ||
     !agentSettings.role ||
-    !agentSettings.companyName ||
-    !agentSettings.prompt
+    !agentSettings.companyName
+    // Removed: || !agentSettings.prompt
   ) {
     console.error('Missing agent settings:', agentSettings);
     return res.status(400).json({ message: 'Missing agent settings' });
@@ -129,6 +133,23 @@ export default async function handler(
   const customizedFirstMessage =
     firstMessage ||
     `Hello, this is ${agentSettings.agentName} from ${agentSettings.companyName}. Am I speaking with ${contact.first_name}?`;
+
+  // **Handle Optional 'prompt'**
+  const systemPrompt = `
+    You are ${agentSettings.agentName}, a ${agentSettings.role} from ${agentSettings.companyName}.
+    Purpose of Call: "The purpose of the call is to ${reason}." Keep responses concise, as this is a phone conversation. Ensure you wait for the person to finish speaking before responding.
+    If you didn't get what the user is saying, ask them politely to repeat it.
+    Avoid asking, "How may I help you today?" Remember, you are a salesperson representing the company, so communicate in a professional tone.
+    Do not repeat the closing sentence multiple times. Before delivering the closing sentence, if there is prolonged silence, use the closing sentence to wrap up the conversation.
+    If the customer ends the conversation, call the Twilio hungup function to disconnect the call.
+    If the customer asks any questions not related to the product or the call's purpose, answer politely and steer the conversation back on track.
+    If the customer wishes to schedule a consultation, ask them for the date and time for the consultation.
+    Never verbally provide a URL unless requested; URLs should only be sent in SMS form.${agentSettings.prompt ? ' ' + agentSettings.prompt : ''}
+    The current date and time at the beginning of this phone call is: ${new Date().toISOString()}.
+    Here is the contact information we have for the caller:
+    Phone number they are calling from: ${formattedContactNumber}. 
+    If their name is on file: ${contact.first_name || 'unknown'}.
+  `;
 
   const callData = {
     customer: {
@@ -160,21 +181,7 @@ export default async function handler(
         messages: [
           {
             role: 'system',
-            content: `
-You are ${agentSettings.agentName}, a ${agentSettings.role} from ${agentSettings.companyName}.
-Purpose of Call: "The purpose of the call is to ${reason}." Keep responses concise, as this is a phone conversation. Ensure you wait for the person to finish speaking before responding.
-If you didn't get what the user is saying, ask them politely to repeat it.
-Avoid asking, "How may I help you today?" Remember, you are a salesperson representing the company, so communicate in a professional tone.
-Do not repeat the closing sentence multiple times. Before delivering the closing sentence, if there is prolonged silence, use the closing sentence to wrap up the conversation.
-If the customer ends the conversation, call the Twilio hungup function to disconnect the call.
-If the customer asks any questions not related to the product or the call's purpose, answer politely and steer the conversation back on track.
-If the customer wishes to schedule a consultation, ask them for the date and time for the consultation.
-Never verbally provide a URL unless requested; URLs should only be sent in SMS form. ${agentSettings.prompt}
-The current date and time at the beginning of this phone call is: ${new Date().toISOString()}.
-Here is the contact information we have for the caller:
-Phone number they are calling from: ${formattedContactNumber}. 
-If their name is on file: ${contact.first_name || 'unknown'}.
-            `,
+            content: systemPrompt,
           },
         ],
       },
