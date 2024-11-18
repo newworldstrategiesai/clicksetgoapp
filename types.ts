@@ -14,6 +14,30 @@ export interface CallLog {
   createdAt: string;
 }
 
+// app/dashboard/_components/types.ts
+
+export interface ChartData {
+  date: string;
+  inbound: number;
+  outbound: number;
+}
+
+export interface LineGraphProps {
+  userId: string;
+  vapiKey: string;
+  onDataFetched?: (data: ChartData[]) => void;
+}
+
+export interface BarGraphProps {
+  data: ChartData[];
+}
+
+export interface RecentCallsProps {
+  userId: string;
+  vapiKey: string;
+}
+
+
 export interface Contact {
   id: string;
   first_name: string;
