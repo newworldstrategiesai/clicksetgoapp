@@ -29,6 +29,7 @@
     "supabase:pull": "npx supabase db pull"
   },
   "dependencies": {
+    "@11labs/react": "^0.0.2",
     "@ai-sdk/openai": "^0.0.36",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",

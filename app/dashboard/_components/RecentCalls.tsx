@@ -87,7 +87,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
   };
 
   return (
-    <div className="bg-black p-4 rounded-lg shadow-lg">
+    <div className="p-4 rounded-lg shadow-lg">
       {error && <p className="text-red-500 mb-4">{error}</p>}
       {loading && <p className="text-gray-400 mb-4">Loading recent calls...</p>}
       <ul className="space-y-2">
