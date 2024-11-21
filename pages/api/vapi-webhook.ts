@@ -2,7 +2,6 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { createClient } from '@supabase/supabase-js';
 import { getContactFirstName } from 'utils/supabase/queries'; // Adjust the path as necessary
 
-// Initialize Supabase client
 const supabase = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_ANON_KEY!);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
