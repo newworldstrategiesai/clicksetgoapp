@@ -2,7 +2,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/utils/supabaseClient';
 import axios from 'axios';
-import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -37,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         continue; // Skip this task if contact not found
       }
 
-      const { data: agentData, error: agentError } = await supabaseServer
+      const { data: agentData, error: agentError } = await supabase
         .from('agents')
         .select('*')
         .eq('user_id', userId)
