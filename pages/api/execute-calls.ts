@@ -2,10 +2,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/utils/supabaseClient';
 import axios from 'axios';
+import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const credentials = req.body.credentials;
+  const userId = req.body.userId
+
+  console.log(credentials, userId)
 
   if (req.method === 'POST') {
     const { data: tasks, error: fetchError } = await supabase
@@ -33,6 +37,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         continue; // Skip this task if contact not found
       }
 
+      const { data: agentData, error: agentError } = await supabaseServer
+        .from('agents')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+        const agentSettings = agentData && agentData.length > 0 ? agentData[0] : {
+          agent_name: '',
+          role: '',
+          company_name: '',
+          prompt: '',
+        };
+
+        if (agentError) {
+          console.error('Error fetching agent settings:', agentError);
+        } else if (agentData && agentData.length > 0) {
+
+        } else {
+          console.warn('No agent settings found for the user.');
+        }
+
       // Prepare data for the call
       const callData = {
         contact: {
@@ -44,13 +70,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: 'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
-        credentials
+        credentials,
+        agentSettings: {
+          agentName: agentSettings.agent_name,
+          role: agentSettings.role,
+          companyName: agentSettings.company_name,
+          prompt: agentSettings.prompt,
+        },
         // Add your Twilio and VAPI keys as necessary
       };
       console.log("call data from execute call",callData);
 
       try {
-        const response = await axios.post('/api/make-call', callData); // Adjust the URL if necessary
+        const response = await axios.post('https://clicksetgo.app/api/make-call', callData); // Adjust the URL if necessary
 
         // Update call task status to completed
         await supabase
