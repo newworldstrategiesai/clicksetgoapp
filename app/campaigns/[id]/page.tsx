@@ -343,7 +343,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         const userId = decryptedUserId;
 
         try {
-          await axios.post("/api/make-call", {
+          await axios.post("/api/execute-calls", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
             twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining

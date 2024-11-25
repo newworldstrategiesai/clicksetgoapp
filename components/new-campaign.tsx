@@ -1,23 +1,20 @@
-"use client";
+// components/NewCampaign.tsx
 
-import { useState, useEffect } from "react";
+'use client';
+
+import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/NewCampaign/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/NewCampaign/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/NewCampaign/select";
 import { Button } from "@/components/ui/NewCampaign/button";
-import { createClient } from '@supabase/supabase-js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
-
-// Initialize Supabase client
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import axios from 'axios';
+import { supabase } from "@/utils/supabaseClient";
 
 interface NewCampaignProps {
   userId: string;
@@ -46,6 +43,19 @@ const timezones = [
   { value: 'Australia/Sydney', label: 'Sydney' }
 ];
 
+interface TwilioNumber {
+  sid: string;
+  phoneNumber: string;
+}
+
+interface Voice {
+  voice_id: string;
+  name: string;
+  gender: string;
+  accent: string;
+  preview_url: string;
+}
+
 export function NewCampaign({ userId }: NewCampaignProps) {
   const { defaultCountry, setDefaultCountry } = useCountry();
   const [formData, setFormData] = useState({
@@ -61,52 +71,67 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmMedium: '',
     utmCampaign: '',
     schedule: '',
-    agent: ''
+    agent: '',
+    twilioNumber: '', // Added for Twilio number selection
+    voice: '', // Added for Voice selection if needed
   });
 
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
-
+  const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
+  const [voices, setVoices] = useState<Voice[]>([]); // State for voices
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch Lists
-        const listsResponse = await supabase
-          .from('lists')
-          .select('id, name')
-          .eq('user_id', userId);
-
-        if (listsResponse.error) {
+        const listsResponse = await axios.post('/api/get-lists', { userId });
+        if (listsResponse.data.error) {
           toast.error('Error fetching lists');
         } else {
-          setLists(listsResponse.data || []);
+          setLists(listsResponse.data.lists || []);
         }
 
         // Fetch Schedules
-        const schedulesResponse = await supabase
-          .from('schedules')
-          .select('id, name')
-          .eq('user_id', userId);
-
-        if (schedulesResponse.error) {
+        const schedulesResponse = await axios.post('/api/get-schedules', { userId });
+        if (schedulesResponse.data.error) {
           toast.error('Error fetching schedules');
         } else {
-          setSchedules(schedulesResponse.data || []);
+          setSchedules(schedulesResponse.data.schedules || []);
         }
 
         // Fetch Agents
-        const agentsResponse = await supabase
-          .from('agents')
-          .select('id, agent_name');
-
-        if (agentsResponse.error) {
+        const agentsResponse = await axios.post('/api/get-agents', { userId });
+        if (agentsResponse.data.error) {
           toast.error('Error fetching agents');
         } else {
-          setAgents(agentsResponse.data || []);
+          setAgents(agentsResponse.data.agents || []);
         }
+
+        // Fetch Twilio Numbers
+        const twilioResponse = await axios.post('/api/get-twilio-numbers', { userId });
+        if (twilioResponse.data.error) {
+          toast.error('Error fetching Twilio numbers');
+        } else {
+          setTwilioNumbers(twilioResponse.data.allNumbers || []);
+          if (twilioResponse.data.allNumbers.length > 0) {
+            setFormData(prev => ({ ...prev, twilioNumber: twilioResponse.data.allNumbers[0].phoneNumber }));
+          }
+        }
+
+        // Fetch Voices (if applicable)
+        const voicesResponse = await axios.post('/api/get-voices', { userId });
+        if (voicesResponse.data.error) {
+          toast.error('Error fetching voices');
+        } else {
+          setVoices(voicesResponse.data.voices || []);
+          if (voicesResponse.data.voices.length > 0) {
+            setFormData(prev => ({ ...prev, voice: voicesResponse.data.voices[0].voice_id }));
+          }
+        }
+
       } catch (error) {
         toast.error('Error fetching data');
       }
@@ -151,6 +176,20 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }));
   };
 
+  const handleTwilioNumberChange = (value: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      twilioNumber: value
+    }));
+  };
+
+  const handleVoiceChange = (value: string) => {
+    setFormData(prevData => ({
+      ...prevData,
+      voice: value
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -167,6 +206,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
 
     if (!formData.schedule) {
       toast.error('Please select a schedule');
+      return;
+    }
+
+    if (!formData.twilioNumber) {
+      toast.error('Please select a Twilio number');
       return;
     }
 
@@ -192,6 +236,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       utm_campaign: formData.utmCampaign || null,
       user_id: userId,
       country_code: defaultCountry.code,
+      twilio_number: formData.twilioNumber, // Assuming you have a column for Twilio number
+      voice: formData.voice || null, // If voice is needed
       // Remove scheduled_at since it's calculated by the trigger
     };
 
@@ -199,7 +245,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     console.log('Inserting Campaign:', insertData);
 
     try {
-      const { error } = await supabase.from('campaigns').insert([insertData]);
+      const { data, error } = await supabase.from('campaigns').insert([insertData]);
 
       if (error) {
         toast.error(`Error saving campaign: ${error.message}`);
@@ -219,7 +265,9 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           utmMedium: '',
           utmCampaign: '',
           schedule: '',
-          agent: ''
+          agent: '',
+          twilioNumber: twilioNumbers.length > 0 ? twilioNumbers[0].phoneNumber : '',
+          voice: voices.length > 0 ? voices[0].voice_id : '',
         });
       }
     } catch (error) {
@@ -233,6 +281,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const selectedListName = lists.find(list => list.id === formData.audience)?.name || 'Select a list';
   const selectedScheduleName = schedules.find(schedule => schedule.id === formData.schedule)?.name || 'Select a schedule';
   const selectedAgentName = agents.find(agent => agent.id === formData.agent)?.agent_name || 'Select an agent';
+  const selectedTwilioNumber = twilioNumbers.find(number => number.phoneNumber === formData.twilioNumber)?.phoneNumber || 'Select a Twilio number';
+  const selectedVoiceName = voices.find(voice => voice.voice_id === formData.voice)?.name || 'Select a voice';
 
   const handleCountryChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCountry = event.target.value;
@@ -289,7 +339,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             <Label htmlFor="startDate">Start Date</Label>
             <DatePicker
               selected={formData.startDate}
-              onChange={(date) => setFormData(prev => ({ ...prev, startDate: date! }))}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  setFormData(prev => ({ ...prev, startDate: date }));
+                }
+              }}
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
@@ -301,7 +355,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             <Label htmlFor="endDate">End Date</Label>
             <DatePicker
               selected={formData.endDate}
-              onChange={(date) => setFormData(prev => ({ ...prev, endDate: date! }))}
+              onChange={(date: Date | null) => {
+                if (date) {
+                  setFormData(prev => ({ ...prev, endDate: date }));
+                }
+              }}
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
@@ -340,6 +398,55 @@ export function NewCampaign({ userId }: NewCampaignProps) {
                     {list.name}
                   </SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Twilio Number and Voice Selection */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="twilioNumber">From (Twilio Number)</Label>
+            <Select onValueChange={handleTwilioNumberChange} value={formData.twilioNumber}>
+              <SelectTrigger className="bg-gray-700 text-white">
+                <SelectValue placeholder={selectedTwilioNumber || 'Select a Twilio number'} />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 text-white max-h-60 overflow-y-auto">
+                {twilioNumbers.length > 0 ? (
+                  twilioNumbers.map((number) => (
+                    <SelectItem key={number.sid} value={number.phoneNumber}>
+                      {number.phoneNumber}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    No Twilio numbers available
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="voice">Voice</Label>
+            <Select
+              onValueChange={handleVoiceChange}
+              value={formData.voice}
+            >
+              <SelectTrigger className="bg-gray-700 text-white">
+                <SelectValue placeholder={selectedVoiceName || 'Select a voice'} />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-700 text-white">
+                {voices.length > 0 ? (
+                  voices.map((voice) => (
+                    <SelectItem key={voice.voice_id} value={voice.voice_id}>
+                      {voice.name} ({voice.gender}, {voice.accent})
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value="" disabled>
+                    No voices available
+                  </SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
