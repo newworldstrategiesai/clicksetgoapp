@@ -2,15 +2,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/utils/supabaseClient';
 import axios from 'axios';
+import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-  const credentials = req.body.credentials;
-  const userId = req.body.userId
+  // const credentials = req.body.credentials;
+  // const userId = req.body.userId
 
-  console.log(credentials, userId)
+  // console.log(credentials, userId)
 
   if (req.method === 'POST') {
+
     const { data: tasks, error: fetchError } = await supabase
       .from('call_tasks')
       .select('*')
@@ -36,6 +38,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         continue; // Skip this task if contact not found
       }
 
+      const userId = contact.user_id;
+
       const { data: agentData, error: agentError } = await supabase
         .from('agents')
         .select('*')
@@ -57,6 +61,37 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } else {
           console.warn('No agent settings found for the user.');
         }
+        console.log(agentData);
+
+      const { data: apiData, error:apiError } = await supabaseServer
+        .from('api_keys'as any)
+        .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key') // Replace 'some_column' with the actual column for API key
+        .eq('user_id', userId) // Use the fetched user ID
+        .single();
+
+      console.log(apiData);
+  
+  if (apiError) {
+    console.error('Error fetching API keys:', apiError.message);
+    return res.status(500).json({ message: 'Failed to fetch API keys' });
+  }
+  
+  if (!apiData) {
+    console.error('API keys not found for the user.');
+    return res.status(404).json({ message: 'API keys not found' });
+  }
+
+  const apiKey = apiData.eleven_labs_key;
+  const twilioSid = apiData.twilio_sid;
+  const twilioAuthToken = apiData.twilio_auth_token;
+  const vapiKey = apiData.vapi_key;
+
+  const credentials ={
+    apiKey,
+    twilioSid,
+    twilioAuthToken,
+    vapiKey
+  }
 
       // Prepare data for the call
       const callData = {
