@@ -1,3 +1,4 @@
+//sendEmail.js
 import { Resend } from 'resend';
 
 // Initialize Resend with your API key

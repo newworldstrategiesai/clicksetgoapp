@@ -1,4 +1,4 @@
-import { type VoiceConfig } from '../types';
+import { type VoiceConfig } from 'lib/types';
 import { ElevenLabsAPI } from './elevenlabs-service';
 import { TwilioService } from './twilio-service';
 

@@ -1,5 +1,6 @@
+//lib/config.ts
 export const config = {
-    companyName: process.env.NEXT_PUBLIC_COMPANY_NAME || 'Click Set Go DJ',
+    companyName: process.env.NEXT_PUBLIC_COMPANY_NAME || 'Click Set Go',
     supportEmail: process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@clicksetgodj.com',
     facebookAppId: process.env.NEXT_PUBLIC_FACEBOOK_APP_ID,
     facebookAppSecret: process.env.FACEBOOK_APP_SECRET,
