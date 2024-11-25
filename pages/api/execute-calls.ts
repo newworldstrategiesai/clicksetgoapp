@@ -61,15 +61,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         } else {
           console.warn('No agent settings found for the user.');
         }
-        console.log(agentData);
 
       const { data: apiData, error:apiError } = await supabaseServer
         .from('api_keys'as any)
         .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key') // Replace 'some_column' with the actual column for API key
         .eq('user_id', userId) // Use the fetched user ID
         .single();
-
-      console.log(apiData);
   
   if (apiError) {
     console.error('Error fetching API keys:', apiError.message);
@@ -93,6 +90,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     vapiKey
   }
 
+  let twilioNumbers = [];
+      try {
+        const twilioClient = { twilioSid, twilioAuthToken };
+
+        const response = await axios.post('https://clicksetgo.app/api/get-twilio-numbers', {
+          userId,
+          twilioClient,
+        });
+
+        twilioNumbers = response.data.allNumbers || [];
+      } catch (error) {
+        console.error('Error fetching Twilio numbers:');
+        continue;
+      }
+
+      // Select a Twilio number to use
+      const selectedTwilioNumber = twilioNumbers.length > 0 ? twilioNumbers[0].phoneNumber : process;
+
       // Prepare data for the call
       const callData = {
         contact: {
@@ -101,7 +116,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           phone: contact.phone,
         },
         reason: task.call_subject,
-        twilioNumber: task.twilioNumber || process.env.TWILIO_NUMBER,
+        twilioNumber: selectedTwilioNumber,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: 'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
         credentials,
