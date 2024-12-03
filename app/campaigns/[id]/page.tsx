@@ -295,17 +295,21 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           // } else {
           //   console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
           // }
-        } catch (apiError) {
-          console.error(`Failed to initiate call for task ${task.id}:`, apiError);
-          setError(`Failed to initiate call for task ${task.id}.`);
-        }
-      }
+        // } catch (apiError) {
+        //   console.error(`Failed to initiate call for task ${task.id}:`, apiError);
+        //   setError(`Failed to initiate call for task ${task.id}.`);
+        // }
+      
 
       const { error } = await supabase
         .from('campaigns')
         .update({ status: newStatus })
         .eq('id', id)
         .eq('status', 'Paused');
+
+        if (error) {
+            throw new Error(`Failed to update campaign status: ${error.message}`);
+        }
 
       const { error: updateStatusError } = await supabase
         .from('call_tasks')

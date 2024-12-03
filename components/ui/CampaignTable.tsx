@@ -13,8 +13,8 @@ interface CampaignTableProps {
   userId: string; // Receive userId as a prop
   apiKey: string; 
   twilioSid: string; 
-  twilioAuthToken : string; 
-  vapiKey: string
+  twilioAuthToken: string;
+  vapiKey: string;
 }
 
 export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToken, vapiKey  }: CampaignTableProps) {
@@ -38,7 +38,8 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
       const { data, error }: { data: Campaign[] | null; error: PostgrestError | null } = await supabase
         .from('campaigns') // Specify the table name as a string
         .select('*')
-        .eq('user_id', userId); // Filter by user_id
+        .eq('user_id', userId) // Filter by user_id
+        .order('updated_at', { ascending: false }); // Sort by `updated_at` in descending order
 
       if (error) {
         console.error('Error fetching campaigns:', error);
@@ -85,7 +86,6 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     setShowModal(true);
   };
 
-  
   // Close modal
   const closeModal = () => {
     setShowModal(false);
