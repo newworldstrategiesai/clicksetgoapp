@@ -231,7 +231,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     return () => {
       isMounted = false; // Cleanup function to prevent memory leaks
     };
-  }, [id, showLaunchBtn, showAbortBtn, showPauseBtn, showResumeBtn]);
+  }, [id]);
 
   const handleLaunchCampaign = async () => {
     setIsLaunching(true);
