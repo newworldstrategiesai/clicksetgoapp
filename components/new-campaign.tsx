@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
+import moment from "moment-timezone";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -43,7 +44,8 @@ const timezones = [
   { value: 'Europe/London', label: 'London' },
   { value: 'Europe/Paris', label: 'Paris' },
   { value: 'Asia/Tokyo', label: 'Tokyo' },
-  { value: 'Australia/Sydney', label: 'Sydney' }
+  { value: 'Australia/Sydney', label: 'Sydney' },
+  { value: 'Asia/Kolkata', label: 'India' }
 ];
 
 export function NewCampaign({ userId }: NewCampaignProps) {
@@ -174,6 +176,14 @@ export function NewCampaign({ userId }: NewCampaignProps) {
 
     setIsSubmitting(true); // Start loading
 
+    const format1 = "YYYY-MM-DD HH:mm:ss"
+    
+    //Get the string portion of the selected date time, ignoring timezone
+    const selectedTimeString = moment(formData.startDate).format(format1);
+
+    // Calculate scheduled_at in UTC
+    const scheduledAtUTC = moment.tz(selectedTimeString, formData.timezone).utc().toISOString();
+    
     // Prepare data for insertion
     const insertData = {
       name: formData.name,
@@ -192,7 +202,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       utm_campaign: formData.utmCampaign || null,
       user_id: userId,
       country_code: defaultCountry.code,
-      // Remove scheduled_at since it's calculated by the trigger
+      scheduled_at: scheduledAtUTC
     };
 
     // Debugging: Log the data being sent
