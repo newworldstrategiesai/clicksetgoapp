@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
+import classNames from 'classnames'; // If using classnames library
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -10,12 +11,13 @@ const supabase = createClient(
 );
 
 interface TaskModalProps {
-  task: any; // Task object containing the call task data
-  onClose: () => void; // Function to close the modal
-  onSave: () => void; // Function to save the changes
+  task: any; // Consider replacing 'any' with a specific type for better type safety
+  onClose: () => void;
+  onSave: () => void;
+  className?: string; // Added className as an optional prop
 }
 
-export default function TaskModal({ task, onClose, onSave }: TaskModalProps) {
+export default function TaskModal({ task, onClose, onSave, className }: TaskModalProps) {
   // State for form fields
   const [callStatus, setCallStatus] = useState(task ? task.call_status : "");
   const [callSubject, setCallSubject] = useState(task ? task.call_subject : "");
@@ -74,7 +76,7 @@ export default function TaskModal({ task, onClose, onSave }: TaskModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80">
+    <div className={classNames("fixed inset-0 flex items-center justify-center bg-black bg-opacity-80", className)}>
       <div className="bg-black text-white p-6 rounded-md shadow-md w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">Edit Task</h2>
 

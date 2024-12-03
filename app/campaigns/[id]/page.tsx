@@ -207,17 +207,17 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           });
 
           console.log('execute-call task completed');
-          const { error: updateTaskError } = await supabase
-            .from('call_tasks')
-            .update({ call_status: 'Completed' }) // Update the status to "Completed"
-            .eq('id', task.id); // Update the specific call task row
+          // const { error: updateTaskError } = await supabase
+          //   .from('call_tasks')
+          //   .update({ call_status: 'Completed' }) // Update the status to "Completed"
+          //   .eq('id', task.id); // Update the specific call task row
 
-          if (updateTaskError) {
-            console.error('Error updating call task status:', updateTaskError.message);
-            setError(`Failed to update status for task ${task.id}.`);
-          } else {
-            console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
-          }
+          // if (updateTaskError) {
+          //   console.error('Error updating call task status:', updateTaskError.message);
+          //   setError(`Failed to update status for task ${task.id}.`);
+          // } else {
+          //   console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
+          // }
         } catch (apiError) {
           console.error(`Failed to initiate call for task ${task.id}:`, apiError);
           setError(`Failed to initiate call for task ${task.id}.`);
@@ -343,7 +343,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         const userId = decryptedUserId;
 
         try {
-          await axios.post("/api/execute-calls", {
+          await axios.post("/api/make-call", {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
             twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
@@ -417,7 +417,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             <button
               onClick={handleLaunchCampaign}
               disabled={isLaunching}
-              className={`px-4 py-2 bg-green-500 text-white rounded-lg transition-all ${
+              className={`px-4 py-2 bg-green-500 dark:text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"
                 }`}
             >
@@ -426,7 +426,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             <button
               onClick={handleForceLaunchCampaign} // New button for force launch
               disabled={isLaunching}
-              className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
+              className={`px-4 py-2 bg-orange-500 dark:text-white rounded-lg transition-all ${
                 isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
                 }`}
             >

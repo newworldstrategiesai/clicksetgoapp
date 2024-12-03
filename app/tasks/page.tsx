@@ -29,16 +29,19 @@ export default function TaskPage() {
   function hasAccessorKey<TData, TValue>(
     column: CustomColumnDef<TData, TValue>
   ): column is CustomColumnDef<TData, TValue> & { accessorKey: string } {
-    return 'accessorKey' in column && typeof (column as any).accessorKey === 'string';
+    return "accessorKey" in column && typeof (column as any).accessorKey === "string";
   }
-  
+
   const initializeColumns = () => {
     const columns = getColumns(handleEdit);
     setAllColumns(columns);
 
     const defaultVisible = columns
       .filter((column) => column.meta?.isDefault)
-      .map((column) => (hasAccessorKey(column) ? column.accessorKey : column.id) as string);
+      .map(
+        (column) =>
+          (hasAccessorKey(column) ? column.accessorKey : column.id) as string
+      );
 
     setVisibleColumns(defaultVisible);
 
@@ -109,54 +112,132 @@ export default function TaskPage() {
     localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
+  // Force Launch Handler
+  const handleForceLaunch = async () => {
+    try {
+      // Example API call to force launch campaigns
+      const { data, error } = await supabase
+        .from("campaigns")
+        .update({ status: "active" })
+        .eq("status", "pending");
+
+      if (error) {
+        throw error;
+      }
+
+      toast.success("Campaigns force launched successfully!");
+      // Optionally, refresh the task list
+      fetchTasks();
+    } catch (error: any) {
+      console.error("Error force launching campaigns:", error.message);
+      toast.error("Failed to force launch campaigns.");
+    }
+  };
+
+  // Function to refresh tasks after force launch
+  const fetchTasks = async () => {
+    const { data: callTasks, error } = await supabase
+      .from("call_tasks")
+      .select(
+        "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
+      );
+
+    if (error) {
+      console.error("Error fetching call tasks:", error.message);
+      toast.error("Failed to fetch tasks.");
+      return;
+    }
+
+    const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
+      id: task.id,
+      campaign_id: task.campaign_id || null,
+      call_subject: task.call_subject || "",
+      call_status: task.call_status || "",
+      priority: task.priority || null,
+      scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
+      created_at: task.created_at ? new Date(task.created_at) : new Date(),
+      updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
+      contacts: Array.isArray(task.contacts)
+        ? task.contacts
+        : task.contacts
+        ? [task.contacts]
+        : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
+    }));
+
+    setTasks(formattedTasks);
+  };
+
   if (allColumns.length === 0) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen dark:text-white">
+        Loading...
+      </div>
+    );
   }
 
   return (
     <ErrorBoundary>
       <>
         <ToastContainer />
-        <div className="md:hidden">
-          <Image
-            src="/examples/tasks-light.png"
-            width={1280}
-            height={998}
-            alt="Tasks"
-            className="block dark:hidden"
-          />
-          <Image
-            src="/examples/tasks-dark.png"
-            width={1280}
-            height={998}
-            alt="Tasks"
-            className="hidden dark:block"
-          />
+
+        {/* Mobile View Images */}
+        <div className="md:hidden flex justify-center items-center p-4">
+          <div className="relative w-full h-64 sm:h-80">
+            <Image
+              src="/examples/tasks-light.png"
+              alt="Tasks Light Mode"
+              layout="fill"
+              objectFit="contain"
+              className="block dark:hidden"
+              priority
+            />
+            <Image
+              src="/examples/tasks-dark.png"
+              alt="Tasks Dark Mode"
+              layout="fill"
+              objectFit="contain"
+              className="hidden dark:block"
+              priority
+            />
+          </div>
         </div>
 
-        <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
-          <div className="flex items-center justify-between space-y-2">
+        {/* Task List Visible on All Screen Sizes */}
+        <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8">
+          {/* Header with Force Launch Button */}
+          <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight">Welcome back!</h2>
+              <h2 className="text-2xl font-bold tracking-tight dark:text-white">Welcome back!</h2>
               <p className="text-muted-foreground">
                 Here's a list of your call tasks!
               </p>
             </div>
             <div className="flex items-center space-x-2">
+              <button
+                onClick={handleForceLaunch}
+                className="bg-red-600 dark:text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm sm:text-base"
+                aria-label="Force Launch Campaigns"
+              >
+                Force Launch
+              </button>
               <UserNav />
             </div>
           </div>
 
+          {/* Task List */}
           <TooltipProvider>
-            <DataTable
-              data={tasks}
-              columns={filteredColumns}
-              allColumns={allColumns}
-              visibleColumns={visibleColumns}
-              toggleColumn={handleToggleColumn}
-            />
+            <div className="overflow-x-auto">
+              <DataTable
+                data={tasks}
+                columns={filteredColumns}
+                allColumns={allColumns}
+                visibleColumns={visibleColumns}
+                toggleColumn={handleToggleColumn}
+              />
+            </div>
           </TooltipProvider>
 
+          {/* Task Modal */}
           {showModal && selectedTask && (
             <TaskModal
               task={selectedTask}
@@ -165,6 +246,7 @@ export default function TaskPage() {
                 setShowModal(false);
                 toast.success("Task updated successfully.");
               }}
+              className="max-w-full sm:max-w-lg"
             />
           )}
         </div>

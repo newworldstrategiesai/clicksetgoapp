@@ -124,7 +124,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
       )}
 
       {isModalOpen && selectedLog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+        <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-80 z-50">
           <div className="bg-gray-900 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
             <h2 className="text-3xl font-semibold mb-6 text-white">Call Details</h2>
 

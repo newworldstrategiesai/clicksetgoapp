@@ -129,7 +129,7 @@ const SmsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div className="min-h-screen flex flex-col dark:bg-black text-white">
       <div className="flex flex-1">
         <div className="w-1/3 border-r border-gray-600">
           <h2 className="text-xl font-bold p-4 border-b border-gray-600">Contacts</h2>

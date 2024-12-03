@@ -19,7 +19,7 @@ export default function OffHoursDetails() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <button onClick={() => window.history.back()} className="text-purple-400 hover:text-purple-600 font-semibold mb-6">
         ← Back
       </button>

@@ -1,4 +1,4 @@
-// Navbar.tsx
+// components/ui/Navbar.tsx
 
 'use client';
 
@@ -7,6 +7,8 @@ import { createClient } from '@/utils/supabase/client';
 import { useRouter, usePathname } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
 import Navlinks from './Navlinks';
+import { ThemeToggle } from '@/components/theme-toggle';
+import clsx from 'clsx'; // Utility for conditional classNames
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -35,53 +37,59 @@ const Navbar: React.FC = () => {
   }, [pathname]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <div className="text-gray-900 dark:text-gray-100">Loading...</div>;
   }
 
   // Determine the link destination based on user authentication
   const homeLink = user ? '/home' : '/index.html';
 
   return (
-    <nav className="navbar bg-black text-white px-4 py-3 w-full z-10 top-0">
+    <nav className="navbar bg-white dark:bg-black text-gray-900 dark:text-gray-100 px-4 py-3 w-full z-10 top-0 shadow-md transition-colors duration-300">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
-      <div className="max-w-8xl px-6 flex items-center justify-between">
+      <div className="max-w-8xl mx-auto flex items-center justify-between">
         <div className="text-xl mr-6 font-bold">
           {/* Conditional redirect for the link */}
-          <a 
-            href={homeLink} 
-            className="hover:text-gray-300 text-lg sm:text-xl md:text-2xl lg:text-2xl whitespace-nowrap">
+          <a
+            href={homeLink}
+            className="hover:text-gray-500 text-lg sm:text-xl md:text-2xl lg:text-2xl whitespace-nowrap transition-colors duration-300"
+          >
             CLICK SET GO
           </a>
         </div>
         <div className="hidden lg:flex space-x-4">
           <Navlinks user={user} />
         </div>
-        <div className="lg:hidden">
-          <button
-            onClick={toggleMenu}
-            className="text-white focus:outline-none"
-            aria-label="Toggle menu"
-          >
-            <svg
-              className="w-6 h-6" // Add rotate class for medium to large screens
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
+        <div className="flex items-center space-x-4">
+          {/* Integrate the ThemeToggle component */}
+          <ThemeToggle />
+          <div className="lg:hidden">
+            <button
+              onClick={toggleMenu}
+              className="text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              aria-label="Toggle menu"
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M4 6h16M4 12h16m-7 6h7"
-              ></path>
-            </svg>
-          </button>
+              <svg
+                className="w-6 h-6" // Add rotate class for medium to large screens
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M4 6h16M4 12h16m-7 6h7"
+                ></path>
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
       {isOpen && (
-        <div className="lg:hidden absolute inset-x-0 top-full bg-black p-4 space-y-2">
+        <div className="lg:hidden absolute inset-x-0 top-full bg-white dark:bg-black p-4 space-y-2 transition-colors duration-300">
           <Navlinks user={user} />
         </div>
       )}

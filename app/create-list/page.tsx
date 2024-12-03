@@ -39,7 +39,7 @@ const CreateListPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center px-4 md:px-0">
+    <div className="min-h-screen dark:bg-black text-white flex flex-col items-center px-4 md:px-0">
       <h1 className="text-2xl font-bold mb-4">Create New List</h1>
       <form onSubmit={handleSubmit} className="w-full max-w-md">
         <label htmlFor="name" className="block mb-2 text-sm">List Name:</label>

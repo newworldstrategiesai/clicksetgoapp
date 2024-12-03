@@ -243,7 +243,7 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) 
   };
 
   return (
-    <div className="min-h-screen pb-16 bg-black">
+    <div className="min-h-screen pb-16 dark:bg-black">
       {/* Success and Error Messages */}
       {successMessage && (
         <div className="bg-green-100 text-green-700 p-4 mb-4 rounded">

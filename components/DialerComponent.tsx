@@ -459,7 +459,7 @@ const DialerComponent = ({
   }, []);
 
   return (
-    <div className="min-h-screen flex bg-black text-white">
+    <div className="min-h-screen flex dark:bg-black dark:text-white">
       <ToastContainer
         position="top-center"
         autoClose={5000}
@@ -475,7 +475,7 @@ const DialerComponent = ({
       <div
         className={`hidden md:flex flex-col ${
           isSidebarCollapsed ? 'w-16' : 'w-1/3'
-        } p-4 bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
+        } p-4 dark:bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between mb-4">
@@ -527,7 +527,7 @@ const DialerComponent = ({
               placeholder="Search contacts"
               value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-10 p-2 border rounded-lg w-full bg-black text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="pl-10 p-2 border rounded-lg w-full dark:bg-black dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
               aria-label="Search contacts"
             />
           </div>
@@ -545,7 +545,7 @@ const DialerComponent = ({
                     className="flex items-center p-2 mb-2 cursor-pointer hover:bg-gray-900 rounded transition-colors duration-200"
                   >
                     {/* Avatar */}
-                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold mr-3">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center dark:text-white font-bold mr-3">
                       {contact.first_name.charAt(0).toUpperCase()}
                       {contact.last_name.charAt(0).toUpperCase()}
                     </div>
@@ -581,9 +581,9 @@ const DialerComponent = ({
       </div>
 
       {/* Right Panel for Dialer */}
-      <div className="flex-grow flex flex-col items-center justify-center w-full pt-16 bg-black">
+      <div className="flex-grow flex flex-col items-center justify-center w-full pt-16 dark:bg-black">
         <div
-          className="text-4xl text-white mb-8"
+          className="text-4xl dark:text-white mb-8"
           style={{ fontSize: '2rem' }}
         >
           <div className="w-64 mb-4">
@@ -594,7 +594,7 @@ const DialerComponent = ({
                 setSelectedCountryCode(newCountryCode);
                 setInput(countries[newCountryCode].code); // Reset input with the new calling code
               }}
-              className="w-full p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="w-full p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               style={{ textAlign: 'center', fontSize: '1.2rem' }}
               aria-label="Select Country"
             >
@@ -646,7 +646,7 @@ const DialerComponent = ({
             <select
               value={selectedTwilioNumber}
               onChange={(e) => setSelectedTwilioNumber(e.target.value)}
-              className="w-full mt-1 p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="w-full mt-1 p-2 bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               aria-label="Select Twilio Number"
             >
               {twilioNumbers.map((twilioNumber) => (
@@ -667,7 +667,7 @@ const DialerComponent = ({
           {/* Add Verified Caller ID Button */}
           <button
             onClick={() => setIsAddCallerIDModalOpen(true)}
-            className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-500 w-full"
+            className="mt-4 p-2 bg-blue-600 dark:text-white rounded hover:bg-blue-500 w-full"
           >
             Add Verified Caller ID
           </button>
@@ -726,7 +726,7 @@ const DialerComponent = ({
       />
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 text-white box-border">
+      <div className="fixed bottom-0 w-full -ml-4 bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />

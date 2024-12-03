@@ -38,7 +38,7 @@ export default async function PersonaDetailPage() {
   // Pass the userId and all api keys to PersonaPage as props
   const userId: string = user.id as string; // Ensure user.id is treated as a string
   return (
-    <section className="min-h-screen bg-gray-900 text-white">
+    <section className="min-h-screen dark:bg-black dark:text-white">
       <div className="pt-[60px] p-4"> {/* Adjust padding to match your layout */}
         <PersonaPage 
           userId={userId} 

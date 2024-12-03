@@ -38,7 +38,7 @@ const ContactsModal: React.FC<ContactsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col">
+    <div className="fixed inset-0 dark:bg-black bg-opacity-90 flex flex-col">
       <div className="flex justify-between items-center p-4 border-b border-gray-700">
         <h2 className="text-lg font-bold text-white">Contacts</h2>
         <button onClick={onClose} className="text-white">

@@ -8,7 +8,7 @@ export default function AutomatedResolutionPage() {
   const [filters, setFilters] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen dark:bg-black text-white p-6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center space-x-2 text-gray-400 mb-4">
           <a href="#" className="underline">

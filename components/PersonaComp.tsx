@@ -27,7 +27,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
         <select
           value={selectedVoice}
           onChange={(e) => setSelectedVoice(e.target.value)}
-          className="p-2 border rounded-lg w-full bg-gray-800 text-white max-h-40 overflow-y-auto"
+          className="p-2 border rounded-lg w-full dark:bg-black text-white max-h-40 overflow-y-auto"
         >
           {voices.length > 0 ? (
             voices.map((voice) => (
@@ -148,7 +148,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Persona</h1>
 
       <div className="mb-6">

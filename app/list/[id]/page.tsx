@@ -65,7 +65,7 @@ const ListPage = ({ params }: ListPage ) => {
   }
 
   return (
-    <div className={`min-h-screen bg-black text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
+    <div className={`min-h-screen dark:bg-black text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
       <h1 className="text-2xl font-bold mb-4">{list.name}</h1>
       <table className="min-w-full divide-y divide-gray-700">
         <thead>

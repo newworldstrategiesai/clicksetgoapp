@@ -125,7 +125,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         <input
           type="text"
           placeholder="Search contacts..."
-          className="w-full p-2 rounded bg-gray-800 text-white"
+          className="w-full p-2 rounded dark:bg-gray-800 text-white"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
