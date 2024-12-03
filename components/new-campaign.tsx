@@ -192,7 +192,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       end_date: formData.endDate.toISOString(),
       start_timezone: formData.timezone || null,
       end_timezone: formData.timezone || null, // Assuming end timezone is same as start
-      audience: formData.audience || null,
+      status: "Pending",
+      audience: formData.audience || null,    
       schedule: formData.schedule || null,
       agent: formData.agent || null,
       budget: formData.budget ? parseFloat(formData.budget) : null,
