@@ -34,17 +34,6 @@ export default async function CampaignsPage() {
         const twilioAuthToken = data.twilio_auth_token;
         const vapiKey = data.vapi_key;
 
-        // Query the campaigns and sort by `updated_at` in descending order
-        const { data: campaigns, error: campaignsError } = await supabase
-            .from('campaigns')
-            .select("*")
-            .order('updated_at', { ascending: false }); // Sort by `updated_at` descending
-
-        if (campaignsError) {
-            console.error('Failed to fetch campaigns:', campaignsError.message);
-            return redirect('/signin');
-        }
-
         return (
             <section className="mb-32 bg-black min-h-screen">
                 <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
@@ -55,7 +44,7 @@ export default async function CampaignsPage() {
                     </div>
                 </div>
                 <div className="p-4">
-                <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey} campaigns={campaigns} />
+                <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
                 </div>
             </section>
         );
