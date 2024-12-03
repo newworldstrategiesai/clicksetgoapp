@@ -11,6 +11,7 @@ import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import CryptoJS from 'crypto-js';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
+import moment from 'moment-timezone';
 
 interface CallTask {
   id: string;
@@ -275,7 +276,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
       setIsLaunching(false);
     }
   };
-  
+
   const handleResumeCampaign = async () => {
     setIsPausing(true);
     setError(null); // Reset error state
@@ -644,7 +645,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                     <td className="border px-4 py-2">{task.contact_name}</td>
                     <td className="border px-4 py-2">{task.call_status}</td>
                     <td className="border px-4 py-2">
-                      {new Date(task.scheduled_at).toLocaleString()}
+                      {moment
+                        .utc(task.scheduled_at)
+                        .local()
+                        .format('YYYY-MM-DD HH:mm:ss')}
                     </td>
                     <td className="border px-4 py-2">
                       <button
