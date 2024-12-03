@@ -20,67 +20,25 @@ export default function TaskPage() {
   const [showModal, setShowModal] = useState(false);
   const [allColumns, setAllColumns] = useState<CustomColumnDef<YourTaskType, any>[]>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Sorting state
+
+  // Sorting state
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortByColumn, setSortByColumn] = useState<string>('updated_at');
 
   const handleEdit = (task: YourTaskType) => {
     setSelectedTask(task);
     setShowModal(true);
   };
 
-  function hasAccessorKey<TData, TValue>(
-    column: CustomColumnDef<TData, TValue>
-  ): column is CustomColumnDef<TData, TValue> & { accessorKey: string } {
-    return "accessorKey" in column && typeof (column as any).accessorKey === "string";
-  }
-
-  const initializeColumns = () => {
-    const columns = getColumns(handleEdit);
-    setAllColumns(columns);
-
-    const defaultVisible = columns
-      .filter((column) => column.meta?.isDefault)
-      .map(
-        (column) =>
-          (hasAccessorKey(column) ? column.accessorKey : column.id) as string
-      );
-
-    setVisibleColumns(defaultVisible);
-  };
-
-  useEffect(() => {
-    fetchTasks();
-    initializeColumns();
-  }, []);
-
-  const handleToggleColumn = (columnId: string) => {
-    setVisibleColumns((prev) => {
-      if (prev.includes(columnId)) {
-        return prev.filter((id) => id !== columnId);
-      } else {
-        return [...prev, columnId];
-      }
-    });
-  };
-
-  const handleSortToggle = () => {
-    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
-  };
-  
-  const sortTasks = (tasks: YourTaskType[], order: "asc" | "desc") => {
-    return [...tasks].sort((a, b) =>
-      order === "asc"
-        ? a.updated_at.getTime() - b.updated_at.getTime()
-        : b.updated_at.getTime() - a.updated_at.getTime()
-    );
-  };
-  
-  const fetchTasks = async () => {
+  // Modified fetchTasks to handle sorting
+  const fetchTasks = async (column: string = 'updated_at', order: 'asc' | 'desc' = 'desc') => {
     const { data: callTasks, error } = await supabase
       .from("call_tasks")
       .select(
         "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
-      );
-  
+      )
+      .order(column, { ascending: order === 'asc' });
+
     if (error) {
       console.error("Error fetching call tasks:", error.message);
       toast.error("Failed to fetch tasks.");
@@ -102,19 +60,46 @@ export default function TaskPage() {
         ? [task.contacts]
         : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
     }));
-  
-    const sortedTasks = sortTasks(formattedTasks, sortOrder);
-    setTasks(sortedTasks);
+
+    setTasks(formattedTasks);
   };
-  
+
+  // Sorting handler for columns
+  const handleColumnSort = (column: string) => {
+    const newSortOrder = sortByColumn === column && sortOrder === 'asc' ? 'desc' : 'asc';
+    setSortByColumn(column);
+    setSortOrder(newSortOrder);
+    fetchTasks(column, newSortOrder);
+  };
+  const hasAccessorKey = <TData, TValue>(
+    column: CustomColumnDef<TData, TValue>
+  ): column is CustomColumnDef<TData, TValue> & { accessorKey: string } => {
+    return "accessorKey" in column && typeof (column as any).accessorKey === "string";
+  };
+
+
+  // Initialize columns on page load
+  const initializeColumns = () => {
+    const columns = getColumns(handleEdit);
+    setAllColumns(columns);
+
+    const defaultVisible = columns
+      .filter((column) => column.meta?.isDefault)
+      .map(
+        (column) =>
+          (hasAccessorKey(column) ? column.accessorKey : column.id) as string
+      );
+
+    setVisibleColumns(defaultVisible);
+
+    console.log("Initialized Columns:", columns);
+    console.log("Default Visible Columns:", defaultVisible);
+  };
+
   useEffect(() => {
-    fetchTasks();
-  }, [sortOrder]); // Trigger fetchTasks when sortOrder changes
-  
-  const filteredColumns = allColumns.filter((column) => {
-    const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
-    return visibleColumns.includes(columnId);
-  });
+    fetchTasks(sortByColumn, sortOrder);
+    initializeColumns();
+  }, [sortByColumn, sortOrder]);
 
   useEffect(() => {
     const savedColumns = localStorage.getItem("visibleColumns");
@@ -127,9 +112,26 @@ export default function TaskPage() {
     localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
   }, [visibleColumns]);
 
+  const handleToggleColumn = (columnId: string) => {
+    setVisibleColumns((prev) => {
+      if (prev.includes(columnId)) {
+        return prev.filter((id) => id !== columnId);
+      } else {
+        return [...prev, columnId];
+      }
+    });
+  };
+
+  const filteredColumns = allColumns.filter((column) => {
+    const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
+    return visibleColumns.includes(columnId);
+  });
+
+
   // Force Launch Handler
   const handleForceLaunch = async () => {
     try {
+      // Example API call to force launch campaigns
       const { data, error } = await supabase
         .from("campaigns")
         .update({ status: "active" })
@@ -143,8 +145,8 @@ export default function TaskPage() {
       // Optionally, refresh the task list
       fetchTasks();
     } catch (error: any) {
-      console.error('Error force launching campaigns:', error.message);
-      toast.error('Failed to force launch campaigns.');
+      console.error("Error force launching campaigns:", error.message);
+      toast.error("Failed to force launch campaigns.");
     }
   };
 
@@ -155,12 +157,13 @@ export default function TaskPage() {
       </div>
     );
   }
-console.log(filteredColumns, visibleColumns, allColumns, tasks)
+
   return (
     <ErrorBoundary>
       <>
         <ToastContainer />
 
+        {/* Mobile View Images */}
         <div className="md:hidden flex justify-center items-center p-4">
           <div className="relative w-full h-64 sm:h-80">
             <Image
@@ -182,7 +185,9 @@ console.log(filteredColumns, visibleColumns, allColumns, tasks)
           </div>
         </div>
 
+        {/* Task List Visible on All Screen Sizes */}
         <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8">
+          {/* Header */}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-white">
@@ -200,18 +205,11 @@ console.log(filteredColumns, visibleColumns, allColumns, tasks)
               >
                 Force Launch
               </button>
-              {/* <button
-            onClick={handleSortToggle}
-            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Sort by "Updated At" (
-            {sortOrder === 'asc' ? 'Old to New' : 'New to Old'})
-          </button> */}
-
               <UserNav />
             </div>
           </div>
 
+          {/* Task List */}
           <TooltipProvider>
             <div className="overflow-x-auto">
               <DataTable
@@ -220,10 +218,12 @@ console.log(filteredColumns, visibleColumns, allColumns, tasks)
                 allColumns={allColumns}
                 visibleColumns={visibleColumns}
                 toggleColumn={handleToggleColumn}
+                onColumnClick={handleColumnSort}  
               />
             </div>
           </TooltipProvider>
 
+          {/* Task Modal */}
           {showModal && selectedTask && (
             <TaskModal
               task={selectedTask}

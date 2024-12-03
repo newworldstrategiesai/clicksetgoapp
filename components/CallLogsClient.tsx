@@ -23,12 +23,12 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [limit, setLimit] = useState(100);
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Default sort order
 
   const fetchCallLogs = useCallback(async () => {
     try {
       setLoading(true);
 
+      // Fetch call logs from API
       const response = await axios.get('/api/get-call-logs', {
         params: { userId, limit },
         headers: {
@@ -36,6 +36,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         },
       });
 
+      // Fetch contacts from Supabase
       const { data: contacts, error: contactsError } = await supabase
         .from('contacts')
         .select('*');
@@ -45,6 +46,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         return;
       }
 
+      // Map over the call logs and add contact details
       const callLogsData = response.data.map((log: CallLog) => {
         if (log.customer && log.customer.number) {
           const contact = contacts.find(
@@ -60,26 +62,19 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         return log;
       });
 
-      // Sort call logs based on 'created_at'
-      const sortedCallLogs = callLogsData.sort((a: { created_at: moment.MomentInput; }, b: { created_at: moment.MomentInput; }) => {
-        const dateA = moment(a.created_at);
-        const dateB = moment(b.created_at);
-
-        if (sortOrder === 'asc') {
-          return dateA.isBefore(dateB) ? -1 : 1;
-        } else {
-          return dateA.isBefore(dateB) ? 1 : -1;
-        }
+      // Sort call logs in ascending order based on the startedAt date
+      callLogsData.sort((a: CallLog, b: CallLog) => {
+        return moment(a.startedAt).isBefore(b.startedAt) ? 1 : -1;
       });
 
-      setCallLogs(sortedCallLogs);
+      setCallLogs(callLogsData);
     } catch (error) {
       console.error('Error fetching call logs:', error);
       setError('Failed to fetch call logs');
     } finally {
       setLoading(false);
     }
-  }, [userId, limit, vapiKey, sortOrder]); // Re-fetch if limit or sortOrder changes
+  }, [userId, limit, vapiKey]);
 
   useEffect(() => {
     fetchCallLogs();
@@ -100,10 +95,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
     fetchCallLogs();
   };
 
-  const toggleSortOrder = () => {
-    setSortOrder((prevSortOrder) => (prevSortOrder === 'asc' ? 'desc' : 'asc'));
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-black text-white pt-16 pb-16">
       <div className="flex justify-between px-4 items-center mb-4">
@@ -113,13 +104,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
       {error && <p className="text-red-500">{error}</p>}
       {loading && <p>Loading...</p>}
       <ul className="space-y-4 px-4">
-        <li
-          className="p-3 border-b border-gray-700 cursor-pointer flex justify-between"
-          onClick={toggleSortOrder} // Toggle sorting when clicked
-        >
-          <span className="text-lg">Sort by Date</span>
-          <span className="text-sm text-gray-400">{sortOrder === 'asc' ? 'Ascending' : 'Descending'}</span>
-        </li>
         {callLogs.map((log, index) => (
           <li
             key={index}

@@ -1,5 +1,3 @@
-// app/tasks/components/data-table.tsx
-
 "use client";
 
 import * as React from "react";
@@ -38,6 +36,7 @@ interface DataTableProps {
   allColumns: CustomColumnDef<YourTaskType, any>[];
   visibleColumns: string[];
   toggleColumn: (columnId: string) => void;
+  onColumnClick: (columnId: string) => void; // Added onColumnClick for sorting
 }
 
 export function DataTable({
@@ -46,6 +45,7 @@ export function DataTable({
   allColumns,
   visibleColumns,
   toggleColumn,
+  onColumnClick, // Added onColumnClick
 }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
@@ -91,13 +91,40 @@ export function DataTable({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id} colSpan={header.colSpan}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const isSorted = sorting.some(
+                    (sort) => sort.id === header.id
+                  );
+                  const sortDirection = isSorted
+                    ? sorting.find((sort) => sort.id === header.id)?.desc
+                      ? "desc"
+                      : "asc"
+                    : undefined;
+
+                  return (
+                    <TableHead key={header.id} colSpan={header.colSpan}>
+                      {header.isPlaceholder ? null : (
+                        <button
+                          onClick={() => onColumnClick(header.id)} // Trigger sorting when clicked
+                          className={`flex items-center space-x-2 ${
+                            isSorted
+                              ? sortDirection === "asc"
+                                ? "text-blue-600"
+                                : "text-red-600"
+                              : "text-white"
+                          }`}
+                        >
+                          {flexRender(header.column.columnDef.header, header.getContext())}
+                          {isSorted && (
+                            <span className="ml-1">
+                              {sortDirection === "asc" ? "↑" : "↓"}
+                            </span>
+                          )}
+                        </button>
+                      )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
