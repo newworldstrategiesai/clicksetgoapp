@@ -275,13 +275,31 @@ export default function CampaignPage({ params }: CampaignPageProps) {
       setIsLaunching(false);
     }
   };
-
+  
   const handleResumeCampaign = async () => {
     setIsPausing(true);
     setError(null); // Reset error state
 
     try {
       const newStatus = 'Resumed'; // Determine new status
+
+          console.log('execute-call task completed');
+          // const { error: updateTaskError } = await supabase
+          //   .from('call_tasks')
+          //   .update({ call_status: 'Completed' }) // Update the status to "Completed"
+          //   .eq('id', task.id); // Update the specific call task row
+
+          // if (updateTaskError) {
+          //   console.error('Error updating call task status:', updateTaskError.message);
+          //   setError(`Failed to update status for task ${task.id}.`);
+          // } else {
+          //   console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
+          // }
+        } catch (apiError) {
+          console.error(`Failed to initiate call for task ${task.id}:`, apiError);
+          setError(`Failed to initiate call for task ${task.id}.`);
+        }
+      }
 
       const { error } = await supabase
         .from('campaigns')
