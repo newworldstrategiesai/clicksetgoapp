@@ -16,7 +16,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { data: tasks, error: fetchError } = await supabase
       .from('call_tasks')
       .select('*')
-      .eq('call_status', 'Pending') // Only get pending tasks
+      .eq('call_status', 'Scheduled') // Only get pending tasks
       .lt('scheduled_at', new Date().toISOString()); // Check if scheduled_at is in the past
       console.log("execute call tasks",tasks);
 
