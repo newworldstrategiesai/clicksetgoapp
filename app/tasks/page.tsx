@@ -49,8 +49,8 @@ export default function TaskPage() {
     console.log("Default Visible Columns:", defaultVisible);
   };
 
-  useEffect(() => {
-    async function fetchTasks() {
+  const fetchTasks = async function (){
+    {
       const { data: callTasks, error } = await supabase
         .from("call_tasks")
         .select(
@@ -79,9 +79,14 @@ export default function TaskPage() {
           : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
       }));
 
-      setTasks(formattedTasks);
-    }
+      // Sort tasks by updated_at in descending order (latest first)
+      const sortedTasks = formattedTasks.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
 
+      setTasks(sortedTasks);
+    }
+  }
+
+  useEffect(() => {
     fetchTasks();
     initializeColumns();
   }, []);
@@ -115,7 +120,6 @@ export default function TaskPage() {
   // Force Launch Handler
   const handleForceLaunch = async () => {
     try {
-      // Example API call to force launch campaigns
       const { data, error } = await supabase
         .from("campaigns")
         .update({ status: "active" })
@@ -132,39 +136,6 @@ export default function TaskPage() {
       console.error("Error force launching campaigns:", error.message);
       toast.error("Failed to force launch campaigns.");
     }
-  };
-
-  // Function to refresh tasks after force launch
-  const fetchTasks = async () => {
-    const { data: callTasks, error } = await supabase
-      .from("call_tasks")
-      .select(
-        "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
-      );
-
-    if (error) {
-      console.error("Error fetching call tasks:", error.message);
-      toast.error("Failed to fetch tasks.");
-      return;
-    }
-
-    const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
-      id: task.id,
-      campaign_id: task.campaign_id || null,
-      call_subject: task.call_subject || "",
-      call_status: task.call_status || "",
-      priority: task.priority || null,
-      scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
-      created_at: task.created_at ? new Date(task.created_at) : new Date(),
-      updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
-      contacts: Array.isArray(task.contacts)
-        ? task.contacts
-        : task.contacts
-        ? [task.contacts]
-        : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
-    }));
-
-    setTasks(formattedTasks);
   };
 
   if (allColumns.length === 0) {

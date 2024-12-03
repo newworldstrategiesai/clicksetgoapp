@@ -283,11 +283,16 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
     try {
       const newStatus = 'Resumed'; // Determine new status
+
       const { error } = await supabase
         .from('campaigns')
         .update({ status: newStatus })
         .eq('id', id)
         .eq('status', 'Paused');
+
+        if (error) {
+            throw new Error(`Failed to update campaign status: ${error.message}`);
+        }
 
       const { error: updateStatusError } = await supabase
         .from('call_tasks')

@@ -22,7 +22,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   const [error, setError] = useState('');
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(100);
 
   const fetchCallLogs = useCallback(async () => {
     try {
@@ -57,6 +57,11 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
           }
         }
         return log;
+      });
+
+      // Sort call logs in ascending order based on the startedAt date
+      callLogsData.sort((a: CallLog, b: CallLog) => {
+        return moment(a.startedAt).isBefore(b.startedAt) ? 1 : -1;
       });
 
       setCallLogs(callLogsData);
@@ -214,7 +219,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
     </div>
   </div>
 )}
-
 
       {/* Bottom Navigation */}
       <div className="fixed bottom-0 w-full bg-black border-t border-gray-700 flex justify-around py-4 text-white">
