@@ -1,4 +1,4 @@
-// app/campaigns/page.tsx
+//app/campaigns/page.tsx
 // Add the dynamic rendering configuration
 export const dynamic = 'force-dynamic';
 
@@ -19,14 +19,14 @@ export default async function CampaignsPage() {
 
         // Fetch API keys and campaign data with sorting by `updated_at` descending
         const { data, error } = await supabase
-            .from('api_keys' as any) // Cast as 'any' to bypass type checking
+            .from('api_keys' as any)  // Cast as 'any' to bypass type checking
             .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
             .eq('user_id', user.id)
             .single();
 
         if (error || !data) {
             console.error('Failed to fetch Eleven Labs API key');
-            return redirect('/signin'); // Handle this case as appropriate
+            return redirect('/signin');  // Handle this case as appropriate
         }
 
         const apiKey = data.eleven_labs_key;
