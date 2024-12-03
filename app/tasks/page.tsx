@@ -122,7 +122,7 @@ export default function TaskPage() {
     try {
       const { data, error } = await supabase
         .from("campaigns")
-        .update({ status: "active" })
+        .update({ status: "active", updated_at: new Date() })
         .eq("status", "pending");
 
       if (error) {
