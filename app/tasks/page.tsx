@@ -20,6 +20,7 @@ export default function TaskPage() {
   const [showModal, setShowModal] = useState(false);
   const [allColumns, setAllColumns] = useState<CustomColumnDef<YourTaskType, any>[]>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc'); // Sorting state
 
   const handleEdit = (task: YourTaskType) => {
     setSelectedTask(task);
@@ -44,44 +45,9 @@ export default function TaskPage() {
       );
 
     setVisibleColumns(defaultVisible);
-
-    console.log("Initialized Columns:", columns);
-    console.log("Default Visible Columns:", defaultVisible);
   };
 
   useEffect(() => {
-    async function fetchTasks() {
-      const { data: callTasks, error } = await supabase
-        .from("call_tasks")
-        .select(
-          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
-        );
-
-      if (error) {
-        console.error("Error fetching call tasks:", error.message);
-        toast.error("Failed to fetch tasks.");
-        return;
-      }
-
-      const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
-        id: task.id,
-        campaign_id: task.campaign_id || null,
-        call_subject: task.call_subject || "",
-        call_status: task.call_status || "",
-        priority: task.priority || null,
-        scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
-        created_at: task.created_at ? new Date(task.created_at) : new Date(),
-        updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
-        contacts: Array.isArray(task.contacts)
-          ? task.contacts
-          : task.contacts
-          ? [task.contacts]
-          : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
-      }));
-
-      setTasks(formattedTasks);
-    }
-
     fetchTasks();
     initializeColumns();
   }, []);
@@ -96,6 +62,55 @@ export default function TaskPage() {
     });
   };
 
+  const handleSortToggle = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+  
+  const sortTasks = (tasks: YourTaskType[], order: "asc" | "desc") => {
+    return [...tasks].sort((a, b) =>
+      order === "asc"
+        ? a.updated_at.getTime() - b.updated_at.getTime()
+        : b.updated_at.getTime() - a.updated_at.getTime()
+    );
+  };
+  
+  const fetchTasks = async () => {
+    const { data: callTasks, error } = await supabase
+      .from("call_tasks")
+      .select(
+        "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
+      );
+  
+    if (error) {
+      console.error("Error fetching call tasks:", error.message);
+      toast.error("Failed to fetch tasks.");
+      return;
+    }
+  
+    const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
+      id: task.id,
+      campaign_id: task.campaign_id || null,
+      call_subject: task.call_subject || "",
+      call_status: task.call_status || "",
+      priority: task.priority || null,
+      scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
+      created_at: task.created_at ? new Date(task.created_at) : new Date(),
+      updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
+      contacts: Array.isArray(task.contacts)
+        ? task.contacts
+        : task.contacts
+        ? [task.contacts]
+        : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
+    }));
+  
+    const sortedTasks = sortTasks(formattedTasks, sortOrder);
+    setTasks(sortedTasks);
+  };
+  
+  useEffect(() => {
+    fetchTasks();
+  }, [sortOrder]); // Trigger fetchTasks when sortOrder changes
+  
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
     return visibleColumns.includes(columnId);
@@ -115,7 +130,6 @@ export default function TaskPage() {
   // Force Launch Handler
   const handleForceLaunch = async () => {
     try {
-      // Example API call to force launch campaigns
       const { data, error } = await supabase
         .from("campaigns")
         .update({ status: "active" })
@@ -129,42 +143,9 @@ export default function TaskPage() {
       // Optionally, refresh the task list
       fetchTasks();
     } catch (error: any) {
-      console.error("Error force launching campaigns:", error.message);
-      toast.error("Failed to force launch campaigns.");
+      console.error('Error force launching campaigns:', error.message);
+      toast.error('Failed to force launch campaigns.');
     }
-  };
-
-  // Function to refresh tasks after force launch
-  const fetchTasks = async () => {
-    const { data: callTasks, error } = await supabase
-      .from("call_tasks")
-      .select(
-        "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
-      );
-
-    if (error) {
-      console.error("Error fetching call tasks:", error.message);
-      toast.error("Failed to fetch tasks.");
-      return;
-    }
-
-    const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
-      id: task.id,
-      campaign_id: task.campaign_id || null,
-      call_subject: task.call_subject || "",
-      call_status: task.call_status || "",
-      priority: task.priority || null,
-      scheduled_at: task.scheduled_at ? new Date(task.scheduled_at) : null,
-      created_at: task.created_at ? new Date(task.created_at) : new Date(),
-      updated_at: task.updated_at ? new Date(task.updated_at) : new Date(),
-      contacts: Array.isArray(task.contacts)
-        ? task.contacts
-        : task.contacts
-        ? [task.contacts]
-        : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
-    }));
-
-    setTasks(formattedTasks);
   };
 
   if (allColumns.length === 0) {
@@ -174,13 +155,12 @@ export default function TaskPage() {
       </div>
     );
   }
-
+console.log(filteredColumns, visibleColumns, allColumns, tasks)
   return (
     <ErrorBoundary>
       <>
         <ToastContainer />
 
-        {/* Mobile View Images */}
         <div className="md:hidden flex justify-center items-center p-4">
           <div className="relative w-full h-64 sm:h-80">
             <Image
@@ -202,12 +182,12 @@ export default function TaskPage() {
           </div>
         </div>
 
-        {/* Task List Visible on All Screen Sizes */}
         <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8">
-          {/* Header with Force Launch Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">Welcome back!</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-white">
+                Welcome back!
+              </h2>
               <p className="text-muted-foreground">
                 Here's a list of your call tasks!
               </p>
@@ -220,11 +200,18 @@ export default function TaskPage() {
               >
                 Force Launch
               </button>
+              {/* <button
+            onClick={handleSortToggle}
+            className="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+          >
+            Sort by "Updated At" (
+            {sortOrder === 'asc' ? 'Old to New' : 'New to Old'})
+          </button> */}
+
               <UserNav />
             </div>
           </div>
 
-          {/* Task List */}
           <TooltipProvider>
             <div className="overflow-x-auto">
               <DataTable
@@ -237,14 +224,13 @@ export default function TaskPage() {
             </div>
           </TooltipProvider>
 
-          {/* Task Modal */}
           {showModal && selectedTask && (
             <TaskModal
               task={selectedTask}
               onClose={() => setShowModal(false)}
               onSave={() => {
                 setShowModal(false);
-                toast.success("Task updated successfully.");
+                toast.success('Task updated successfully.');
               }}
               className="max-w-full sm:max-w-lg"
             />
