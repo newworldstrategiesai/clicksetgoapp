@@ -13,8 +13,8 @@ interface CampaignTableProps {
   userId: string; // Receive userId as a prop
   apiKey: string; 
   twilioSid: string; 
-  twilioAuthToken: string;
-  vapiKey: string;
+  twilioAuthToken : string; 
+  vapiKey: string
 }
 
 export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToken, vapiKey  }: CampaignTableProps) {

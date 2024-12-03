@@ -38,7 +38,10 @@ export default function TaskPage() {
 
     const defaultVisible = columns
       .filter((column) => column.meta?.isDefault)
-      .map((column) => (hasAccessorKey(column) ? column.accessorKey : column.id) as string);
+      .map(
+        (column) =>
+          (hasAccessorKey(column) ? column.accessorKey : column.id) as string
+      );
 
     setVisibleColumns(defaultVisible);
 
@@ -176,7 +179,9 @@ export default function TaskPage() {
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-2xl font-bold tracking-tight text-white">Welcome back!</h2>
-              <p className="text-muted-foreground">Here's a list of your call tasks!</p>
+              <p className="text-muted-foreground">
+                Here's a list of your call tasks!
+              </p>
             </div>
             <div className="flex items-center space-x-2">
               <button

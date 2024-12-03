@@ -1,12 +1,12 @@
 // app/campaigns/page.tsx
 // Add the dynamic rendering configuration
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 
-import React from "react";
-import CampaignTable from "@/components/ui/CampaignTable"; // Import the new CampaignTable component
-import { redirect } from "next/navigation";
-import { createClient } from "@/app/server.server";
-import { getUser } from "@/utils/supabase/queries";
+import React from 'react';
+import CampaignTable from '@/components/ui/CampaignTable'; // Import the new CampaignTable component
+import { redirect } from 'next/navigation';
+import { createClient } from '@/app/server.server';
+import { getUser } from '@/utils/supabase/queries';
 
 export default async function CampaignsPage() {
     try {
@@ -14,19 +14,19 @@ export default async function CampaignsPage() {
         const user = await getUser(supabase); // Get the logged-in user
 
         if (!user) {
-            return redirect("/signin"); // Redirect to signin if no user
+            return redirect('/signin'); // Redirect to signin if no user
         }
 
         // Fetch API keys and campaign data with sorting by `updated_at` descending
         const { data, error } = await supabase
-            .from("api_keys" as any) // Cast as 'any' to bypass type checking
-            .select("eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key")
-            .eq("user_id", user.id)
+            .from('api_keys' as any) // Cast as 'any' to bypass type checking
+            .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
+            .eq('user_id', user.id)
             .single();
 
         if (error || !data) {
-            console.error("Failed to fetch Eleven Labs API key");
-            return redirect("/signin"); // Handle this case as appropriate
+            console.error('Failed to fetch Eleven Labs API key');
+            return redirect('/signin'); // Handle this case as appropriate
         }
 
         const apiKey = data.eleven_labs_key;
@@ -36,13 +36,13 @@ export default async function CampaignsPage() {
 
         // Query the campaigns and sort by `updated_at` in descending order
         const { data: campaigns, error: campaignsError } = await supabase
-            .from("campaigns")
+            .from('campaigns')
             .select("*")
-            .order("updated_at", { ascending: false }); // Sort by `updated_at` descending
+            .order('updated_at', { ascending: false }); // Sort by `updated_at` descending
 
         if (campaignsError) {
-            console.error("Failed to fetch campaigns:", campaignsError.message);
-            return redirect("/signin");
+            console.error('Failed to fetch campaigns:', campaignsError.message);
+            return redirect('/signin');
         }
 
         return (
@@ -55,19 +55,12 @@ export default async function CampaignsPage() {
                     </div>
                 </div>
                 <div className="p-4">
-                        <CampaignTable
-                            userId={user.id}
-                            apiKey={apiKey}
-                            twilioSid={twilioSid}
-                            twilioAuthToken={twilioAuthToken}
-                            vapiKey={vapiKey}
-                            campaigns={campaigns}
-                        />
+                <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey} campaigns={campaigns} />
                 </div>
             </section>
         );
     } catch (error) {
-        console.error("Error fetching user data:", error);
-        return redirect("/signin");
+        console.error('Error fetching user data:', error);
+        return redirect('/signin');
     }
 }

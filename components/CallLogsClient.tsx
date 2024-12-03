@@ -29,7 +29,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
       setLoading(true);
 
       const response = await axios.get('/api/get-call-logs', {
-        params: { userId, limit },
+        params: { userId, limit},
         headers: {
           'Authorization': `Bearer ${vapiKey}`, // Send vapiKey as a bearer token
         },
