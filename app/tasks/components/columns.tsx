@@ -152,52 +152,39 @@ export const getColumns = (
   },
   // Call Subject Column (Default)
   {
-    // id: "call_subject",
-    // accessorKey: "call_subject",
-    // header: ({ column }: { column: Column<YourTaskType, any> }) => (
-    //   <DataTableColumnHeader column={column} title="Call Subject" />
-    // ),
-    // cell: ({ row }: { row: Row<YourTaskType> }) => {
-    //   const fullCallSubject = row.getValue("call_subject") as string; // Cast to string
-    //   const truncatedCallSubject =
-    //     fullCallSubject.length > 30
-    //       ? `${fullCallSubject.substring(0, 30)}...`
-    //       : fullCallSubject;
+    accessorKey: "call_subject",
+    header: ({ column }: { column: Column<YourTaskType, any> }) => (
+      <DataTableColumnHeader column={column} title="Call Subject" />
+    ),
+    cell: ({ row }: { row: Row<YourTaskType> }) => {
+      const fullCallSubject = row.getValue("call_subject") as string; // Cast to string
+      const truncatedCallSubject =
+        fullCallSubject.length > 30
+          ? `${fullCallSubject.substring(0, 30)}...`
+          : fullCallSubject;
 
-    //   return (
-    //     <div className="flex space-x-2">
-    //       {/* Adjusted to use 'call_subject' if 'label' is not present */}
-    //       {labels.find((label) => label.value === row.original.call_subject) && (
-    //         <Badge variant="outline">
-    //           {labels.find((label) => label.value === row.original.call_subject)?.label}
-    //         </Badge>
-    //       )}
-    //       <Tooltip>
-    //         <TooltipTrigger asChild>
-    //           <span className="max-w-[500px] truncate font-medium cursor-pointer">
-    //             {truncatedCallSubject}
-    //           </span>
-    //         </TooltipTrigger>
-    //         <TooltipContent>{fullCallSubject}</TooltipContent>
-    //       </Tooltip>
-    //     </div>
-    //   );
-    // },
-    // enableSorting: true,
-    // enableHiding: false,
-    // meta: { isDefault: true }, // Default column
-    
-      id: "call_subject",
-      accessorKey: "call_subject",
-      header: "Call Subject", // You can customize this header
-      cell: ({ row }: { row: Row<YourTaskType> }) => (
-        <span>{row.getValue("call_subject")}</span>
-      ),
-      enableSorting: true,
-      enableHiding: false,
-      meta: { isDefault: true },
-    
-    
+      return (
+        <div className="flex space-x-2">
+          {/* Adjusted to use 'call_subject' if 'label' is not present */}
+          {labels.find((label) => label.value === row.original.call_subject) && (
+            <Badge variant="outline">
+              {labels.find((label) => label.value === row.original.call_subject)?.label}
+            </Badge>
+          )}
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="max-w-[500px] truncate font-medium cursor-pointer">
+                {truncatedCallSubject}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>{fullCallSubject}</TooltipContent>
+          </Tooltip>
+        </div>
+      );
+    },
+    enableSorting: true,
+    enableHiding: false,
+    meta: { isDefault: true }, // Default column
   },
   // Contact Name Column (Default)
   {
@@ -218,7 +205,6 @@ export const getColumns = (
   },
   // Call Status Column (Default)
   {
-    id:"call_status",
     accessorKey: "call_status",
     header: ({ column }: { column: Column<YourTaskType, any> }) => (
       <DataTableColumnHeader column={column} title="Call Status" />
