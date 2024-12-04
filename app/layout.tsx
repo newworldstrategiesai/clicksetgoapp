@@ -18,6 +18,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  // Define the routes where the MainNav should be hidden
   const hideFooterRoutes = [
     '/dialer', '/call-logs', '/overview', '/dialer2', '/voice-library',
     '/chat', '/leads', '/contracts', '/calls', '/marketing', '/events',

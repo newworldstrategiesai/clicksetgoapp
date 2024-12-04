@@ -1,5 +1,4 @@
-// components/ui/Table.tsx
-import React from "react";
+import * as React from 'react';
 
 export const Table: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return <table className="min-w-full bg-gray-800 dark:text-white">{children}</table>;

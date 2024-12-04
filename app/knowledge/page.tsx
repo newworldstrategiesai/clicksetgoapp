@@ -4,7 +4,7 @@ import { useState } from "react";
 import Button from "@/components/ui/Button/Button"; // Correct path to your Button component
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/Table"; // Assuming you have these components
+import { Table, TableHeader, TableRow, TableCell, TableBody } from "@/components/ui/table"; // Assuming you have these components
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { IconFilter } from "@/components/icons/IconFilter"; // Replace with your filter icon component
 import { Pagination } from "@/components/ui/Pagination"; // Assuming you have a pagination component

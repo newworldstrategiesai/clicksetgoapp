@@ -17,7 +17,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+<<<<<<< HEAD
 import { useCountry } from "@/context/CountryContext";
+=======
+>>>>>>> 2dd3d3e9 (fix: type errors in email and sms templates)
 
 
 interface OverViewClientProps {
@@ -33,7 +36,11 @@ const OverViewClient: React.FC<OverViewClientProps> = ({ userId, vapiKey }) => {
   return (
     <div className="flex h-screen">
       {/* Sidebar Component */}
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> 2dd3d3e9 (fix: type errors in email and sms templates)
       {/* Main Content Area */}
       <div className="flex-1 pt-16">
         <PageContainer scrollable>
