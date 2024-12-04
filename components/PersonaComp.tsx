@@ -49,8 +49,8 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   const [agentId, setAgentId] = useState<string | null>(null);
   
   // Form State
-  const [agentName, setAgentName] = useState('Chloe');
-  const [companyName, setCompanyName] = useState('Ben Spins');
+  const [agentName, setAgentName] = useState('');
+  const [companyName, setCompanyName] = useState('  ');
   const [companyDescription, setCompanyDescription] = useState('');
   const [timezone, setTimezone] = useState('');
   const [toneOfVoice, setToneOfVoice] = useState('Friendly');
@@ -63,6 +63,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   const [noCompetitors, setNoCompetitors] = useState(false);
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
 
   // Fetch available voices from Eleven Labs
   const fetchVoices = async () => {
@@ -115,6 +116,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
       no_personal_info: noPersonalInfo,
       no_competitors: noCompetitors,
       default_voice: selectedVoice,
+      role: selectedRole,
     };
 
     let error;
@@ -205,6 +207,8 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
             setCompanyDescription={setCompanyDescription}
             timezone={timezone}
             setTimezone={setTimezone}
+            selectedRole={selectedRole}
+            setSelectedRole={setSelectedRole}
           />
         )}
 
@@ -259,7 +263,9 @@ function IdentityAndCompany({
   companyDescription,
   setCompanyDescription,
   timezone,
-  setTimezone
+  setTimezone,
+  selectedRole,
+  setSelectedRole,
 }: {
   agentName: string;
   setAgentName: (name: string) => void;
@@ -269,6 +275,8 @@ function IdentityAndCompany({
   setCompanyDescription: (description: string) => void;
   timezone: string;
   setTimezone: (timezone: string) => void;
+  selectedRole: string;
+  setSelectedRole: (role: string) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -288,6 +296,15 @@ function IdentityAndCompany({
           type="text"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-300">Agent Role</label>
+        <input
+          type="text"
+          value={selectedRole}
+          onChange={(e) => setSelectedRole(e.target.value)}
           className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
         />
       </div>
