@@ -37,7 +37,7 @@ export default function PersonasPage() {
   useEffect(() => {
     const fetchPersonas = async () => {
       const supabase = createClient();
-      const { data, error } = await supabase.from('agents').select('*').eq('user_id', userId);
+      const { data, error } = await supabase.from('agents').select('*').eq('user_id', `${userId}`);
       if (error) {
         console.error('Error fetching personas:', error);
       } else {
