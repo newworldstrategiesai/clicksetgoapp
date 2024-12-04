@@ -31,8 +31,13 @@ interface CampaignData {
   status: string;
   start_date: string;
   end_date: string;
+  description: string;
+  start_timezone: string;
   twilioNumber?: string; // Optional field
   country_code?: string;
+  budget: number; // Add this field
+  agents?: { agent_name: string} // Define the shape of `agents`
+  lists?: { name: string}; // Define the shape of `lists`  
 }
 
 interface CampaignPageProps {
