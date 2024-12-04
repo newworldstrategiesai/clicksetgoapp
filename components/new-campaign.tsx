@@ -102,7 +102,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         // Fetch Agents
         const agentsResponse = await supabase
           .from('agents')
-          .select('id, agent_name');
+          .select('id, agent_name')
+          .eq('user_id', userId)
 
         if (agentsResponse.error) {
           toast.error('Error fetching agents');

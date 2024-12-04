@@ -28,7 +28,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
               <Navbar />
               <main
                 id="skip"
-                className="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)] mt-3"
+                className="min-h-[calc(100dvh-4rem)] md:min-h[calc(100dvh-5rem)] mt-8"
               >
                 <CountryProvider>{children}</CountryProvider>
               </main>

@@ -18,6 +18,7 @@ interface AgentSettings {
   role: string;
   companyName: string;
   prompt?: string; // Make prompt optional
+  voiceId: string;
 }
 
 interface Credentials {
@@ -110,7 +111,8 @@ export default async function handler(
     !agentSettings ||
     !agentSettings.agentName ||
     !agentSettings.role ||
-    !agentSettings.companyName
+    !agentSettings.companyName ||
+    !agentSettings.voiceId
     // Removed: || !agentSettings.prompt
   ) {
     console.error('Missing agent settings:', agentSettings);
@@ -169,7 +171,7 @@ export default async function handler(
     assistantOverrides: {
       firstMessage: customizedFirstMessage,
       voice: {
-        voiceId: voiceId || '9c6NBxIEEDowC6QfhIaO',
+        voiceId: agentSettings.voiceId || voiceId || '9c6NBxIEEDowC6QfhIaO',
         provider: '11labs',
         stability: 0.3,
         similarityBoost: 0.75,

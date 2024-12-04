@@ -154,7 +154,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
       <h1 className="text-3xl font-bold mb-6">Persona</h1>
 
       <div className="mb-6">
-        <Link href="/customization/personas">
+        <Link href={`/customization/personas?usd=${userId}`}>
           <span className="bg-blue-500 text-white py-2 px-4 rounded-md">
             View All Personas
           </span>
