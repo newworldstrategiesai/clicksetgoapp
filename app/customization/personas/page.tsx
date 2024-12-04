@@ -10,6 +10,7 @@ interface Persona {
   agent_name: string;
   company_name: string;
   company_description: string;
+  role: string;
   default_timezone: string;
   tone_of_voice: string;
   allow_emoji_usage: boolean;
@@ -63,6 +64,7 @@ export default function PersonasPage() {
         agent_name: selectedPersona.agent_name,
         company_name: selectedPersona.company_name,
         company_description: selectedPersona.company_description,
+        role: selectedPersona.role,
         default_timezone: selectedPersona.default_timezone,
         tone_of_voice: selectedPersona.tone_of_voice,
         allow_emoji_usage: selectedPersona.allow_emoji_usage,
@@ -127,6 +129,16 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, company_name: e.target.value })
                   }
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-300">Agent Role</label>
+                <input
+                  type="text"
+                  value={selectedPersona.role}
+                  onChange={(e) => setSelectedPersona({ ...selectedPersona, role: e.target.value })}
                   className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
                 />
               </div>
