@@ -22,7 +22,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   const [error, setError] = useState('');
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [limit, setLimit] = useState(100);
+  const [limit, setLimit] = useState(10);
 
   const fetchCallLogs = useCallback(async () => {
     try {
@@ -37,7 +37,8 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       const { data: contacts, error: contactsError } = await supabase
         .from('contacts')
-        .select('*');
+        .select('*')
+        .eq("user_id", userId);
 
       if (contactsError) {
         console.error('Error fetching contacts from Supabase:', contactsError);
@@ -61,9 +62,12 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       // Sort call logs in ascending order based on the startedAt date
       callLogsData.sort((a: CallLog, b: CallLog) => {
-        return moment(a.startedAt).isBefore(b.startedAt) ? 1 : -1;
+        const dateA = a.startedAt || a.createdAt;
+        const dateB = b.startedAt || b.createdAt;
+      
+        return moment(dateA).isBefore(moment(dateB)) ? 1 : -1;
       });
-
+      
       setCallLogs(callLogsData);
     } catch (error) {
       console.error('Error fetching call logs:', error);
@@ -119,12 +123,13 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-400">
-                {moment(log.startedAt).format('MMM D, h:mm A')}
+                {moment(log.startedAt || log.createdAt).format('MMM D, h:mm A')}
               </p>
               <p className="text-sm text-gray-400">
-                {moment
-                  .utc(moment(log.endedAt).diff(moment(log.startedAt)))
-                  .format('mm:ss')}
+                {log.startedAt && log.endedAt ? (
+                  moment
+                    .utc(moment(log.endedAt).diff(moment(log.startedAt))).format('mm:ss')) : ("N/A")
+                }
               </p>
             </div>
           </li>
@@ -148,8 +153,8 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         <p className="text-lg mb-4 text-gray-200">
           <strong className="text-gray-400">Full Name:</strong>
           <Link
-            href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
-            legacyBehavior
+              href={`/user-call-logs/${selectedLog.customer?.number || ''}?user=${userId}`}
+              legacyBehavior
           >
             <a className="text-blue-400 hover:text-blue-500 underline ml-2 cursor-pointer">
               {selectedLog.fullName}
@@ -177,19 +182,21 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Started At:</strong>{' '}
-        {moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A')}
+        {selectedLog.startedAt ? moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A') : 'Not connected'}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Ended At:</strong>{' '}
-        {moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A')}
+        {selectedLog.endedAt ? moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A') : 'Not connected'}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Duration:</strong>{' '}
-        {moment
-          .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
-          .format('HH:mm:ss')}
+        {selectedLog.startedAt && selectedLog.endedAt ? (
+          moment
+            .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
+            .format('HH:mm:ss')
+        ) : ("N/A")}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
