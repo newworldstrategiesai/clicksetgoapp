@@ -100,7 +100,7 @@ export default function TaskPage() {
       }
     });
   };
-
+  
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
     return visibleColumns.includes(columnId);
@@ -114,7 +114,9 @@ export default function TaskPage() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
+    if (visibleColumns.length > 0) {
+      localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
+    }
   }, [visibleColumns]);
 
   // Force Launch Handler
