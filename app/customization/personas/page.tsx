@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import CustomSwitch from '@/components/CustomSwitch'; // Assuming you have the CustomSwitch component
+import { useSearchParams  } from 'next/navigation';
 
 interface Persona {
   id: string;
@@ -27,12 +28,16 @@ interface Persona {
 export default function PersonasPage() {
   const [personas, setPersonas] = useState<Persona[]>([]);
   const [selectedPersona, setSelectedPersona] = useState<Persona | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);  
+  const searchParams = useSearchParams();
+  const userId = searchParams?.get('usd'); // Retrieve userId from query parameters
+  
+  console.log(userId);
 
   useEffect(() => {
     const fetchPersonas = async () => {
       const supabase = createClient();
-      const { data, error } = await supabase.from('agents').select('*');
+      const { data, error } = await supabase.from('agents').select('*').eq('user_id', userId);
       if (error) {
         console.error('Error fetching personas:', error);
       } else {
@@ -40,8 +45,10 @@ export default function PersonasPage() {
       }
     };
 
-    fetchPersonas();
-  }, []);
+    if (userId) {
+      fetchPersonas(); // You may want to add logic based on userId if needed
+    }
+  }, [userId]);
 
   const openModal = (persona: Persona) => {
     setSelectedPersona(persona);

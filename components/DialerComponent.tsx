@@ -108,7 +108,7 @@ const DialerComponent = ({
   const [companyName, setCompanyName] = useState<string>('');
   const [companyWebsite, setCompanyWebsite] = useState<string>('');
   const [prompt, setPrompt] = useState<string>('');
-
+  const [voice_id, setVoice_id] = useState<string>('');
   // State for Add Caller ID Modal
   const [isAddCallerIDModalOpen, setIsAddCallerIDModalOpen] = useState(false);
 
@@ -191,8 +191,10 @@ const DialerComponent = ({
         .from('agents')
         .select('*')
         .eq('user_id', userId)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true })
         .limit(1);
+
+        console.log(data);
 
       if (error) {
         console.error('Error fetching agent settings:', error);
@@ -203,13 +205,14 @@ const DialerComponent = ({
         setCompanyWebsite(latestAgent.company_website || '');
         setRole(latestAgent.role || ''); // Set the 'role' state variable
         setPrompt(latestAgent.prompt || ''); // Ensure prompt is set to empty string if undefined
-
+        setVoice_id(latestAgent.default_voice)
         // Log the fetched agent settings
         console.log('Fetched Agent Settings:', {
           agentName: latestAgent.agent_name,
           role: latestAgent.role,
           companyName: latestAgent.company_name,
           prompt: latestAgent.prompt, // This shows the raw value
+          voice_id:latestAgent.default_voice,
         });
       } else {
         console.warn('No agent settings found for the user.');
@@ -353,6 +356,7 @@ const DialerComponent = ({
           role,
           companyName,
           prompt: prompt || undefined, // Send 'prompt' only if it's not empty
+          voiceId:voice_id
         },
       });
       toast.success(`Call to ${newFirstName} ${newLastName || ''} initialized.`);
