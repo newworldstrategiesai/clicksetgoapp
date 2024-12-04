@@ -177,7 +177,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
       try {
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
-          .select('*')
+          .select('*, audience, lists (name), agent, agents (agent_name) ')
           .eq('id', id)
           .single();
 
@@ -241,7 +241,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     try {
       const { error } = await supabase
         .from('campaigns')
-        .update({ status: 'Scheduled' })
+        .update({ status: 'Scheduled', updated_at: new Date()})
         .eq('id', id);
 
       const { error: updateStatusError } = await supabase
@@ -286,7 +286,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
       const { error } = await supabase
         .from('campaigns')
-        .update({ status: newStatus })
+        .update({ status: newStatus, updated_at: new Date()})
         .eq('id', id)
         .eq('status', 'Paused');
 
@@ -336,7 +336,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
       const { error } = await supabase
         .from('campaigns')
-        .update({ status: 'Paused' })
+        .update({ status: 'Paused', updated_at: new Date() })
         .eq('id', id)
         .in('status', ['Scheduled', 'Active', 'Resumed']);
 
@@ -401,7 +401,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     try {
       const { error } = await supabase
         .from('campaigns')
-        .update({ status: 'Aborted' })
+        .update({ status: 'Aborted', updated_at: new Date() })
         .eq('id', id)
         .neq('status', 'Completed');
 
@@ -559,14 +559,24 @@ export default function CampaignPage({ params }: CampaignPageProps) {
       ) : campaignData ? (
         <>
           <h1 className="text-3xl font-bold mb-6">{campaignData.name}</h1>
-          <p>Status: {campaignData.status}</p>
-          <p>
-            Start Date: {new Date(campaignData.start_date).toLocaleDateString()}
-          </p>
-          <p>
-            End Date: {new Date(campaignData.end_date).toLocaleDateString()}
-          </p>
-
+          <div style={{display:'flex', justifyContent:'space-evenly'}}>
+                <div style={{}}>
+                    <p>Status: {campaignData.status}</p>
+                    <p>
+                      Start Date: {new Date(campaignData.start_date).toLocaleDateString()}
+                    </p>
+                    <p>
+                      End Date: {new Date(campaignData.end_date).toLocaleDateString()}
+                    </p>
+                    <p>Description: {campaignData.description}</p>
+                </div>
+                <div>
+                    <p>Timezone: {campaignData.start_timezone}</p>
+                    <p>Audiance Name: {campaignData.lists?.name}</p>
+                    <p>Budget: {campaignData.budget}</p>
+                    <p>Agent Name: {campaignData.agents?.agent_name}</p>
+                </div>
+          </div>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
             {showLaunchBtn && (
               <button

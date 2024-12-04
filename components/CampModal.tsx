@@ -73,7 +73,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
 
     const { error } = await supabase
       .from('campaigns')
-      .update({ status })
+      .update({ status, updated_at: new Date() })
       .eq('id', campaign.id);
 
     if (error) {
@@ -109,7 +109,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
     setIsSaving(true);
     const { error } = await supabase
       .from('campaigns')
-      .update({ name: formData.name, description: formData.description })
+      .update({ name: formData.name, description: formData.description, updated_at: new Date() })
       .eq('id', campaign.id);
 
     if (error) {
