@@ -34,6 +34,26 @@ export default async function DialerPage() {
     const twilioAuthToken = data.twilio_auth_token;
     const vapiKey = data.vapi_key;
 
+    // Fetch the agent settings from Supabase
+    const { data: agentData, error: agentError } = await supabase
+      .from('agents')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: true })
+      .limit(1);
+
+    if (agentError || !agentData || agentData.length === 0) {
+      console.error('Failed to fetch agent settings');
+      return redirect('/signin'); // Handle agent settings error
+    }
+
+    const latestAgent = agentData[0];
+    const agentName = latestAgent.agent_name || '';
+    const role = latestAgent.role || '';
+    const companyName = latestAgent.company_name || '';
+    const prompt = latestAgent.prompt || '';
+    const voiceId = latestAgent.default_voice || '';
+
     return (
       <section className="min-h-screen dark:bg-black dark:text-white">
         <div className="pt-[45px] p-4">
@@ -44,6 +64,11 @@ export default async function DialerPage() {
             twilioSid={twilioSid}
             twilioAuthToken={twilioAuthToken}
             vapiKey={vapiKey}
+            agentName={agentName}
+            role={role}
+            companyName={companyName}
+            prompt={prompt}
+            voiceId={voiceId}
           />
         </div>
       </section>

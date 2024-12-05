@@ -127,3 +127,17 @@ export interface Campaign {
   agent?: string; // UUID type corresponds to string in TypeScript, optional
   scheduled_at?: string; // Timestamp with time zone, optional
 }
+
+
+export interface DialerComponentProps {
+  userId: string;
+  apiKey: string;
+  twilioSid: string;
+  twilioAuthToken: string;
+  vapiKey: string;
+  agentName: string;
+  role: string;
+  companyName: string;
+  prompt: string;
+  voiceId: string;
+}

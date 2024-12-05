@@ -39,7 +39,7 @@ export default async function ContactsPage() {
     const AllApiKeys = {apiKey, twilioSid, twilioAuthToken, vapiKey};
 
         return (
-            <section className="mb-32 dark:bg-blackmin-h-screen">
+            <section className="mb-32 dark:bg-black min-h-screen">
                 <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
                     <div className="sm:align-center sm:flex sm:flex-col">
                         {/* Optional: Add headers or other content here */}
