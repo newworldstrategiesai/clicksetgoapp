@@ -174,8 +174,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
       >          
       Next
       </button>
-        
-
       </div>
       {isModalOpen && selectedLog && (
   <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-70 z-50">
