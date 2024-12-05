@@ -21,7 +21,7 @@ export default function KnowledgePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-900 dark:text-white p-6 lg:p-8">
       <header className="flex flex-col lg:flex-row lg:items-center justify-between mb-8">
         <h1 className="text-2xl font-bold">Knowledge</h1>
         <p className="text-gray-400 lg:mt-0 mt-2">
@@ -37,7 +37,7 @@ export default function KnowledgePage() {
           <Button variant="flat" className="text-gray-400" onClick={() => setIsModalOpen(true)}>
             Import website
           </Button>
-          <Button variant="flat" className="bg-purple-600 text-white">
+          <Button variant="flat" className="bg-purple-600 dark:text-white">
             Create article
           </Button>
         </div>
@@ -46,7 +46,7 @@ export default function KnowledgePage() {
             placeholder="Search by article name"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="bg-gray-800 text-white"
+            className="bg-gray-800 dark:text-white"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

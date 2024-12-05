@@ -90,7 +90,7 @@ export default function LanguagesPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-2">Languages</h1>
       <p className="text-gray-400 mb-6">
         Customize the languages your AI Agent speaks. Your AI Agent will use English knowledge articles to generate responses in all enabled languages.{" "}
@@ -106,7 +106,7 @@ export default function LanguagesPage() {
       <input
         type="text"
         placeholder="Find a language..."
-        className="block w-full p-2 mb-4 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+        className="block w-full p-2 mb-4 border border-gray-600 rounded-md bg-gray-800 dark:text-white focus:outline-none focus:ring-blue-500 focus:border-blue-500"
       />
 
       <ul className="space-y-4">

@@ -7,7 +7,7 @@ export default function ConversationalMessagesVolumePage() {
   const [filters, setFilters] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen dark:bg-black dark:text-white p-6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center space-x-2 text-gray-400 mb-4">
           <a href="#" className="underline">
@@ -38,20 +38,20 @@ export default function ConversationalMessagesVolumePage() {
               type="text"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="bg-gray-800 text-white p-2 rounded-md"
+              className="bg-gray-800 dark:text-white p-2 rounded-md"
             />
           </div>
           <div className="flex items-center space-x-2">
             <label>Filters</label>
             <button
               onClick={() => setFilters([...filters, 'New Filter'])}
-              className="bg-gray-800 text-white p-2 rounded-md"
+              className="bg-gray-800 dark:text-white p-2 rounded-md"
             >
               Add filter
             </button>
           </div>
-          <button className="bg-gray-800 text-white p-2 rounded-md">Download</button>
-          <button className="bg-gray-800 text-white p-2 rounded-md">Print</button>
+          <button className="bg-gray-800 dark:text-white p-2 rounded-md">Download</button>
+          <button className="bg-gray-800 dark:text-white p-2 rounded-md">Print</button>
         </div>
 
         <div className="bg-gray-900 p-6 rounded-lg text-center">

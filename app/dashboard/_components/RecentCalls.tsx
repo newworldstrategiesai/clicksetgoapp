@@ -98,7 +98,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
             className="flex justify-between items-center p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors duration-200"
           >
             <div>
-              <p className="text-lg text-white">{log.fullName || log.customer?.number || 'Unknown'}</p>
+              <p className="text-lg dark:text-white">{log.fullName || log.customer?.number || 'Unknown'}</p>
               <p className={`text-sm ${log.type === 'inboundPhoneCall' ? 'text-yellow-500' : 'text-green-500'}`}>
                 {log.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}
               </p>
@@ -116,7 +116,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
       {callLogs.length >= limit && (
         <button
           onClick={loadMoreLogs}
-          className={`mt-4 w-full flex items-center justify-center p-2 bg-blue-600 text-white rounded hover:bg-blue-500 transition-colors duration-200`}
+          className={`mt-4 w-full flex items-center justify-center p-2 bg-blue-600 dark:text-white rounded hover:bg-blue-500 transition-colors duration-200`}
           disabled={loading}
         >
           {loading ? 'Loading...' : 'Load More'}
@@ -124,9 +124,9 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
       )}
 
       {isModalOpen && selectedLog && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50">
+        <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-80 z-50">
           <div className="bg-gray-900 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
-            <h2 className="text-3xl font-semibold mb-6 text-white">Call Details</h2>
+            <h2 className="text-3xl font-semibold mb-6 dark:text-white">Call Details</h2>
 
             {selectedLog.fullName && (
               <p className="text-lg mb-4 text-gray-300">
@@ -194,7 +194,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
 
             <button
               onClick={closeModal}
-              className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200"
+              className="mt-4 px-6 py-2 bg-red-600 dark:text-white font-semibold rounded-lg hover:bg-red-700 transition-colors duration-200"
             >
               Close
             </button>

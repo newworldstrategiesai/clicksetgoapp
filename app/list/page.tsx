@@ -124,7 +124,7 @@ const ListsPage: React.FC = () => {
 
       <button
         onClick={() => setIsModalOpen(true)}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-4 block mx-auto"
+        className="bg-blue-600 dark:text-white px-4 py-2 rounded-lg mb-4 block mx-auto"
       >
         Create List
       </button>
@@ -146,7 +146,7 @@ const ListsPage: React.FC = () => {
         />
         <button
           onClick={handleCreateList}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+          className="px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
         >
           Create List
         </button>

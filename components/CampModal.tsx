@@ -73,7 +73,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
 
     const { error } = await supabase
       .from('campaigns')
-      .update({ status })
+      .update({ status, updated_at: new Date() })
       .eq('id', campaign.id);
 
     if (error) {
@@ -109,7 +109,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
     setIsSaving(true);
     const { error } = await supabase
       .from('campaigns')
-      .update({ name: formData.name, description: formData.description })
+      .update({ name: formData.name, description: formData.description, updated_at: new Date() })
       .eq('id', campaign.id);
 
     if (error) {
@@ -123,8 +123,8 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80">
-      <div className="bg-black text-white p-6 rounded-md shadow-md w-1/2">
+    <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-80">
+      <div className="bg-black dark:text-white p-6 rounded-md shadow-md w-1/2">
         {/* Campaign Title with Link */}
         <h2 className="text-xl font-bold mb-4">
           {isEditing ? (
@@ -133,7 +133,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
               name="name"
               value={formData.name}
               onChange={handleFormChange}
-              className="w-full p-2 bg-gray-800 text-white rounded-md"
+              className="w-full p-2 bg-gray-800 dark:text-white rounded-md"
               placeholder='Edit Campaign Name'
             />
           ) : (
@@ -149,7 +149,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
             name="description"
             value={formData.description}
             onChange={handleFormChange}
-            className="w-full p-2 bg-gray-800 text-white rounded-md mb-4"
+            className="w-full p-2 bg-gray-800 dark:text-white rounded-md mb-4"
             placeholder="Edit campaign description"
           />
         ) : (
@@ -169,7 +169,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 bg-gray-800 text-white rounded-md"
+            className="w-full p-2 bg-gray-800 dark:text-white rounded-md"
           >
             <option value="Active">Active</option>
             <option value="Completed">Completed</option>
@@ -184,7 +184,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           {isEditing ? (
             <button
               onClick={handleEditSave}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="px-4 py-2 bg-green-500 dark:text-white rounded"
               disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Changes'}
@@ -192,7 +192,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           ) : (
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="px-4 py-2 bg-green-500 dark:text-white rounded"
               disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Status'}
@@ -200,17 +200,17 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           )}
           <button
             onClick={handleEditToggle}
-            className={`px-4 py-2 ${isEditing ? 'bg-gray-500' : 'bg-blue-500'} text-white rounded`}
+            className={`px-4 py-2 ${isEditing ? 'bg-gray-500' : 'bg-blue-500'} dark:text-white rounded`}
           >
             {isEditing ? 'Cancel' : 'Edit'}
           </button>
           <button
             onClick={onDelete}
-            className="px-4 py-2 bg-red-500 text-white rounded"
+            className="px-4 py-2 bg-red-500 dark:text-white rounded"
           >
             Delete
           </button>
-          <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-500 dark:text-white rounded">
             Close
           </button>
         </div>

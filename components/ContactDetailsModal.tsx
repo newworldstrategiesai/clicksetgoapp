@@ -427,7 +427,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
                 </select>
                 <button
                   onClick={handleAddToList}
-                  className="px-4 py-2 bg-green-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-green-600 dark:text-white rounded-lg"
                 >
                   Add to List
                 </button>
@@ -436,13 +436,13 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
               <div className="flex justify-between mt-4">
                 <button
                   onClick={() => setShowDeleteConfirmation(true)}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-red-600 dark:text-white rounded-lg"
                 >
                   Delete
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
                 >
                   Save
                 </button>
@@ -460,13 +460,13 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
               <div className="flex justify-between mt-4">
                 <button
                   onClick={() => setShowDeleteConfirmation(false)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-gray-600 dark:text-white rounded-lg"
                 >
                   No
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-red-600 dark:text-white rounded-lg"
                 >
                   Yes
                 </button>

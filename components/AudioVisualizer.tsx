@@ -1,3 +1,4 @@
+// AudioVisualizer.tsx
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, MicOff } from 'lucide-react';
 import { Waveform } from './WaveForm';
@@ -72,7 +73,7 @@ export function AudioVisualizer() {
   return (
     <div className="w-full max-w-3xl flex flex-col items-center gap-8">
       <div className="relative w-full">
-        <Waveform audioData={audioData} />
+        <Waveform audioData={audioData} isSpeaking={isRecording} />
         <div className="absolute inset-0 bg-gradient-to-r from-white/20 via-transparent to-white/20 pointer-events-none" />
       </div>
 
@@ -80,7 +81,7 @@ export function AudioVisualizer() {
         <button
           onClick={startRecording}
           disabled={isRecording}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full font-medium shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:pointer-events-none"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 dark:text-white rounded-full font-medium shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 transition-all disabled:opacity-50 disabled:pointer-events-none"
         >
           <Mic className="w-5 h-5" />
           Start Recording
@@ -88,7 +89,7 @@ export function AudioVisualizer() {
         <button
           onClick={stopRecording}
           disabled={!isRecording}
-          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-full font-medium shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all disabled:opacity-50 disabled:pointer-events-none"
+          className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-pink-500 dark:text-white rounded-full font-medium shadow-lg shadow-red-500/20 hover:shadow-xl hover:shadow-red-500/30 transition-all disabled:opacity-50 disabled:pointer-events-none"
         >
           <MicOff className="w-5 h-5" />
           Stop Recording

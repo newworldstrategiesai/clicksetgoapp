@@ -38,7 +38,8 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
       const { data, error }: { data: Campaign[] | null; error: PostgrestError | null } = await supabase
         .from('campaigns') // Specify the table name as a string
         .select('*')
-        .eq('user_id', userId); // Filter by user_id
+        .eq('user_id', userId) // Filter by user_id
+        .order('updated_at', { ascending: false }); // Sort by `updated_at` in descending order
 
       if (error) {
         console.error('Error fetching campaigns:', error);
@@ -85,7 +86,6 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     setShowModal(true);
   };
 
-  
   // Close modal
   const closeModal = () => {
     setShowModal(false);
@@ -96,13 +96,13 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     <>
       <div className="flex justify-between mb-4">
   <button 
-    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-800"
+    className="bg-gray-500 dark:text-white px-4 py-2 rounded hover:bg-gray-800"
     onClick={() => router.push('/home')} // Go back to the previous page
   >
     <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-300" /> 
   </button>
   <button 
-    className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+    className="bg-blue-500 dark:text-white px-4 py-2 rounded hover:bg-blue-600"
     onClick={() => router.push('/new-campaign')}
   >
     Create New Campaign

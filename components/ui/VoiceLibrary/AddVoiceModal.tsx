@@ -79,30 +79,30 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
     <Modal isOpen={isOpen} onClose={onClose} title="Add Voice" scrollable>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-white">Name</label>
+          <label className="block text-sm font-medium dark:text-white">Name</label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white">
+          <label className="block text-sm font-medium dark:text-white">
             Click to upload a file or drag and drop
           </label>
           <input
             type="file"
             onChange={handleFileUpload}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
             multiple
           />
           <p className="mt-2 text-sm text-gray-400">Audio or Video files, up to 10MB each</p>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white">Samples {samples.length} / 25</label>
+          <label className="block text-sm font-medium dark:text-white">Samples {samples.length} / 25</label>
           <ul className="list-disc pl-5 text-gray-300">
             {samples.map((file, index) => (
               <li key={index}>{file.name}</li>
@@ -111,11 +111,11 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-white">Description</label>
+          <label className="block text-sm font-medium dark:text-white">Description</label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
             rows={4}
             placeholder='How would you describe the voice? e.g. "An old American male voice with a slight hoarseness in his throat. Perfect for news."'
           ></textarea>

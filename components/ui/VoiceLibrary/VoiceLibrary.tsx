@@ -51,7 +51,7 @@ const VoiceLibrary = ({ apiKey }: { apiKey: string }) => {
     <div className="p-4">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h1 className="text-2xl font-semibold mb-4">Voice Library</h1>
-        <button onClick={openModal} className="mb-4 bg-blue-500 text-white py-2 px-4 rounded">
+        <button onClick={openModal} className="mb-4 bg-blue-500 dark:text-white py-2 px-4 rounded">
           Add Voice
         </button>
       </div>
@@ -60,7 +60,7 @@ const VoiceLibrary = ({ apiKey }: { apiKey: string }) => {
         {voices.map((voice) => (
           <div key={voice.voice_id} className="bg-gray-900 p-4 rounded-md shadow-md">
             <div className="flex justify-between items-center mb-2">
-              <span className="font-medium text-white">{voice.name}</span>
+              <span className="font-medium dark:text-white">{voice.name}</span>
               <span className="text-sm text-gray-400">{voice.voice_id}</span>
             </div>
             <div className="flex justify-between items-center mb-2">

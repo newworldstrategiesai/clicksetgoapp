@@ -51,15 +51,15 @@ export default function RootLayout({ children }: PropsWithChildren) {
 
   return (
     <html lang="en" className="transition-colors duration-300">
-      <body className="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
+      <body className="bg-white dark:bg-black text-black dark:text-white">
         {/* Corrected the ThemeProvider attribute */}
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
           <UserProvider>
             <div className="flex h-screen">
               {/* Sidebar */}
-              <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
+              <aside className="hidden md:block w-64 border-r bg-background dark:bg-black">
                 <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">CLICK SET GO</h1>
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">BEN MODE</h1>
                 </div>
                 <MainNav /> {/* Include MainNav */}
               </aside>

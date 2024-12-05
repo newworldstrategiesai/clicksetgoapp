@@ -1,20 +1,24 @@
-// components/NewCampaign.tsx
+"use client";
 
-'use client';
-
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/NewCampaign/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/NewCampaign/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/NewCampaign/select";
 import { Button } from "@/components/ui/NewCampaign/button";
+import { createClient } from '@supabase/supabase-js';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
-import axios from 'axios';
-import { supabase } from "@/utils/supabaseClient";
+import moment from "moment-timezone";
+
+// Initialize Supabase client
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 interface NewCampaignProps {
   userId: string;
@@ -40,21 +44,9 @@ const timezones = [
   { value: 'Europe/London', label: 'London' },
   { value: 'Europe/Paris', label: 'Paris' },
   { value: 'Asia/Tokyo', label: 'Tokyo' },
-  { value: 'Australia/Sydney', label: 'Sydney' }
+  { value: 'Australia/Sydney', label: 'Sydney' },
+  { value: 'Asia/Kolkata', label: 'India' }
 ];
-
-interface TwilioNumber {
-  sid: string;
-  phoneNumber: string;
-}
-
-interface Voice {
-  voice_id: string;
-  name: string;
-  gender: string;
-  accent: string;
-  preview_url: string;
-}
 
 export function NewCampaign({ userId }: NewCampaignProps) {
   const { defaultCountry, setDefaultCountry } = useCountry();
@@ -71,67 +63,53 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmMedium: '',
     utmCampaign: '',
     schedule: '',
-    agent: '',
-    twilioNumber: '', // Added for Twilio number selection
-    voice: '', // Added for Voice selection if needed
+    agent: ''
   });
 
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
-  const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
-  const [voices, setVoices] = useState<Voice[]>([]); // State for voices
+
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch Lists
-        const listsResponse = await axios.post('/api/get-lists', { userId });
-        if (listsResponse.data.error) {
+        const listsResponse = await supabase
+          .from('lists')
+          .select('id, name')
+          .eq('user_id', userId);
+
+        if (listsResponse.error) {
           toast.error('Error fetching lists');
         } else {
-          setLists(listsResponse.data.lists || []);
+          setLists(listsResponse.data || []);
         }
 
         // Fetch Schedules
-        const schedulesResponse = await axios.post('/api/get-schedules', { userId });
-        if (schedulesResponse.data.error) {
+        const schedulesResponse = await supabase
+          .from('schedules')
+          .select('id, name')
+          .eq('user_id', userId);
+
+        if (schedulesResponse.error) {
           toast.error('Error fetching schedules');
         } else {
-          setSchedules(schedulesResponse.data.schedules || []);
+          setSchedules(schedulesResponse.data || []);
         }
 
         // Fetch Agents
-        const agentsResponse = await axios.post('/api/get-agents', { userId });
-        if (agentsResponse.data.error) {
+        const agentsResponse = await supabase
+          .from('agents')
+          .select('id, agent_name')
+          .eq('user_id', userId)
+
+        if (agentsResponse.error) {
           toast.error('Error fetching agents');
         } else {
-          setAgents(agentsResponse.data.agents || []);
+          setAgents(agentsResponse.data || []);
         }
-
-        // Fetch Twilio Numbers
-        const twilioResponse = await axios.post('/api/get-twilio-numbers', { userId });
-        if (twilioResponse.data.error) {
-          toast.error('Error fetching Twilio numbers');
-        } else {
-          setTwilioNumbers(twilioResponse.data.allNumbers || []);
-          if (twilioResponse.data.allNumbers.length > 0) {
-            setFormData(prev => ({ ...prev, twilioNumber: twilioResponse.data.allNumbers[0].phoneNumber }));
-          }
-        }
-
-        // Fetch Voices (if applicable)
-        const voicesResponse = await axios.post('/api/get-voices', { userId });
-        if (voicesResponse.data.error) {
-          toast.error('Error fetching voices');
-        } else {
-          setVoices(voicesResponse.data.voices || []);
-          if (voicesResponse.data.voices.length > 0) {
-            setFormData(prev => ({ ...prev, voice: voicesResponse.data.voices[0].voice_id }));
-          }
-        }
-
       } catch (error) {
         toast.error('Error fetching data');
       }
@@ -176,20 +154,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     }));
   };
 
-  const handleTwilioNumberChange = (value: string) => {
-    setFormData(prevData => ({
-      ...prevData,
-      twilioNumber: value
-    }));
-  };
-
-  const handleVoiceChange = (value: string) => {
-    setFormData(prevData => ({
-      ...prevData,
-      voice: value
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -209,15 +173,18 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       return;
     }
 
-    if (!formData.twilioNumber) {
-      toast.error('Please select a Twilio number');
-      return;
-    }
-
     // Optional: Add more validations as needed
 
     setIsSubmitting(true); // Start loading
 
+    const format1 = "YYYY-MM-DD HH:mm:ss"
+    
+    //Get the string portion of the selected date time, ignoring timezone
+    const selectedTimeString = moment(formData.startDate).format(format1);
+
+    // Calculate scheduled_at in UTC
+    const scheduledAtUTC = moment.tz(selectedTimeString, formData.timezone).utc().toISOString();
+    
     // Prepare data for insertion
     const insertData = {
       name: formData.name,
@@ -226,7 +193,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       end_date: formData.endDate.toISOString(),
       start_timezone: formData.timezone || null,
       end_timezone: formData.timezone || null, // Assuming end timezone is same as start
-      audience: formData.audience || null,
+      status: "Pending",
+      audience: formData.audience || null,    
       schedule: formData.schedule || null,
       agent: formData.agent || null,
       budget: formData.budget ? parseFloat(formData.budget) : null,
@@ -236,16 +204,14 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       utm_campaign: formData.utmCampaign || null,
       user_id: userId,
       country_code: defaultCountry.code,
-      twilio_number: formData.twilioNumber, // Assuming you have a column for Twilio number
-      voice: formData.voice || null, // If voice is needed
-      // Remove scheduled_at since it's calculated by the trigger
+      scheduled_at: scheduledAtUTC
     };
 
     // Debugging: Log the data being sent
     console.log('Inserting Campaign:', insertData);
 
     try {
-      const { data, error } = await supabase.from('campaigns').insert([insertData]);
+      const { error } = await supabase.from('campaigns').insert([insertData]);
 
       if (error) {
         toast.error(`Error saving campaign: ${error.message}`);
@@ -265,9 +231,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           utmMedium: '',
           utmCampaign: '',
           schedule: '',
-          agent: '',
-          twilioNumber: twilioNumbers.length > 0 ? twilioNumbers[0].phoneNumber : '',
-          voice: voices.length > 0 ? voices[0].voice_id : '',
+          agent: ''
         });
       }
     } catch (error) {
@@ -281,8 +245,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const selectedListName = lists.find(list => list.id === formData.audience)?.name || 'Select a list';
   const selectedScheduleName = schedules.find(schedule => schedule.id === formData.schedule)?.name || 'Select a schedule';
   const selectedAgentName = agents.find(agent => agent.id === formData.agent)?.agent_name || 'Select an agent';
-  const selectedTwilioNumber = twilioNumbers.find(number => number.phoneNumber === formData.twilioNumber)?.phoneNumber || 'Select a Twilio number';
-  const selectedVoiceName = voices.find(voice => voice.voice_id === formData.voice)?.name || 'Select a voice';
 
   const handleCountryChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedCountry = event.target.value;
@@ -303,8 +265,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6 text-center text-white">New Campaign</h1>
-      <form onSubmit={handleSubmit} className="space-y-6 bg-black shadow-md rounded-lg p-8">
+      <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">New Campaign</h1>
+      <form onSubmit={handleSubmit} className="space-y-6 dark:bg-black shadow-md rounded-lg p-8">
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -316,7 +278,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign name"
               value={formData.name}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -328,7 +290,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign description"
               value={formData.description}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -339,15 +301,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             <Label htmlFor="startDate">Start Date</Label>
             <DatePicker
               selected={formData.startDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  setFormData(prev => ({ ...prev, startDate: date }));
-                }
-              }}
+              onChange={(date) => setFormData(prev => ({ ...prev, startDate: date! }))}
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -355,15 +313,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             <Label htmlFor="endDate">End Date</Label>
             <DatePicker
               selected={formData.endDate}
-              onChange={(date: Date | null) => {
-                if (date) {
-                  setFormData(prev => ({ ...prev, endDate: date }));
-                }
-              }}
+              onChange={(date) => setFormData(prev => ({ ...prev, endDate: date! }))}
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -374,10 +328,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="timezone">Timezone</Label>
             <Select onValueChange={handleTimezoneChange} value={formData.timezone}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder="Select a timezone" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {timezones.map((tz) => (
                   <SelectItem key={tz.value} value={tz.value}>
                     {tz.label}
@@ -389,64 +343,15 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="audience">Audience</Label>
             <Select onValueChange={handleSelectChange} value={formData.audience}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedListName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {lists.map((list) => (
                   <SelectItem key={list.id} value={list.id}>
                     {list.name}
                   </SelectItem>
                 ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Twilio Number and Voice Selection */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="twilioNumber">From (Twilio Number)</Label>
-            <Select onValueChange={handleTwilioNumberChange} value={formData.twilioNumber}>
-              <SelectTrigger className="bg-gray-700 text-white">
-                <SelectValue placeholder={selectedTwilioNumber || 'Select a Twilio number'} />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white max-h-60 overflow-y-auto">
-                {twilioNumbers.length > 0 ? (
-                  twilioNumbers.map((number) => (
-                    <SelectItem key={number.sid} value={number.phoneNumber}>
-                      {number.phoneNumber}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="" disabled>
-                    No Twilio numbers available
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <Label htmlFor="voice">Voice</Label>
-            <Select
-              onValueChange={handleVoiceChange}
-              value={formData.voice}
-            >
-              <SelectTrigger className="bg-gray-700 text-white">
-                <SelectValue placeholder={selectedVoiceName || 'Select a voice'} />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
-                {voices.length > 0 ? (
-                  voices.map((voice) => (
-                    <SelectItem key={voice.voice_id} value={voice.voice_id}>
-                      {voice.name} ({voice.gender}, {voice.accent})
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value="" disabled>
-                    No voices available
-                  </SelectItem>
-                )}
               </SelectContent>
             </Select>
           </div>
@@ -464,7 +369,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter budget"
               value={formData.budget}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -477,7 +382,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter allocation"
               value={formData.allocation}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -493,7 +398,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Source"
               value={formData.utmSource}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -505,7 +410,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Medium"
               value={formData.utmMedium}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -521,7 +426,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Campaign"
               value={formData.utmCampaign}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div className="flex flex-col">
@@ -531,7 +436,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               onChange={handleCountryChange}
               name="countryCode"
               id="countryCode"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             >
               <option value="US">United States</option>
@@ -551,10 +456,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="schedule">Schedule</Label>
             <Select onValueChange={handleScheduleChange} value={formData.schedule}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {schedules.map((schedule) => (
                   <SelectItem key={schedule.id} value={schedule.id}>
                     {schedule.name}
@@ -566,10 +471,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="agent">Agent</Label>
             <Select onValueChange={handleAgentChange} value={formData.agent}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedAgentName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {agents.map((agent) => (
                   <SelectItem key={agent.id} value={agent.id}>
                     {agent.agent_name}
@@ -583,7 +488,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-600 dark:text-white hover:bg-blue-700 transition duration-200"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Creating Campaign...' : 'Create Campaign'}

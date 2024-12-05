@@ -65,7 +65,7 @@ const ListPage = ({ params }: ListPage ) => {
   }
 
   return (
-    <div className={`min-h-screen bg-black text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
+    <div className={`min-h-screen dark:bg-black dark:text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
       <h1 className="text-2xl font-bold mb-4">{list.name}</h1>
       <table className="min-w-full divide-y divide-gray-700">
         <thead>
@@ -78,7 +78,7 @@ const ListPage = ({ params }: ListPage ) => {
           {list.contacts && list.contacts.length > 0 ? (
             list.contacts.map((contact) => (
               <tr key={contact.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{contact.first_name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium dark:text-white">{contact.first_name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{contact.phone}</td>
               </tr>
             ))
@@ -90,7 +90,7 @@ const ListPage = ({ params }: ListPage ) => {
         </tbody>
       </table>
       <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+        className="mt-4 px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
         onClick={handleBackClick}
       >
         Back to Lists

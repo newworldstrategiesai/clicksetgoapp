@@ -37,7 +37,8 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       const { data: contacts, error: contactsError } = await supabase
         .from('contacts')
-        .select('*');
+        .select('*')
+        .eq("user_id", userId);
 
       if (contactsError) {
         console.error('Error fetching contacts from Supabase:', contactsError);
@@ -59,6 +60,14 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         return log;
       });
 
+      // Sort call logs in ascending order based on the startedAt date
+      callLogsData.sort((a: CallLog, b: CallLog) => {
+        const dateA = a.startedAt || a.createdAt;
+        const dateB = b.startedAt || b.createdAt;
+      
+        return moment(dateA).isBefore(moment(dateB)) ? 1 : -1;
+      });
+      
       setCallLogs(callLogsData);
     } catch (error) {
       console.error('Error fetching call logs:', error);
@@ -88,7 +97,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white pt-16 pb-16">
+    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white pt-16 pb-16">
       <div className="flex justify-between px-4 items-center mb-4">
         <h1 className="text-3xl font-semibold">Voicemail</h1>
         <button className="text-blue-500">Greeting</button>
@@ -114,12 +123,13 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
             </div>
             <div className="text-right">
               <p className="text-sm text-gray-400">
-                {moment(log.startedAt).format('MMM D, h:mm A')}
+                {moment(log.startedAt || log.createdAt).format('MMM D, h:mm A')}
               </p>
               <p className="text-sm text-gray-400">
-                {moment
-                  .utc(moment(log.endedAt).diff(moment(log.startedAt)))
-                  .format('mm:ss')}
+                {log.startedAt && log.endedAt ? (
+                  moment
+                    .utc(moment(log.endedAt).diff(moment(log.startedAt))).format('mm:ss')) : ("N/A")
+                }
               </p>
             </div>
           </li>
@@ -128,23 +138,23 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       <button
         onClick={loadMoreLogs}
-        className={`mt-4 mx-auto px-4 py-2 text-white rounded-lg ${loading ? 'bg-blue-100': 'bg-blue-500'}`}
+        className={`mt-4 mx-auto px-4 py-2 dark:text-white rounded-lg ${loading ? 'bg-blue-100': 'bg-blue-500'}`}
         disabled={loading}
       >
         Load More
       </button>
 
       {isModalOpen && selectedLog && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+  <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-70 z-50">
     <div className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
-      <h2 className="text-3xl font-semibold mb-6 text-white">Call Details</h2>
+      <h2 className="text-3xl font-semibold mb-6 dark:text-white">Call Details</h2>
 
       {selectedLog.fullName && (
         <p className="text-lg mb-4 text-gray-200">
           <strong className="text-gray-400">Full Name:</strong>
           <Link
-            href={`/user-call-logs/${selectedLog.customer?.number || ''}`}
-            legacyBehavior
+              href={`/user-call-logs/${selectedLog.customer?.number || ''}?user=${userId}`}
+              legacyBehavior
           >
             <a className="text-blue-400 hover:text-blue-500 underline ml-2 cursor-pointer">
               {selectedLog.fullName}
@@ -172,19 +182,21 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Started At:</strong>{' '}
-        {moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A')}
+        {selectedLog.startedAt ? moment(selectedLog.startedAt).format('MM/DD/YY hh:mm A') : 'Not connected'}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Ended At:</strong>{' '}
-        {moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A')}
+        {selectedLog.endedAt ? moment(selectedLog.endedAt).format('MM/DD/YY hh:mm A') : 'Not connected'}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
         <strong className="text-gray-400">Duration:</strong>{' '}
-        {moment
-          .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
-          .format('HH:mm:ss')}
+        {selectedLog.startedAt && selectedLog.endedAt ? (
+          moment
+            .utc(moment(selectedLog.endedAt).diff(moment(selectedLog.startedAt)))
+            .format('HH:mm:ss')
+        ) : ("N/A")}
       </p>
 
       <p className="text-lg mb-4 text-gray-200">
@@ -207,7 +219,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       <button
         onClick={closeModal}
-        className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
+        className="mt-4 px-6 py-2 bg-red-600 dark:text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
       >
         Close
       </button>
@@ -215,9 +227,8 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   </div>
 )}
 
-
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-700 flex justify-around py-4 text-white">
+      <div className="fixed bottom-0 w-full dark:bg-black border-t border-gray-700 flex justify-around py-4 dark:text-white">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />

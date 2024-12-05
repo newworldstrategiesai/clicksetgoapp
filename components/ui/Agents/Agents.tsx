@@ -46,30 +46,30 @@ const Agents = () => {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-semibold mb-4 text-white">Agents</h1>
+      <h1 className="text-2xl font-semibold mb-4 dark:text-white">Agents</h1>
       {loading ? (
         <p className="text-white">Loading...</p>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : (
-        <table className="min-w-full bg-black border border-gray-700">
+        <table className="min-w-full dark:bg-black border border-gray-700">
           <thead className="bg-gray-700">
             <tr>
-              <th className="py-2 px-4 border-b border-gray-600 text-white">Name</th>
-              <th className="py-2 px-4 border-b border-gray-600 text-white">Description</th>
-              <th className="py-2 px-4 border-b border-gray-600 text-white">Type</th>
-              <th className="py-2 px-4 border-b border-gray-600 text-white">Date</th>
-              <th className="py-2 px-4 border-b border-gray-600 text-white">Agent ID</th>
+              <th className="py-2 px-4 border-b border-gray-600 dark:text-white">Name</th>
+              <th className="py-2 px-4 border-b border-gray-600 dark:text-white">Description</th>
+              <th className="py-2 px-4 border-b border-gray-600 dark:text-white">Type</th>
+              <th className="py-2 px-4 border-b border-gray-600 dark:text-white">Date</th>
+              <th className="py-2 px-4 border-b border-gray-600 dark:text-white">Agent ID</th>
             </tr>
           </thead>
           <tbody>
             {assistants.map((assistant) => (
               <tr key={assistant.id} className="hover:bg-gray-800 cursor-pointer" onClick={() => openModal(assistant)}>
-                <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.name}</td>
-                <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.description}</td>
-                <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.type}</td>
-                <td className="py-2 px-4 border-b border-gray-600 text-white">{new Date(assistant.createdAt).toLocaleDateString()}</td>
-                <td className="py-2 px-4 border-b border-gray-600 text-white">{assistant.id}</td>
+                <td className="py-2 px-4 border-b border-gray-600 dark:text-white">{assistant.name}</td>
+                <td className="py-2 px-4 border-b border-gray-600 dark:text-white">{assistant.description}</td>
+                <td className="py-2 px-4 border-b border-gray-600 dark:text-white">{assistant.type}</td>
+                <td className="py-2 px-4 border-b border-gray-600 dark:text-white">{new Date(assistant.createdAt).toLocaleDateString()}</td>
+                <td className="py-2 px-4 border-b border-gray-600 dark:text-white">{assistant.id}</td>
               </tr>
             ))}
           </tbody>

@@ -93,9 +93,9 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-90 z-50 px-4">
+    <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-90 z-50 px-4">
       <div className="bg-gray-800 p-6 rounded-lg w-full max-w-lg md:w-1/2 h-auto shadow-lg transition-transform transform">
-        <h2 className="text-2xl font-bold text-white mb-6 text-center">
+        <h2 className="text-2xl font-bold dark:text-white mb-6 text-center">
           {modalMode === 'existing' ? `Calling ${contactName}` : 'New Contact'}
         </h2>
 
@@ -106,7 +106,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
             type="text"
             value={newFirstName}
             onChange={(e) => setNewFirstName(e.target.value)}
-            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
             required
             aria-label="First Name"
           />
@@ -121,7 +121,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
             type="text"
             value={newLastName}
             onChange={(e) => setNewLastName(e.target.value)}
-            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
             aria-label="Last Name"
           />
         </div>
@@ -129,7 +129,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
         {/* Phone Number Display */}
         <div className="mb-4">
           <label className="block mb-1 text-gray-400">Phone Number</label>
-          <div className="w-full p-3 bg-gray-600 rounded-lg border border-gray-500 text-white">
+          <div className="w-full p-3 bg-gray-600 rounded-lg border border-gray-500 dark:text-white">
             {input || 'Enter Number'}
           </div>
         </div>
@@ -143,7 +143,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
             type="text"
             value={callReason}
             onChange={(e) => setCallReason(e.target.value)}
-            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
             required
             aria-label="Reason for Calling"
           />
@@ -158,7 +158,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
             type="text"
             value={firstMessage}
             onChange={(e) => setFirstMessage(e.target.value)}
-            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+            className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
             placeholder="Enter your first message"
             aria-label="First Message"
           />
@@ -201,7 +201,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
                 type="text"
                 value={agentName}
                 onChange={(e) => setAgentName(e.target.value)}
-                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
                 aria-label="Agent Name"
               />
             </div>
@@ -213,7 +213,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
                 type="text"
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
                 aria-label="Role"
               />
             </div>
@@ -227,7 +227,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
                 type="text"
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
                 aria-label="Company Name"
               />
             </div>
@@ -238,7 +238,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
               <textarea
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
-                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 text-white"
+                className="w-full p-3 bg-gray-700 rounded-lg border border-gray-600 focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="Enter your prompt"
                 rows={3}
                 aria-label="Prompt"
@@ -251,7 +251,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
         <div className="flex justify-between space-x-4">
           <button
             onClick={handleModalSubmit}
-            className={`w-full p-3 rounded-lg text-white transition-colors ${
+            className={`w-full p-3 rounded-lg dark:text-white transition-colors ${
               loading ? 'bg-gray-600' : 'bg-blue-600 hover:bg-blue-500'
             }`}
             disabled={loading}
@@ -261,7 +261,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
           </button>
           <button
             onClick={onClose}
-            className="w-full p-3 bg-gray-700 rounded-lg text-white hover:bg-gray-600 transition-colors"
+            className="w-full p-3 bg-gray-700 rounded-lg dark:text-white hover:bg-gray-600 transition-colors"
             aria-label="Cancel Call"
           >
             Cancel

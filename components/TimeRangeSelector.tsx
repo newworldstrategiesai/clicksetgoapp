@@ -14,7 +14,7 @@ const TimeRangeSelector: React.FC<Props> = ({ selectedRange, onSelectRange }) =>
       {['today', 'week', 'month', 'year'].map((range) => (
         <button
           key={range}
-          className={`px-4 py-2 border rounded ${selectedRange === range ? 'bg-blue-500 text-white' : 'bg-white text-black'}`}
+          className={`px-4 py-2 border rounded ${selectedRange === range ? 'bg-blue-500 dark:text-white' : 'bg-white text-black'}`}
           onClick={() => onSelectRange(range as TimeRange)}
         >
           {range.charAt(0).toUpperCase() + range.slice(1)}

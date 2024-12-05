@@ -115,10 +115,10 @@ const UploadContacts: React.FC<UploadContactsProps> = ({user}) => {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center">
+    <div className="min-h-screen dark:bg-black dark:text-white flex flex-col items-center justify-center">
       <button
           onClick={handleGoBack}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg ml-4 mb-4 self-start"
+          className="px-4 py-2 bg-gray-600 dark:text-white rounded-lg ml-4 mb-4 self-start"
         >
           ← Back
         </button>
@@ -139,7 +139,7 @@ const UploadContacts: React.FC<UploadContactsProps> = ({user}) => {
         />
         {contacts.length > 0 && (
           <>
-            <button onClick={handleFileUpload} className="px-6 py-3 bg-blue-600 text-white rounded-lg mb-8">
+            <button onClick={handleFileUpload} className="px-6 py-3 bg-blue-600 dark:text-white rounded-lg mb-8">
               {uploading ? <ClipLoader color={"#ffffff"} loading={uploading} size={20} /> : 'Upload'}
             </button>
             {success && <p className="text-green-500">Upload successful!</p>}
@@ -167,7 +167,7 @@ const UploadContacts: React.FC<UploadContactsProps> = ({user}) => {
           </>
         )}
         {!contacts.length && (
-          <button disabled className="px-6 py-3 bg-gray-600 text-white rounded-lg mb-8">
+          <button disabled className="px-6 py-3 bg-gray-600 dark:text-white rounded-lg mb-8">
             Import Contacts
           </button>
         )}

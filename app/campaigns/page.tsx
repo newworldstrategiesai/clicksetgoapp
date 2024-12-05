@@ -17,6 +17,7 @@ export default async function CampaignsPage() {
             return redirect('/signin'); // Redirect to signin if no user
         }
 
+        // Fetch API keys and campaign data with sorting by `updated_at` descending
         const { data, error } = await supabase
             .from('api_keys' as any)  // Cast as 'any' to bypass type checking
             .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key')
@@ -34,16 +35,16 @@ export default async function CampaignsPage() {
         const vapiKey = data.vapi_key;
 
         return (
-            <section className="mb-32 bg-black min-h-screen">
+            <section className="mb-32 dark:bg-blackmin-h-screen">
                 <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
                     <div className="sm:align-center sm:flex sm:flex-col">
-                        <h1 className="text-4xl font-extrabold text-white sm:text-center sm:text-6xl">
+                        <h1 className="text-4xl font-extrabold dark:text-white sm:text-center sm:text-6xl">
                             Campaigns
                         </h1>
                     </div>
                 </div>
                 <div className="p-4">
-                    <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey} /> {/* Pass userId to CampaignTable */}
+                <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
                 </div>
             </section>
         );

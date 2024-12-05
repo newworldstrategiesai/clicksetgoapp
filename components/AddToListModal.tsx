@@ -93,10 +93,10 @@ const AddToListModal: React.FC<AddToListModalProps> = ({ isOpen, onClose, onAddT
       </select>
 
       <div className="flex justify-between">
-        <button onClick={onClose} className="px-4 py-2 bg-gray-600 text-white rounded-lg">
+        <button onClick={onClose} className="px-4 py-2 bg-gray-600 dark:text-white rounded-lg">
           Cancel
         </button>
-        <button onClick={handleSave} className="px-4 py-2 bg-green-600 text-white rounded-lg">
+        <button onClick={handleSave} className="px-4 py-2 bg-green-600 dark:text-white rounded-lg">
           Save
         </button>
       </div>
