@@ -95,7 +95,7 @@ const RecentCalls: React.FC<RecentCallsProps> = ({ userId, vapiKey }) => {
           <li
             key={index}
             onClick={() => openModal(log)}
-            className="flex justify-between items-center p-3 bg-gray-800 rounded hover:bg-gray-700 cursor-pointer transition-colors duration-200"
+            className="flex justify-between items-center p-3 dark:bg-gray-800 rounded hover:bg-gray-100 cursor-pointer transition-colors duration-200"
           >
             <div>
               <p className="text-lg dark:text-white">{log.fullName || log.customer?.number || 'Unknown'}</p>

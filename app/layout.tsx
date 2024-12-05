@@ -47,7 +47,16 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/lists',
     '/sms-logs',
     '/tasks',
+    '/signin',
+    '/signin/password_signin',
+    '/dashboard/overview',
   ];
+
+  // Define routes where MainNav should be hidden
+  const hideNavRoutes = ['/signin', '/signin/password_signin'];
+
+  // Define routes where MobileNav should be hidden
+  const hideMobileNavRoutes = ['/signin', '/signin/password_signin', '/dialer'];
 
   return (
     <html lang="en" className="transition-colors duration-300">
@@ -57,16 +66,23 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <UserProvider>
             <div className="flex h-screen">
               {/* Sidebar */}
-              <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
-                <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">CLICK SET GO</h1>
-                </div>
-                <MainNav /> {/* Include MainNav */}
-              </aside>
+              {!hideNavRoutes.includes(pathname || '') && (
+                <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
+                  <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
+                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
+                      CLICK SET GO
+                    </h1>
+                  </div>
+                  <MainNav /> {/* Include MainNav */}
+                </aside>
+              )}
 
               {/* Main content area */}
               <div className="flex-1 flex flex-col">
-                <Navbar />
+                {/* Navbar (hidden on mobile devices) */}
+                <div className="hidden md:block">
+                  <Navbar />
+                </div>
                 <main
                   id="skip"
                   className="min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] mt-3"
@@ -79,7 +95,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           </UserProvider>
 
           {/* Mobile Navigation */}
-          <MobileNav />
+          {!hideMobileNavRoutes.includes(pathname || '') && <MobileNav />}
 
           {/* Toast Notifications */}
           <Suspense fallback={null}>
