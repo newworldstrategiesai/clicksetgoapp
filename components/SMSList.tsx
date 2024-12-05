@@ -64,21 +64,21 @@ const SMSList: React.FC<SMSListProps> = ({ logs, onRowClick, currentPage, logsPe
         <ul className="pagination flex space-x-2">
           {startPage > 1 && (
             <li className="page-item">
-              <button onClick={() => paginate(1)} className="page-link py-2 px-4 bg-transparent text-white border border-white hover:bg-gray-300">
+              <button onClick={() => paginate(1)} className="page-link py-2 px-4 bg-transparent dark:text-white border border-white hover:bg-gray-300">
                 1
               </button>
             </li>
           )}
           {visiblePageNumbers.map(number => (
             <li key={number} className="page-item">
-              <button onClick={() => paginate(number)} className={`page-link py-2 px-4 ${currentPage === number ? 'bg-blue-500 text-white' : 'bg-transparent text-white'} border border-white hover:bg-gray-300`}>
+              <button onClick={() => paginate(number)} className={`page-link py-2 px-4 ${currentPage === number ? 'bg-blue-500 dark:text-white' : 'bg-transparent dark:text-white'} border border-white hover:bg-gray-300`}>
                 {number}
               </button>
             </li>
           ))}
           {endPage < pageNumbers.length && (
             <li className="page-item">
-              <button onClick={() => paginate(pageNumbers.length)} className="page-link py-2 px-4 bg-transparent text-white border border-white hover:bg-gray-300">
+              <button onClick={() => paginate(pageNumbers.length)} className="page-link py-2 px-4 bg-transparent dark:text-white border border-white hover:bg-gray-300">
                 Last Page
               </button>
             </li>

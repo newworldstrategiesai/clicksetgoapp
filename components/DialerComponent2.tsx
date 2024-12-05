@@ -197,11 +197,11 @@ const DialerComponent = ({ userId, apiKey }: { userId: string, apiKey: string })
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white">
       <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={true} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
 
       <div className="flex flex-col items-center justify-center w-full pt-16">
-        <div className="text-4xl text-white mb-8">{input || ''}</div>
+        <div className="text-4xl dark:text-white mb-8">{input || ''}</div>
         <div className="grid grid-cols-3 gap-4">
           {buttons.map((button) => (
             <button
@@ -230,7 +230,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string, apiKey: string })
       </div>
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-700 flex justify-around py-4 text-white">
+      <div className="fixed bottom-0 w-full dark:bg-black border-t border-gray-700 flex justify-around py-4 dark:text-white">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />

@@ -265,8 +265,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6 text-center text-white">New Campaign</h1>
-      <form onSubmit={handleSubmit} className="space-y-6 bg-black shadow-md rounded-lg p-8">
+      <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">New Campaign</h1>
+      <form onSubmit={handleSubmit} className="space-y-6 dark:bg-black shadow-md rounded-lg p-8">
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -278,7 +278,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign name"
               value={formData.name}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -290,7 +290,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign description"
               value={formData.description}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -305,7 +305,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -317,7 +317,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -328,10 +328,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="timezone">Timezone</Label>
             <Select onValueChange={handleTimezoneChange} value={formData.timezone}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder="Select a timezone" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {timezones.map((tz) => (
                   <SelectItem key={tz.value} value={tz.value}>
                     {tz.label}
@@ -343,10 +343,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="audience">Audience</Label>
             <Select onValueChange={handleSelectChange} value={formData.audience}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedListName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {lists.map((list) => (
                   <SelectItem key={list.id} value={list.id}>
                     {list.name}
@@ -369,7 +369,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter budget"
               value={formData.budget}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -382,7 +382,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter allocation"
               value={formData.allocation}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -398,7 +398,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Source"
               value={formData.utmSource}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div>
@@ -410,7 +410,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Medium"
               value={formData.utmMedium}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
         </div>
@@ -426,7 +426,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Campaign"
               value={formData.utmCampaign}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
             />
           </div>
           <div className="flex flex-col">
@@ -436,7 +436,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               onChange={handleCountryChange}
               name="countryCode"
               id="countryCode"
-              className="border rounded-lg p-2 w-full bg-gray-700 text-white"
+              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             >
               <option value="US">United States</option>
@@ -456,10 +456,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="schedule">Schedule</Label>
             <Select onValueChange={handleScheduleChange} value={formData.schedule}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {schedules.map((schedule) => (
                   <SelectItem key={schedule.id} value={schedule.id}>
                     {schedule.name}
@@ -471,10 +471,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="agent">Agent</Label>
             <Select onValueChange={handleAgentChange} value={formData.agent}>
-              <SelectTrigger className="bg-gray-700 text-white">
+              <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedAgentName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 text-white">
+              <SelectContent className="bg-gray-700 dark:text-white">
                 {agents.map((agent) => (
                   <SelectItem key={agent.id} value={agent.id}>
                     {agent.agent_name}
@@ -488,7 +488,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-600 dark:text-white hover:bg-blue-700 transition duration-200"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Creating Campaign...' : 'Create Campaign'}

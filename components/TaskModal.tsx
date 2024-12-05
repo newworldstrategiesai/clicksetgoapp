@@ -76,8 +76,8 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
   };
 
   return (
-    <div className={classNames("fixed inset-0 flex items-center justify-center bg-black bg-opacity-80", className)}>
-      <div className="bg-black text-white p-6 rounded-md shadow-md w-full max-w-md">
+    <div className={classNames("fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-80", className)}>
+      <div className="bg-black dark:text-white p-6 rounded-md shadow-md w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">Edit Task</h2>
 
         {/* Form Fields */}
@@ -88,7 +88,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
             value={callStatus}
             onChange={(e) => setCallStatus(e.target.value)}
             placeholder="Enter call status"
-            className="w-full p-2 border rounded bg-gray-800 text-white"
+            className="w-full p-2 border rounded bg-gray-800 dark:text-white"
           />
         </div>
 
@@ -99,7 +99,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
             value={callSubject}
             onChange={(e) => setCallSubject(e.target.value)}
             placeholder="Enter call subject"
-            className="w-full p-2 border rounded bg-gray-800 text-white"
+            className="w-full p-2 border rounded bg-gray-800 dark:text-white"
           />
         </div>
 
@@ -110,7 +110,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
             value={scheduledAt}
             onChange={(e) => setScheduledAt(e.target.value)}
             placeholder="Select date and time"
-            className="w-full p-2 border rounded bg-gray-800 text-white"
+            className="w-full p-2 border rounded bg-gray-800 dark:text-white"
           />
         </div>
 
@@ -119,7 +119,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
           <select
             value={priority}
             onChange={(e) => setPriority(e.target.value)}
-            className="w-full p-2 border rounded bg-gray-800 text-white"
+            className="w-full p-2 border rounded bg-gray-800 dark:text-white"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -133,7 +133,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
             value={firstMessage}
             onChange={(e) => setFirstMessage(e.target.value)}
             placeholder="Enter first message"
-            className="w-full p-2 border rounded bg-gray-800 text-white"
+            className="w-full p-2 border rounded bg-gray-800 dark:text-white"
             rows={3}
           />
         </div>
@@ -142,12 +142,12 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
 
         {/* Action Buttons */}
         <div className="flex justify-end space-x-4">
-          <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded">
+          <button onClick={onClose} className="px-4 py-2 bg-gray-500 dark:text-white rounded">
             Close
           </button>
           <button
             onClick={handleSave}
-            className={`px-4 py-2 ${isSaving ? "bg-gray-500" : "bg-blue-500"} text-white rounded`}
+            className={`px-4 py-2 ${isSaving ? "bg-gray-500" : "bg-blue-500"} dark:text-white rounded`}
             disabled={isSaving}
           >
             {isSaving ? "Saving..." : "Save"}

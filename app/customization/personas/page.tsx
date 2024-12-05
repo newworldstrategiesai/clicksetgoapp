@@ -94,7 +94,7 @@ export default function PersonasPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">All Personas</h1>
       <div className="space-y-4">
         {personas.map((persona) => (
@@ -112,7 +112,7 @@ export default function PersonasPage() {
       </div>
 
       {isModalOpen && selectedPersona && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75">
+        <div className="fixed inset-0 z-50 flex items-center justify-center dark:bg-black bg-opacity-75">
           <div className="bg-gray-800 p-6 rounded-md max-w-3xl w-full max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4">Edit Persona</h2>
             <div className="space-y-4">
@@ -124,7 +124,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, agent_name: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 />
               </div>
 
@@ -136,7 +136,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, company_name: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 />
               </div>
 
@@ -146,7 +146,7 @@ export default function PersonasPage() {
                   type="text"
                   value={selectedPersona.role}
                   onChange={(e) => setSelectedPersona({ ...selectedPersona, role: e.target.value })}
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 />
               </div>
 
@@ -160,7 +160,7 @@ export default function PersonasPage() {
                       company_description: e.target.value,
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 />
               </div>
 
@@ -171,7 +171,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, default_timezone: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 >
                   <option value="GMT">GMT</option>
                   <option value="EST">EST</option>
@@ -187,7 +187,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, tone_of_voice: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 >
                   <option>Friendly</option>
                   <option>Professional</option>
@@ -217,7 +217,7 @@ export default function PersonasPage() {
       emoji_limit: parseFloat(e.target.value) // Convert to number
     })
   }
-  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
 />
 
               </div>
@@ -229,7 +229,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, message_length: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 >
                   <option>Normal</option>
                   <option>Short</option>
@@ -244,7 +244,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, multistep_instructions: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
                 >
                   <option>Send multiple steps</option>
                   <option>Send all at once</option>
@@ -284,10 +284,10 @@ export default function PersonasPage() {
             </div>
 
             <div className="mt-6 flex justify-end space-x-4">
-              <button onClick={closeModal} className="bg-gray-600 text-white py-2 px-4 rounded-md">
+              <button onClick={closeModal} className="bg-gray-600 dark:text-white py-2 px-4 rounded-md">
                 Cancel
               </button>
-              <button onClick={handleSave} className="bg-blue-600 text-white py-2 px-4 rounded-md">
+              <button onClick={handleSave} className="bg-blue-600 dark:text-white py-2 px-4 rounded-md">
                 Save
               </button>
             </div>

@@ -124,8 +124,8 @@ const OutboundCallModal: React.FC<OutboundCallModalProps> = ({ agentName, agentI
       />
       {error && <p className="text-red-500 mt-2">{error}</p>}
       <div className="mt-4 flex justify-end space-x-2">
-        <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded-lg">Cancel</button>
-        <button onClick={handleCall} className="px-4 py-2 bg-blue-500 text-white rounded-lg" disabled={loading}>
+        <button onClick={onClose} className="px-4 py-2 bg-gray-500 dark:text-white rounded-lg">Cancel</button>
+        <button onClick={handleCall} className="px-4 py-2 bg-blue-500 dark:text-white rounded-lg" disabled={loading}>
           {loading ? 'Calling...' : 'Call Now'}
         </button>
       </div>

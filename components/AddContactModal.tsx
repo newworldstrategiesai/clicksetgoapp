@@ -76,9 +76,9 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
+    <div className="fixed inset-0 dark:bg-black bg-opacity-75 flex items-center justify-center z-50">
       <div className="bg-gray-800 p-8 rounded-xl shadow-2xl max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-white text-center">Add New Contact</h2>
+        <h2 className="text-2xl font-bold mb-6 dark:text-white text-center">Add New Contact</h2>
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -93,7 +93,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
                 type="text"
                 value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 required
               />
             </div>
@@ -103,7 +103,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
                 type="text"
                 value={lastName}
                 onChange={(e) => setLastName(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 required
               />
             </div>
@@ -114,7 +114,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
               type="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+              className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
               required
             />
           </div>
@@ -124,7 +124,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+              className="w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-700 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
             />
           </div>
           {error && <div className="text-red-500 text-sm">{error}</div>}
@@ -132,13 +132,13 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200"
+              className="px-4 py-2 bg-gray-600 dark:text-white rounded-md hover:bg-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200"
+              className="px-4 py-2 bg-blue-600 dark:text-white rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 transition duration-200"
             >
               Add Contact
             </button>

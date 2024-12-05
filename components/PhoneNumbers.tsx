@@ -125,7 +125,7 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioSid, twilioAu
                   <Button
                     onClick={() => handleDelete(number.sid)}
                     disabled={isDeleting[number.sid]}
-                    className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
+                    className={`px-4 py-2 bg-red-500 dark:text-white rounded hover:bg-red-600 ${
                       isDeleting[number.sid] ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                   >

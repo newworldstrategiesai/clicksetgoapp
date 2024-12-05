@@ -8,6 +8,7 @@ import {
   QuestionMarkCircledIcon,
   StopwatchIcon,
 } from "@radix-ui/react-icons"
+import { CalendarIcon, ListRestartIcon } from "lucide-react";
 
 export const labels = [
   {
@@ -26,31 +27,37 @@ export const labels = [
 
 export const statuses = [
   {
-    value: "backlog",
-    label: "Backlog",
-    icon: QuestionMarkCircledIcon,
+    value: "Active",
+    label: "Active",
+    icon: StopwatchIcon, // Representing ongoing or current
   },
   {
-    value: "todo",
-    label: "Todo",
-    icon: CircleIcon,
+    value: "Aborted",
+    label: "Aborted",
+    icon: CrossCircledIcon, // Representing a failed or terminated status
   },
   {
-    value: "in progress",
-    label: "In Progress",
-    icon: StopwatchIcon,
+    value: "Completed",
+    label: "Completed",
+    icon: CheckCircledIcon, // Representing a finished status
   },
   {
-    value: "done",
-    label: "Done",
-    icon: CheckCircledIcon,
+    value: "Pending",
+    label: "Pending",
+    icon: CircleIcon, // Representing something awaiting action
   },
   {
-    value: "canceled",
-    label: "Canceled",
-    icon: CrossCircledIcon,
+    value: "Scheduled",
+    label: "Scheduled",
+    icon: CalendarIcon, // Representing a planned action (you might need to add this icon)
   },
-]
+  {
+    value: "Resumed",
+    label: "Resumed",
+    icon: ListRestartIcon, // Representing something restarted (you might need to add this icon)
+  },
+];
+
 
 export const priorities = [
   {

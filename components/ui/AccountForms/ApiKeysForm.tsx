@@ -102,7 +102,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
       />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="twilioSid" className="block text-sm font-medium text-white">
+          <label htmlFor="twilioSid" className="block text-sm font-medium dark:text-white">
             Twilio Account SID
           </label>
           <input
@@ -111,12 +111,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="twilioSid"
             value={formValues.twilioSid}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
             required
           />
         </div>
         <div>
-          <label htmlFor="twilioAuthToken" className="block text-sm font-medium text-white">
+          <label htmlFor="twilioAuthToken" className="block text-sm font-medium dark:text-white">
             Twilio Auth Token
           </label>
           <input
@@ -125,12 +125,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="twilioAuthToken"
             value={formValues.twilioAuthToken}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
             required
           />
         </div>
         <div>
-          <label htmlFor="elevenLabsKey" className="block text-sm font-medium text-white">
+          <label htmlFor="elevenLabsKey" className="block text-sm font-medium dark:text-white">
             ElevenLabs API Key
           </label>
           <input
@@ -139,12 +139,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="elevenLabsKey"
             value={formValues.elevenLabsKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
             required
           />
         </div>
         <div>
-          <label htmlFor="vapiKey" className="block text-sm font-medium text-white">
+          <label htmlFor="vapiKey" className="block text-sm font-medium dark:text-white">
             VAPI Key
           </label>
           <input
@@ -153,12 +153,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="vapiKey"
             value={formValues.vapiKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
             required
           />
         </div>
         <div>
-          <label htmlFor="openAiApiKey" className="block text-sm font-medium text-white">
+          <label htmlFor="openAiApiKey" className="block text-sm font-medium dark:text-white">
             OpenAI API Key
           </label>
           <input
@@ -167,7 +167,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="openAiApiKey"
             value={formValues.openAiApiKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
             required
           />
         </div>

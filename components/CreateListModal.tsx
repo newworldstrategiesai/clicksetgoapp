@@ -126,7 +126,7 @@ const CreateListModal: React.FC<CreateListModalProps> = ({
           </label>
           <button
             onClick={handleCreateList}
-            className="px-4 py-2 bg-green-600 text-white rounded-lg"
+            className="px-4 py-2 bg-green-600 dark:text-white rounded-lg"
             disabled={loading}
           >
             {loading ? 'Creating...' : 'Create List'}

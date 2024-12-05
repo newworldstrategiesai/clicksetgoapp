@@ -91,11 +91,11 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* Inbound Calls Section */}
         <div>
-          <h3 className="text-lg font-medium text-white">Inbound Calls</h3>
+          <h3 className="text-lg font-medium dark:text-white">Inbound Calls</h3>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Email Notifications for Inbound Calls */}
             <div className="flex items-center justify-between">
-              <label htmlFor="emailInboundCalls" className="text-sm text-white">
+              <label htmlFor="emailInboundCalls" className="text-sm dark:text-white">
                 Email notifications for inbound calls
               </label>
               <Switch
@@ -114,7 +114,7 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
             </div>
             {/* SMS Notifications for Inbound Calls */}
             <div className="flex items-center justify-between">
-              <label htmlFor="smsInboundCalls" className="text-sm text-white">
+              <label htmlFor="smsInboundCalls" className="text-sm dark:text-white">
                 SMS notifications for inbound calls
               </label>
               <Switch
@@ -136,11 +136,11 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
 
         {/* Outbound Calls Section */}
         <div>
-          <h3 className="text-lg font-medium text-white">Outbound Calls</h3>
+          <h3 className="text-lg font-medium dark:text-white">Outbound Calls</h3>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Email Notifications for Outbound Call Completions */}
             <div className="flex items-center justify-between">
-              <label htmlFor="emailOutboundCallCompletion" className="text-sm text-white">
+              <label htmlFor="emailOutboundCallCompletion" className="text-sm dark:text-white">
                 Email notifications for outbound call completions
               </label>
               <Switch
@@ -159,7 +159,7 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
             </div>
             {/* SMS Notifications for Outbound Calls */}
             <div className="flex items-center justify-between">
-              <label htmlFor="smsOutboundCalls" className="text-sm text-white">
+              <label htmlFor="smsOutboundCalls" className="text-sm dark:text-white">
                 SMS notifications for outbound calls
               </label>
               <Switch
@@ -181,11 +181,11 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
 
         {/* Campaign Notifications Section */}
         <div>
-          <h3 className="text-lg font-medium text-white">Campaign Notifications</h3>
+          <h3 className="text-lg font-medium dark:text-white">Campaign Notifications</h3>
           <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Email Summaries for Campaigns */}
             <div className="flex items-center justify-between">
-              <label htmlFor="campaignEmailSummary" className="text-sm text-white">
+              <label htmlFor="campaignEmailSummary" className="text-sm dark:text-white">
                 Email summaries for campaigns
               </label>
               <Switch
@@ -204,7 +204,7 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
             </div>
             {/* SMS Initiation for Campaigns */}
             <div className="flex items-center justify-between">
-              <label htmlFor="campaignSmsInitiation" className="text-sm text-white">
+              <label htmlFor="campaignSmsInitiation" className="text-sm dark:text-white">
                 SMS initiation for campaigns
               </label>
               <Switch

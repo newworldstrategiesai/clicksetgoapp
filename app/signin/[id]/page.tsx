@@ -73,7 +73,7 @@ export default async function SignIn({
               inbox to confirm your account.
             </p>
             <button
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              className="mt-4 px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
               onClick={() => redirect('/signin')}
             >
               Go to login

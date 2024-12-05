@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Home } from "@/components/HomeSidebar";
+
 
 interface OverViewClientProps {
   userId: string;
@@ -28,8 +28,7 @@ const OverViewClient: React.FC<OverViewClientProps> = ({ userId, vapiKey }) => {
   return (
     <div className="flex h-screen">
       {/* Sidebar Component */}
-      <Home userId={userId} fullName="Your Full Name" />
-
+      
       {/* Main Content Area */}
       <div className="flex-1 pt-16">
         <PageContainer scrollable>

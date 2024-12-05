@@ -19,8 +19,8 @@ export function ImportWebsiteModal({ isOpen, onClose, onSubmit }: ModalProps) {
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75">
-      <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg w-full max-w-md">
+    <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-75">
+      <div className="bg-gray-800 dark:text-white p-6 rounded-lg shadow-lg w-full max-w-md">
         <h2 className="text-xl font-bold mb-4">Import website</h2>
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-300">Source name</label>
@@ -29,7 +29,7 @@ export function ImportWebsiteModal({ isOpen, onClose, onSubmit }: ModalProps) {
             placeholder="Enter website URL"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            className="mt-1 bg-gray-700 border-gray-600 text-white w-full"
+            className="mt-1 bg-gray-700 border-gray-600 dark:text-white w-full"
           />
         </div>
         <div className="flex justify-end space-x-2">

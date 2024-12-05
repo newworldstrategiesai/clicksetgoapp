@@ -230,14 +230,14 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
 
   if (isLoading) {
     return (
-      <div className="text-center mt-10 text-white">
+      <div className="text-center mt-10 dark:text-white">
         Loading Company Settings...
       </div>
     );
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white">
       <ToastContainer />
 
       {/* Company Information Form */}
@@ -258,7 +258,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_name}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="Your Company Name"
             />
           </div>
@@ -274,7 +274,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_description}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="A brief description of your company."
               rows={4}
             />
@@ -292,7 +292,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_website}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="https://yourcompany.com"
             />
           </div>
@@ -309,7 +309,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_phone}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="+1 123-456-7890"
             />
           </div>
@@ -318,7 +318,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white transition-colors duration-200"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200"
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
@@ -372,7 +372,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, title: e.target.value })
                         : handleLinkChange(link.id, 'title', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="e.g., Facebook"
                   />
                 </div>
@@ -393,7 +393,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, url: e.target.value })
                         : handleLinkChange(link.id, 'url', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="https://facebook.com/yourcompany"
                   />
                 </div>
@@ -403,7 +403,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                   <div className="flex justify-end">
                     <button
                       onClick={() => handleUpdateLink(link.id)}
-                      className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md text-white transition-colors duration-200"
+                      className="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-md dark:text-white transition-colors duration-200"
                     >
                       Save
                     </button>
@@ -432,7 +432,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 onChange={(e) =>
                   setNewLink({ ...newLink, title: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="e.g., Instagram"
               />
             </div>
@@ -449,7 +449,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 onChange={(e) =>
                   setNewLink({ ...newLink, url: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-white"
+                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="https://instagram.com/yourcompany"
               />
             </div>
@@ -459,7 +459,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               <button
                 onClick={handleAddLink}
                 type="button"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md text-white transition-colors duration-200 flex items-center space-x-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200 flex items-center space-x-2"
               >
                 <FontAwesomeIcon icon={faPlus} />
                 <span>Add Link</span>

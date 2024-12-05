@@ -7,7 +7,7 @@ export default function HandoffsPage() {
   const [activeTab, setActiveTab] = useState('handoffs');
 
   return (
-    <div className="max-w-7xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-7xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-2">Handoffs</h1>
       <p className="text-gray-400 mb-6">
         Provide your AI Agent with information on when and how to escalate to a human agent when needed.

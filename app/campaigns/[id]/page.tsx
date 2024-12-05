@@ -577,7 +577,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 </div>
                 <div>
                     <p>Timezone: {campaignData.start_timezone}</p>
-                    <p>Audiance Name: {campaignData.lists?.name}</p>
+                    <p>Audience Name: {campaignData.lists?.name}</p>
                     <p>Budget: {campaignData.budget}</p>
                     <p>Agent Name: {campaignData.agents?.agent_name}</p>
                 </div>
@@ -590,7 +590,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 style={{
                   display: shouldShowButton('launchBtn') ? 'block' : 'none'
                 }}
-                className={`px-4 py-2 bg-green-500 text-white rounded-lg transition-all ${
+                className={`px-4 py-2 bg-green-500 dark:text-white rounded-lg transition-all ${
                   isLaunching
                     ? 'opacity-50 cursor-not-allowed'
                     : 'hover:bg-green-600'
@@ -602,7 +602,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             {/* <button
               onClick={handleForceLaunchCampaign} // New button for force launch
               disabled={isLaunching}
-              className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
+              className={`px-4 py-2 bg-orange-500 dark:text-white rounded-lg transition-all ${
                 isLaunching
                   ? 'opacity-50 cursor-not-allowed'
                   : 'hover:bg-orange-600'
@@ -617,7 +617,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 style={{
                   display: shouldShowButton('abortBtn') ? 'block' : 'none'
                 }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all"
+                className="px-4 py-2 bg-red-500 dark:text-white rounded-lg hover:bg-red-600 transition-all"
               >
                 Pause Campaign
               </button>
@@ -628,7 +628,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 style={{
                   display: shouldShowButton('abortBtn') ? 'block' : 'none'
                 }}
-                className="px-4 py-2 bg-yellow-500 text-white rounded-lg transition-all hover:bg-yellow-600"
+                className="px-4 py-2 bg-yellow-500 dark:text-white rounded-lg transition-all hover:bg-yellow-600"
               >
                 Abort Campaign
               </button>
@@ -639,7 +639,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 style={{
                   display: shouldShowButton('resumeBtn') ? 'block' : 'none'
                 }}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg transition-all hover:bg-green-600"
+                className="px-4 py-2 bg-green-500 dark:text-white rounded-lg transition-all hover:bg-green-600"
               >
                 Resume Campaign
               </button>
@@ -711,3 +711,4 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     </div>
   );
 }
+

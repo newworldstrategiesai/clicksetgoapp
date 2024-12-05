@@ -103,7 +103,7 @@ export default function GuidancePage() {
         </button>
         <button
           onClick={() => handleSave('active')}
-          className="bg-purple-600 text-white py-2 px-4 rounded-md"
+          className="bg-purple-600 dark:text-white py-2 px-4 rounded-md"
         >
           Save and make active
         </button>

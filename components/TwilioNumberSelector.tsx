@@ -35,7 +35,7 @@ const TwilioNumberSelector: React.FC = () => {
 
   return (
     <select
-      className="p-2 border rounded-lg w-full bg-gray-800 text-white"
+      className="p-2 border rounded-lg w-full bg-gray-800 dark:text-white"
       value={selectedNumber}
       onChange={(e) => setSelectedNumber(e.target.value)}
     >

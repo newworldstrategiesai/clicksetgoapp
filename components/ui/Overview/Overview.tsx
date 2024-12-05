@@ -121,7 +121,7 @@ const Overview = () => {
   };
 
   return (
-    <div className="flex h-screen bg-black text-white">
+    <div className="flex h-screen dark:bg-black dark:text-white">
       <aside className="w-64 bg-gray-800 p-4">
         <div className="flex items-center justify-between">
           <span className="text-2xl font-semibold">VAPI</span>

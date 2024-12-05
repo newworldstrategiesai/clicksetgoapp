@@ -129,7 +129,7 @@ const SmsPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white">
+    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white">
       <div className="flex flex-1">
         <div className="w-1/3 border-r border-gray-600">
           <h2 className="text-xl font-bold p-4 border-b border-gray-600">Contacts</h2>
@@ -187,11 +187,11 @@ const SmsPage = () => {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   placeholder="Type your message..."
-                  className="w-full p-2 border rounded-lg bg-gray-800 text-white"
+                  className="w-full p-2 border rounded-lg bg-gray-800 dark:text-white"
                 />
                 <button
                   onClick={handleSendMessage}
-                  className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
+                  className="mt-2 px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
                 >
                   Send
                 </button>

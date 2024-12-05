@@ -85,7 +85,7 @@ export default function PersonaDetailPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Edit Persona</h1>
       <div className="space-y-6">
         <div>
@@ -94,7 +94,7 @@ export default function PersonaDetailPage() {
             type="text"
             value={persona.agent_name}
             onChange={(e) => setPersona({ ...persona, agent_name: e.target.value })}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           />
         </div>
 
@@ -104,7 +104,7 @@ export default function PersonaDetailPage() {
             type="text"
             value={persona.company_name}
             onChange={(e) => setPersona({ ...persona, company_name: e.target.value })}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           />
         </div>
 
@@ -113,7 +113,7 @@ export default function PersonaDetailPage() {
           <textarea
             value={persona.company_description}
             onChange={(e) => setPersona({ ...persona, company_description: e.target.value })}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function PersonaDetailPage() {
             type="text"
             value={persona.default_timezone}
             onChange={(e) => setPersona({ ...persona, default_timezone: e.target.value })}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           />
         </div>
 
@@ -131,7 +131,7 @@ export default function PersonaDetailPage() {
       </div>
 
       <div className="mt-6">
-        <button onClick={handleSave} className="bg-purple-600 text-white py-2 px-4 rounded-md">
+        <button onClick={handleSave} className="bg-purple-600 dark:text-white py-2 px-4 rounded-md">
           Save Persona
         </button>
         <Link href="/customization/personas" className="text-blue-400 hover:underline ml-4">

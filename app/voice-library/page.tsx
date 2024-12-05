@@ -33,7 +33,7 @@ const VoicePage = () => {
       {apiKey ? (
         <>
           <VoiceLibrary apiKey={apiKey} />
-          {/* <button onClick={openModal} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded">
+          {/* <button onClick={openModal} className="mt-4 bg-blue-500 dark:text-white py-2 px-4 rounded">
             Add Voice
           </button>
           <AddVoiceModal isOpen={isModalOpen} onClose={closeModal} apiKey={apiKey} /> */}

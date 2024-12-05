@@ -125,7 +125,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         <input
           type="text"
           placeholder="Search contacts..."
-          className="w-full p-2 rounded bg-gray-800 text-white"
+          className="w-full p-2 rounded bg-gray-800 dark:text-white"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -142,7 +142,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
           />
           <label className="text-gray-400">Select All</label>
         </div>
-        <button className="p-2 bg-blue-500 text-white rounded" onClick={handleGoClick}>
+        <button className="p-2 bg-blue-500 dark:text-white rounded" onClick={handleGoClick}>
           Go
         </button>
       </div>
@@ -173,7 +173,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
                       />
                     </div>
                     {/* Avatar */}
-                    <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
+                    <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center dark:text-white text-lg">
                       {contact.first_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-grow">
@@ -188,7 +188,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
                       e.stopPropagation();
                       onCallClick(contact);
                     }}
-                    className="p-2 bg-green-600 rounded text-white hover:bg-green-500 transition-colors"
+                    className="p-2 bg-green-600 rounded dark:text-white hover:bg-green-500 transition-colors"
                   >
                     📞
                   </button>
