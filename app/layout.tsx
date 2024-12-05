@@ -12,6 +12,7 @@ import { CountryProvider } from '@/context/CountryContext';
 import { UserProvider } from '@/context/UserContext';
 import { MainNav } from '@/components/main-nav'; // Import MainNav
 import { MobileNav } from '@/components/mobile-nav'; // Import MobileNav
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export default function RootLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
@@ -50,6 +51,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/signin',
     '/signin/password_signin',
     '/dashboard/overview',
+    '/customization/persona'
   ];
 
   // Define routes where MainNav should be hidden
@@ -72,6 +74,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                       CLICK SET GO
                     </h1>
+                    <div className="mx-4 mt-1">
+                     <ThemeToggle />
+                    </div>
                   </div>
                   <MainNav /> {/* Include MainNav */}
                 </aside>

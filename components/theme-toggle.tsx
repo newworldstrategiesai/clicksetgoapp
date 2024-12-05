@@ -47,14 +47,14 @@ export function ThemeToggle() {
       {/* Sun Icon */}
       <Sun
         className={cn(
-          'absolute left-3 h-3 w-3 text-yellow-500 transition-opacity duration-300',
+          'absolute left-1.5 h-2.5 w-3 text-yellow-500 transition-opacity duration-300',
           isDark ? 'opacity-0' : 'opacity-100'
         )}
       />
       {/* Moon Icon */}
       <Moon
         className={cn(
-          'absolute right-3 h-3 w-3 text-gray-200 transition-opacity duration-300',
+          'absolute right-1.5 h-2.5 w-3 text-gray-200 transition-opacity duration-300',
           isDark ? 'opacity-100' : 'opacity-0'
         )}
       />

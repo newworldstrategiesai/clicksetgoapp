@@ -38,7 +38,7 @@ export default async function PersonaDetailPage() {
   // Pass the userId and all api keys to PersonaPage as props
   const userId: string = user.id as string; // Ensure user.id is treated as a string
   return (
-    <section className="min-h-screen bg-gray-900 dark:text-white">
+    <section className="min-h-screen text-black dark:bg-gray-900 dark:text-white">
       <div className="pt-[60px] p-4"> {/* Adjust padding to match your layout */}
         <PersonaPage 
           userId={userId} 
@@ -47,7 +47,7 @@ export default async function PersonaDetailPage() {
           twilioAuthToken={data.twilio_auth_token} 
           vapiKey={data.vapi_key} 
         />
-        <div className="mt-4">Logged in as: {user.id}</div> {/* Display user ID */}
+        {/* <div className="mt-4">Logged in as: {user.id}</div> Display user ID */}
       </div>
     </section>
   );
