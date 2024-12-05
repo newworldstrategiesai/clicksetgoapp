@@ -1,11 +1,10 @@
 // pages/api/phone-numbers/get.ts
 
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { createClient } from '@/app/server.server';
-import { getUser } from '@/utils/supabase/queries';
+import { createClient } from '@/server'; // Adjust the import path as needed
+import { getApiKeys } from '@/utils/supabase/queries'; // Function to get API keys
 import twilio from 'twilio';
 
-// Define the TwilioNumber interface
 interface TwilioNumber {
   sid: string;
   phoneNumber: string;
@@ -17,16 +16,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    // Parse the request body
-    const { user_Id: userId, twilioClient } = req.body;
+    const { userId } = req.body;
 
-    // Validate input
-    if (!twilioClient || !twilioClient.twilioSid || !twilioClient.twilioAuthToken) {
-      return res.status(400).json({ message: 'Invalid Twilio credentials' });
+    if (!userId) {
+      return res.status(400).json({ message: 'User ID is required' });
+    }
+
+    const supabase = await createClient();
+
+    // Fetch the API keys from Supabase
+    const apiKeys = await getApiKeys(supabase, userId as string);
+
+    if (!apiKeys) {
+      return res.status(404).json({ message: 'No API keys found for the user' });
+    }
+
+    const twilioSid = apiKeys.twilio_sid;
+    const twilioAuthToken = apiKeys.twilio_auth_token;
+
+    if (!twilioSid || !twilioAuthToken) {
+      return res.status(500).json({ message: 'Twilio credentials not found' });
     }
 
     // Initialize Twilio client
-    const client = twilio(twilioClient.twilioSid, twilioClient.twilioAuthToken);
+    const client = twilio(twilioSid, twilioAuthToken);
 
     // Fetch incoming Twilio phone numbers
     const incomingPhoneNumbers = await client.incomingPhoneNumbers.list({ limit: 100 });
@@ -43,16 +56,23 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }));
 
     // Combine both lists and remove duplicates based on phone number
-    const allNumbers = [...twilioNumbers, ...callerIds].reduce((acc, current) => {
-      if (!acc.find((item) => item.phoneNumber === current.phoneNumber)) {
-        acc.push(current);
+    const allNumbersMap = new Map<string, TwilioNumber>();
+
+    twilioNumbers.forEach((number) => {
+      allNumbersMap.set(number.phoneNumber, number);
+    });
+
+    callerIds.forEach((id) => {
+      if (!allNumbersMap.has(id.phoneNumber)) {
+        allNumbersMap.set(id.phoneNumber, id);
       }
-      return acc;
-    }, [] as TwilioNumber[]);
+    });
+
+    const allNumbers = Array.from(allNumbersMap.values());
 
     return res.status(200).json({ allNumbers });
   } catch (error: any) {
-    console.error('Error fetching Twilio numbers or verified caller IDs:', error);
+    console.error('Error fetching Twilio data:', error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
 

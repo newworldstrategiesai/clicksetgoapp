@@ -50,6 +50,13 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/signin',
     '/signin/password_signin',
     '/dashboard/overview',
+    '/onboarding',
+     '/onboarding/phone',
+      '/onboarding/verify',
+       '/onboarding/carrier',
+        '/onboarding/notifications',
+         '/onboarding/assistant',
+          '/onboarding/trial',
   ];
 
   // Define routes where MainNav should be hidden
