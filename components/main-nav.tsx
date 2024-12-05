@@ -1,5 +1,3 @@
-// components/main-nav.tsx
-
 'use client';
 
 import Link from "next/link";
@@ -9,17 +7,19 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard,
   Users,
-  Calendar,
+  Calendar as CalendarIcon,
   FileText,
   Inbox,
   MessageSquare,
   Phone,
   Settings,
   Mic,
-  Music,
   PieChart,
   Bot,
   Megaphone,
+  QrCode,
+  Map,
+  Box,
 } from "lucide-react";
 
 const mainNavItems = [
@@ -47,14 +47,14 @@ const mainNavItems = [
         icon: Users,
       },
       {
-        title: "Lead Contacts",
-        href: "/leads/contacts",
+        title: "Contacts",
+        href: "/contacts",
         icon: Users,
       },
       {
-        title: "Events",
+        title: "Calendar",
         href: "/events",
-        icon: Calendar,
+        icon: CalendarIcon,
       },
       {
         title: "Contracts",
@@ -73,7 +73,7 @@ const mainNavItems = [
       },
       {
         title: "SMS",
-        href: "/sms",
+        href: "/sms-logs",
         icon: MessageSquare,
       },
       {
@@ -104,27 +104,22 @@ const mainNavItems = [
     ],
   },
   {
-    title: "Event Tools",
+    title: "Tools",
     items: [
       {
-        title: "Equipment",
+        title: "Inventory",
         href: "/equipment",
-        icon: Music,
+        icon: Box,
       },
       {
-        title: "Venues",
+        title: "Directory",
         href: "/venues",
-        icon: Music,
+        icon: Map,
       },
       {
-        title: "Song Requests",
+        title: "QR Generator",
         href: "/requests",
-        icon: Music,
-      },
-      {
-        title: "Playlists",
-        href: "/playlists",
-        icon: Music,
+        icon: QrCode,
       },
     ],
   },
@@ -134,7 +129,7 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300">
+    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 overflow-y-auto">
       <nav className="flex flex-col gap-2 p-4 flex-1">
         {mainNavItems.map((group) => (
           <div key={group.title} className="mb-6">
