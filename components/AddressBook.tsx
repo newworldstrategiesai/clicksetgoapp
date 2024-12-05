@@ -47,7 +47,7 @@ const AddressBook: React.FC<AddressBookProps> = ({ userId, onContactSelect }) =>
         placeholder="Search contacts"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        className="p-2 w-full bg-gray-900 text-white rounded mb-4 border border-gray-600"
+        className="p-2 w-full bg-gray-900 dark:text-white rounded mb-4 border border-gray-600"
       />
       {filteredContacts.length > 0 ? (
         <ul>

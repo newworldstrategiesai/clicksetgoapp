@@ -8,7 +8,7 @@ export default function AutomatedResolutionPage() {
   const [filters, setFilters] = useState<string[]>([]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-6">
+    <div className="min-h-screen dark:bg-black dark:text-white p-6">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center space-x-2 text-gray-400 mb-4">
           <a href="#" className="underline">
@@ -45,7 +45,7 @@ export default function AutomatedResolutionPage() {
               type="text"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="bg-gray-800 text-white p-2 rounded-md"
+              className="bg-gray-800 dark:text-white p-2 rounded-md"
             />
           </div>
           <div className="flex items-center space-x-2">
@@ -53,7 +53,7 @@ export default function AutomatedResolutionPage() {
             <select
               value={rollUp}
               onChange={(e) => setRollUp(e.target.value)}
-              className="bg-gray-800 text-white p-2 rounded-md"
+              className="bg-gray-800 dark:text-white p-2 rounded-md"
             >
               <option>Daily</option>
               <option>Weekly</option>
@@ -64,7 +64,7 @@ export default function AutomatedResolutionPage() {
             <label>Filters</label>
             <button
               onClick={() => setFilters([...filters, 'New Filter'])}
-              className="bg-gray-800 text-white p-2 rounded-md"
+              className="bg-gray-800 dark:text-white p-2 rounded-md"
             >
               Add filter
             </button>
@@ -92,7 +92,7 @@ export default function AutomatedResolutionPage() {
           <p className="text-gray-400 mb-4">
             There were no conversations in your sample that met your search criteria.
           </p>
-          <button className="bg-purple-600 text-white px-4 py-2 rounded-md">
+          <button className="bg-purple-600 dark:text-white px-4 py-2 rounded-md">
             Learn More
           </button>
         </div>

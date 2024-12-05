@@ -14,7 +14,7 @@ import {
 
 const BottomNav: React.FC = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-black text-white shadow-md z-10">
+    <nav className="fixed bottom-0 left-0 right-0 dark:bg-black dark:text-white shadow-md z-10">
       <div className="flex justify-around items-center max-w-lg mx-auto py-3 px-4">
         {/* Replaced "Favorites" with "Upload" */}
         <Link href="/upload-contacts" className="flex flex-col items-center space-y-1">

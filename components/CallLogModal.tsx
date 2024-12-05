@@ -24,7 +24,7 @@ interface CallLogModalProps {
 
 const CallLogModal: React.FC<CallLogModalProps> = ({ log, onClose }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-75 z-50">
+    <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-75 z-50">
       <div className="bg-black p-6 rounded-lg w-full max-w-2xl mx-auto relative">
         <h2 className="text-2xl font-bold mb-4">Call Details</h2>
         {log.fullName && (
@@ -55,7 +55,7 @@ const CallLogModal: React.FC<CallLogModalProps> = ({ log, onClose }) => {
           <source src={log.recordingUrl} type="audio/mpeg" />
           Your browser does not support the audio element.
         </audio>
-        <button onClick={onClose} className="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg">Close</button>
+        <button onClick={onClose} className="mt-4 px-4 py-2 bg-red-500 dark:text-white rounded-lg">Close</button>
       </div>
     </div>
   );

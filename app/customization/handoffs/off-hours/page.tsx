@@ -19,7 +19,7 @@ export default function OffHoursDetails() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <button onClick={() => window.history.back()} className="text-purple-400 hover:text-purple-600 font-semibold mb-6">
         ← Back
       </button>
@@ -29,7 +29,7 @@ export default function OffHoursDetails() {
       
       <div className="flex justify-between mb-6">
         <div className="relative">
-          <select className="appearance-none bg-gray-800 border border-gray-600 text-white text-sm rounded-lg p-2.5 focus:outline-none focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+          <select className="appearance-none bg-gray-800 border border-gray-600 dark:text-white text-sm rounded-lg p-2.5 focus:outline-none focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
             <option value="default">English (Default)</option>
             {/* Add more language options here if needed */}
           </select>
@@ -47,7 +47,7 @@ export default function OffHoursDetails() {
                 type="text"
                 value={message}
                 onChange={(e) => handleChangeMessage(index, e.target.value)}
-                className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-800 text-white"
+                className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-800 dark:text-white"
               />
               <button
                 onClick={() => handleDeleteMessage(index)}

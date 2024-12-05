@@ -55,7 +55,7 @@ export function Home({ userId, fullName }: HomeProps) {
 
   return (
     <div className="flex h-screen pt-16">
-      <aside className="bg-black text-white flex flex-col items-center lg:items-start w-16 lg:w-64 lg:hover:w-64 space-y-4 py-6 transition-all duration-200 ease-in-out">
+      <aside className="bg-black dark:text-white flex flex-col items-center lg:items-start w-16 lg:w-64 lg:hover:w-64 space-y-4 py-6 transition-all duration-200 ease-in-out">
         <nav className="flex-1 flex flex-col items-center lg:items-start space-y-6">
           <Tooltip content="Home">
             <Link

@@ -3,7 +3,7 @@
 import { getURL } from '@/utils/helpers';
 
 export default function Head() {
-  const title = 'Click Set Go AI';
+  const title = 'CLICK SET GO AI';
   const description = 'Brought to you by Vercel, Stripe, and Supabase.';
 
   return (

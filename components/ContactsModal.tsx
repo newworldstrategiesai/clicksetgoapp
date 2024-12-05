@@ -38,9 +38,9 @@ const ContactsModal: React.FC<ContactsModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 flex flex-col">
+    <div className="fixed inset-0 dark:bg-black bg-opacity-90 flex flex-col">
       <div className="flex justify-between items-center p-4 border-b border-gray-700">
-        <h2 className="text-lg font-bold text-white">Contacts</h2>
+        <h2 className="text-lg font-bold dark:text-white">Contacts</h2>
         <button onClick={onClose} className="text-white">
           <FontAwesomeIcon icon={faTimes} />
         </button>
@@ -50,7 +50,7 @@ const ContactsModal: React.FC<ContactsModalProps> = ({
         placeholder="Search contacts..."
         value={searchQuery}
         onChange={(e) => onSearchChange(e.target.value)}
-        className="w-full p-2 rounded bg-gray-800 text-white mb-4" // Updated background color
+        className="w-full p-2 rounded bg-gray-800 dark:text-white mb-4" // Updated background color
       />
       <div className="flex-grow overflow-y-auto">
         {filteredContacts.length > 0 ? (
@@ -61,11 +61,11 @@ const ContactsModal: React.FC<ContactsModalProps> = ({
                 onClick={() => handleContactSelect(contact)} // Updated to use the new function
                 className="flex items-center p-4 cursor-pointer hover:bg-gray-700"
               >
-                <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center text-white text-lg">
+                <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center dark:text-white text-lg">
                   {contact.first_name.charAt(0).toUpperCase()}{contact.last_name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-lg text-white">{contact.first_name} {contact.last_name}</p>
+                  <p className="text-lg dark:text-white">{contact.first_name} {contact.last_name}</p>
                   <p className="text-gray-400">{contact.phone}</p>
                 </div>
               </li>

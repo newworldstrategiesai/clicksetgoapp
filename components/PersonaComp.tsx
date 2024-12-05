@@ -27,7 +27,7 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
         <select
           value={selectedVoice}
           onChange={(e) => setSelectedVoice(e.target.value)}
-          className="p-2 border rounded-lg w-full bg-gray-800 text-white max-h-40 overflow-y-auto"
+          className="p-2 border rounded-lg w-full bg-gray-800 dark:text-white max-h-40 overflow-y-auto"
         >
           {voices.length > 0 ? (
             voices.map((voice) => (
@@ -150,12 +150,12 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">Persona</h1>
 
       <div className="mb-6">
         <Link href={`/customization/personas?usd=${userId}`}>
-          <span className="bg-blue-500 text-white py-2 px-4 rounded-md">
+          <span className="bg-blue-500 dark:text-white py-2 px-4 rounded-md">
             View All Personas
           </span>
         </Link>
@@ -245,7 +245,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
       <div className="mt-6">
         <button
           onClick={handleSave}
-          className="bg-purple-600 text-white py-2 px-4 rounded-md"
+          className="bg-purple-600 dark:text-white py-2 px-4 rounded-md"
         >
           Save Persona
         </button>
@@ -286,7 +286,7 @@ function IdentityAndCompany({
           type="text"
           value={agentName}
           onChange={(e) => setAgentName(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
         />
       </div>
 
@@ -296,7 +296,7 @@ function IdentityAndCompany({
           type="text"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
         />
       </div>
       <div>
@@ -305,7 +305,7 @@ function IdentityAndCompany({
           type="text"
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
         />
       </div>
 
@@ -315,7 +315,7 @@ function IdentityAndCompany({
           value={companyDescription}
           onChange={(e) => setCompanyDescription(e.target.value)}
           placeholder="Describe your company's products and services"
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
         />
         <p className="mt-2 text-sm text-gray-500">
           This provides context for the AI Agent to reply to general questions about your company and its products and services.
@@ -327,7 +327,7 @@ function IdentityAndCompany({
         <select
           value={timezone}
           onChange={(e) => setTimezone(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
         >
           <option value="">Time Zone</option>
           <option value="GMT">GMT</option>
@@ -381,7 +381,7 @@ function ToneAndStyle({
           <select
             value={toneOfVoice}
             onChange={(e) => setToneOfVoice(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           >
             <option>Friendly</option>
             <option>Professional</option>
@@ -400,7 +400,7 @@ function ToneAndStyle({
             type="text"
             value={emojiLimit}
             onChange={(e) => setEmojiLimit(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           />
           <p className="mt-2 text-sm text-gray-500">
             Find and copy emojis from <a href="#" className="text-blue-400 underline">the Unicode website</a>.
@@ -415,7 +415,7 @@ function ToneAndStyle({
           <select
             value={messageLength}
             onChange={(e) => setMessageLength(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           >
             <option>Normal</option>
             <option>Short</option>
@@ -428,7 +428,7 @@ function ToneAndStyle({
           <select
             value={multistepInstructions}
             onChange={(e) => setMultistepInstructions(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
           >
             <option>Send multiple steps</option>
             <option>Send all at once</option>

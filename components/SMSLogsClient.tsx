@@ -150,7 +150,7 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
 
       <button
         onClick={downloadCSV}
-        className={`mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`mb-4 px-4 py-2 bg-blue-500 dark:text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         disabled={csvLoading}
       >
         {csvLoading ? 'Generating CSV...' : 'Download All SMS Logs as CSV'}

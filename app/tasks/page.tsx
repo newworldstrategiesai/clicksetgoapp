@@ -100,7 +100,7 @@ export default function TaskPage() {
       }
     });
   };
-
+  
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
     return visibleColumns.includes(columnId);
@@ -114,7 +114,9 @@ export default function TaskPage() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
+    if (visibleColumns.length > 0) {
+      localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
+    }
   }, [visibleColumns]);
 
   // Force Launch Handler
@@ -140,7 +142,7 @@ export default function TaskPage() {
 
   if (allColumns.length === 0) {
     return (
-      <div className="flex justify-center items-center h-screen text-white">
+      <div className="flex justify-center items-center h-screen dark:text-white">
         Loading...
       </div>
     );
@@ -178,7 +180,7 @@ export default function TaskPage() {
           {/* Header with Force Launch Button */}
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-2xl font-bold tracking-tight text-white">Welcome back!</h2>
+              <h2 className="text-2xl font-bold tracking-tight dark:text-white">Welcome back!</h2>
               <p className="text-muted-foreground">
                 Here's a list of your call tasks!
               </p>
@@ -186,7 +188,7 @@ export default function TaskPage() {
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleForceLaunch}
-                className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm sm:text-base"
+                className="bg-red-600 dark:text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm sm:text-base"
                 aria-label="Force Launch Campaigns"
               >
                 Force Launch

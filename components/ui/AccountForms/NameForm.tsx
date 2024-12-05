@@ -53,7 +53,7 @@ export default function NameForm({ userName, userId }: { userName: string, userI
           />
         </form>
       </div>
-      <div className="mt-4 text-white">
+      <div className="mt-4 dark:text-white">
         <p>User ID: {userId}</p>
       </div>
     </Card>

@@ -20,7 +20,7 @@ const Layout = ({ children }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-[#0d1117] text-white">
+    <div className="flex min-h-screen bg-[#0d1117] dark:text-white">
       <aside className={`lg:w-64 bg-[#161b22] p-4 ${mobileMenuOpen ? 'block' : 'hidden'} lg:block overflow-y-auto`}>
         <div className="flex items-center justify-center mb-8">
           <Image src="/placeholder.svg" alt="NWS Logo" width={350} height={120} className="w-3/4 lg:w-full" />
@@ -108,7 +108,7 @@ const Layout = ({ children }) => {
       </aside>
       <main className="flex-1 p-6 overflow-auto">
         <div className="lg:hidden">
-          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-white">
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 dark:text-white">
             <MenuIcon className="h-6 w-6" />
           </button>
         </div>

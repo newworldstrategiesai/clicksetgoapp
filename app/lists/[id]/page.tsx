@@ -121,8 +121,8 @@ const ListPage = ({ params }: ListPage) => {
   };
 
   return (
-    <section className="mb-32 bg-black min-h-screen">
-      <div className="fixed top-0 left-0 w-full bg-black text-white py-4 z-10">
+    <section className="mb-32 dark:bg-black min-h-screen">
+      <div className="fixed top-0 left-0 w-full dark:bg-black dark:text-white py-4 z-10">
         <div className="max-w-6xl px-4 py-2 mx-auto sm:px-6 sm:pt-24 lg:px-8">
           <h1 className="text-4xl font-extrabold sm:text-center sm:text-6xl">
             {listName}

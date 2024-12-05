@@ -28,7 +28,7 @@ export function Tooltip({ content, children }: TooltipProps) {
           ref={setPopperElement}
           style={styles.popper}
           {...attributes.popper}
-          className="bg-black text-white text-xs rounded py-1 px-2 z-10"
+          className="bg-black dark:text-white text-xs rounded py-1 px-2 z-10"
         >
           {content}
         </div>

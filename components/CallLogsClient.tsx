@@ -120,7 +120,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   };
   
   return (
-    <div className="min-h-screen flex flex-col bg-black text-white pt-16 pb-16">
+    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white pt-16 pb-16">
       <div className="flex justify-between px-4 items-center mb-4">
         <h1 className="text-3xl font-semibold">Voicemail</h1>
         <button className="text-blue-500">Greeting</button>
@@ -178,9 +178,9 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       </div>
       {isModalOpen && selectedLog && (
-  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-70 z-50">
+  <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-70 z-50">
     <div className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
-      <h2 className="text-3xl font-semibold mb-6 text-white">Call Details</h2>
+      <h2 className="text-3xl font-semibold mb-6 dark:text-white">Call Details</h2>
 
       {selectedLog.fullName && (
         <p className="text-lg mb-4 text-gray-200">
@@ -252,7 +252,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 
       <button
         onClick={closeModal}
-        className="mt-4 px-6 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
+        className="mt-4 px-6 py-2 bg-red-600 dark:text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
       >
         Close
       </button>
@@ -261,7 +261,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
 )}
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full bg-black border-t border-gray-700 flex justify-around py-4 text-white">
+      <div className="fixed bottom-0 w-full dark:bg-black border-t border-gray-700 flex justify-around py-4 dark:text-white">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
