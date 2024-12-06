@@ -158,7 +158,7 @@ export function MainNav() {
       }
 `   }</style>
 
-    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 h-screen">
+    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 h-screen mt-16 ">
       <nav className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">
         {mainNavItems.map((group) => (
           <div key={group.title} className="mb-6">
@@ -189,7 +189,7 @@ export function MainNav() {
           </div>
         ))}
       </nav>
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t bg-white dark:bg-black border-gray-200 dark:border-gray-700">
         <Link
           href="/settings"
           className={clsx(

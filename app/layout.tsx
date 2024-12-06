@@ -51,7 +51,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/signin',
     '/signin/password_signin',
     '/dashboard/overview',
-    '/customization/persona'
+    '/customization/persona',
+    '/new-campaign',
+    '/schedule-new-form'
   ];
 
   // Define routes where MainNav should be hidden
@@ -70,7 +72,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
               {/* Sidebar */}
               {!hideNavRoutes.includes(pathname || '') && (
                 <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
-                  <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
+                  <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700 fixed top-0">
                     <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                       CLICK SET GO
                     </h1>
