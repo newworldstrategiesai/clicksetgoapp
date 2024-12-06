@@ -50,21 +50,21 @@ const VoiceLibrary = ({ apiKey }: { apiKey: string }) => {
   return (
     <div className="p-4">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h1 className="text-2xl font-semibold mb-4">Voice Library</h1>
-        <button onClick={openModal} className="mb-4 bg-blue-500 dark:text-white py-2 px-4 rounded">
+        <h1 className="text-2xl font-semibold mb-4 dark:text-white">Voice Library</h1>
+        <button onClick={openModal} className="mb-4 bg-blue-500 dark:bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-600 dark:hover:bg-blue-700">
           Add Voice
         </button>
       </div>
       {error && <p className="text-red-500 mb-4">Error: {error}</p>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-screen overflow-y-auto mt-4 scrollable-element">
         {voices.map((voice) => (
-          <div key={voice.voice_id} className="bg-gray-900 p-4 rounded-md shadow-md">
+          <div key={voice.voice_id} className="bg-modal dark:bg-gray-800 p-4 rounded-md shadow-md transition-all hover:shadow-lg">
             <div className="flex justify-between items-center mb-2">
               <span className="font-medium dark:text-white">{voice.name}</span>
-              <span className="text-sm text-gray-400">{voice.voice_id}</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">{voice.voice_id}</span>
             </div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-white">{voice.gender || 'Unknown'} | {voice.accent || 'Unknown'}</span>
+              <span className="text-gray-700 dark:text-gray-300">{voice.gender || 'Unknown'} | {voice.accent || 'Unknown'}</span>
             </div>
             <div className="flex items-center">
               <audio controls className="w-full">

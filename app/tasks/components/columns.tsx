@@ -273,7 +273,7 @@ export const getColumns = (
     },
     enableSorting: true,
     enableHiding: true,
-    meta: { isDefault: false }, // Optional column
+    meta: { isDefault: true }, // Optional column
     filterFn: (row: Row<YourTaskType>, id: string, value: any) =>
       value.includes(row.getValue(id)),
   },

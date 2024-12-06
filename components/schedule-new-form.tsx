@@ -155,9 +155,9 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
           <ul>
             {schedules.map((schedule) => (
               <li key={schedule.id} className="flex justify-between items-center">
-                <span>{schedule.name}</span>
+                <span className="text-lg">{schedule.name}</span>
                 <div className="flex space-x-2">
-                  <Button onClick={() => handleEdit(schedule)}>Edit</Button>
+                  <Button className=" hover:text-white dark:bg-white " onClick={() => handleEdit(schedule)}>Edit</Button>
                   <Button onClick={() => handleDelete(schedule.id)} variant="flat" style={{ backgroundColor: 'red', color:'white' }}>Delete</Button> {/* Added delete button */}
                 </div>
               </li>
@@ -196,7 +196,7 @@ export function ScheduleNewForm({ userId }: ScheduleNewFormProps) {
             })}
           </div>
           <CardFooter>
-            <Button type="submit" className="ml-auto" disabled={loading}>
+            <Button type="submit" className="ml-auto mt-4 hover:text-white" disabled={loading}>
               {loading ? 'Saving...' : 'Save Schedule'}
             </Button>
           </CardFooter>

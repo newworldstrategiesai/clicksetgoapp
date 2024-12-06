@@ -97,61 +97,72 @@ export default function PersonasPage() {
     <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-6">All Personas</h1>
       <div className="space-y-4">
-        {personas.map((persona) => (
-          <div key={persona.id} className="p-4 bg-gray-800 rounded-md">
-            <h2 className="text-xl font-semibold">{persona.agent_name}</h2>
-            <p className="text-gray-400">{persona.company_name}</p>
-            <button
-              onClick={() => openModal(persona)}
-              className="text-blue-400 hover:underline mt-2 inline-block"
-            >
-              View / Edit
-            </button>
+          <div className="px-4 flex items-center justify-between w-full">
+            <p className="text-xl font-semibold text-gray-900 dark:text-white w-1/8">Name</p>
+            <p className="text-xl text-center font-semibold text-gray-900 dark:text-white w-2/6">Company</p>
+            <p className="text-xl text-center font-semibold text-gray-900 dark:text-white w-1/4">Role</p>
+            <p className="text-xl text-center font-semibold text-gray-900 dark:text-white w-1/4">Tone</p>
+            <p className="text-xl text-center font-semibold text-gray-900 dark:text-white">Edit</p>
           </div>
-        ))}
+          {personas.map((persona) => (
+          <div key={persona.id} className="p-4 bg-gray-200 dark:bg-gray-800 rounded-md">
+              <div className="px-2 flex items-center justify-between w-full">
+                <p className="text-l font-semibold text-gray-900 dark:text-white w-1/8">{persona.agent_name}</p>
+                <p className="text-l text-center font-semibold text-gray-900 dark:text-white w-2/6">{persona.company_name}</p>
+                <p className="text-l text-center font-semibold text-gray-900 dark:text-white w-1/4">{persona.role}</p>
+                <p className="text-l text-center font-semibold text-gray-900 dark:text-white w-1/4">{persona.tone_of_voice}</p>
+                <button
+                  onClick={() => openModal(persona)}
+                  className="text-gray-900 dark:text-white hover:text-blue-300 ml-2"
+                >
+                  &#x22EE;
+                </button>
+              </div>
+            </div>
+          ))}
       </div>
 
       {isModalOpen && selectedPersona && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center dark:bg-black bg-opacity-75">
-          <div className="bg-gray-800 p-6 rounded-md max-w-3xl w-full max-h-[80vh] overflow-y-auto">
-            <h2 className="text-xl font-semibold mb-4">Edit Persona</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 dark:bg-opacity-80">
+          <div className="bg-modal dark:bg-gray-900 p-6 rounded-md max-w-3xl w-full max-h-[80vh] overflow-y-auto">
+            <h2 className="text-xl font-semibold mb-4 text-black dark:text-gray-300">Edit Persona</h2>
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300">Agent Name</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Agent Name</label>
                 <input
                   type="text"
                   value={selectedPersona.agent_name}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, agent_name: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Company Name</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Company Name</label>
                 <input
                   type="text"
                   value={selectedPersona.company_name}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, company_name: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Agent Role</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Agent Role</label>
                 <input
                   type="text"
                   value={selectedPersona.role}
                   onChange={(e) => setSelectedPersona({ ...selectedPersona, role: e.target.value })}
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Company Description</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Company Description</label>
                 <textarea
                   value={selectedPersona.company_description}
                   onChange={(e) =>
@@ -160,18 +171,18 @@ export default function PersonasPage() {
                       company_description: e.target.value,
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Default Timezone</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Default Timezone</label>
                 <select
                   value={selectedPersona.default_timezone}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, default_timezone: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="GMT">GMT</option>
                   <option value="EST">EST</option>
@@ -181,13 +192,13 @@ export default function PersonasPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Tone of Voice</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Tone of Voice</label>
                 <select
                   value={selectedPersona.tone_of_voice}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, tone_of_voice: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Friendly</option>
                   <option>Professional</option>
@@ -197,7 +208,7 @@ export default function PersonasPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">Allow Emoji Usage</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Allow Emoji Usage</label>
                 <CustomSwitch
                   checked={selectedPersona.allow_emoji_usage}
                   onChange={(e) =>
@@ -207,7 +218,7 @@ export default function PersonasPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Emoji Limit</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Emoji Limit</label>
                 <input
   type="number"
   value={selectedPersona.emoji_limit}
@@ -217,19 +228,19 @@ export default function PersonasPage() {
       emoji_limit: parseFloat(e.target.value) // Convert to number
     })
   }
-  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
 />
 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Message Length</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Message Length</label>
                 <select
                   value={selectedPersona.message_length}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, message_length: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Normal</option>
                   <option>Short</option>
@@ -238,13 +249,13 @@ export default function PersonasPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300">Multistep Instructions</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Multistep Instructions</label>
                 <select
                   value={selectedPersona.multistep_instructions}
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, multistep_instructions: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Send multiple steps</option>
                   <option>Send all at once</option>
@@ -253,7 +264,7 @@ export default function PersonasPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">Ask for Help</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">Ask for Help</label>
                 <CustomSwitch
                   checked={selectedPersona.ask_for_help}
                   onChange={(e) =>
@@ -263,7 +274,7 @@ export default function PersonasPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">No Personal Info</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">No Personal Info</label>
                 <CustomSwitch
                   checked={selectedPersona.no_personal_info}
                   onChange={(e) =>
@@ -273,7 +284,7 @@ export default function PersonasPage() {
               </div>
 
               <div className="flex items-center justify-between">
-                <label className="block text-sm font-medium text-gray-300">No Competitors</label>
+                <label className="block text-sm font-medium text-black dark:text-gray-400">No Competitors</label>
                 <CustomSwitch
                   checked={selectedPersona.no_competitors}
                   onChange={(e) =>
@@ -284,10 +295,10 @@ export default function PersonasPage() {
             </div>
 
             <div className="mt-6 flex justify-end space-x-4">
-              <button onClick={closeModal} className="bg-gray-600 dark:text-white py-2 px-4 rounded-md">
+              <button onClick={closeModal} className="bg-gray-400 dark:bg-gray-700 dark:text-white py-2 px-4 rounded-md">
                 Cancel
               </button>
-              <button onClick={handleSave} className="bg-blue-600 dark:text-white py-2 px-4 rounded-md">
+              <button onClick={handleSave} className="bg-blue-600 dark:bg-blue-700 dark:text-white py-2 px-4 rounded-md">
                 Save
               </button>
             </div>
