@@ -349,7 +349,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         .from('call_tasks')
         .update({ call_status: 'Paused' }) // Update the status based on current state
         .eq('campaign_id', id) // Update all tasks related to the campaign
-        .in('call_status', ['Scheduled', 'Active']);
+        .in('call_status', ['Scheduled', 'Active', 'Resumed']);
 
       if (updateStatusError) {
         console.error(
