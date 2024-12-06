@@ -28,7 +28,7 @@ interface CallTask {
 interface CampaignData {
   id: string;
   name: string;
-  status: string;
+  status: 'Aborted' | 'Paused' | 'Scheduled' | 'Active' | 'Resumed' | 'Completed'| 'Pending';
   start_date: string;
   end_date: string;
   description: string;
@@ -134,9 +134,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     ) {
       return true;
     } else if (
-      buttonName === 'abortBtn' &&
-      (campaignData?.status === 'Scheduled'|| campaignData?.status === 'Resumed'|| campaignData?.status === 'Paused'||
-      campaignData?.status !== 'Aborted')
+      buttonName === 'abortBtn' && 
+      ( campaignData?.status === 'Scheduled' || campaignData?.status === 'Resumed'|| campaignData?.status === 'Paused')
     ) {
       return true;
     } else if (
