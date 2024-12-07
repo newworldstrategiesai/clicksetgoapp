@@ -454,7 +454,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Schedule and Agent */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <Label htmlFor="schedule">Schedule</Label>
+            <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
             <Select onValueChange={handleScheduleChange} value={formData.schedule}>
               <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
