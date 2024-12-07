@@ -51,21 +51,23 @@ export default function TaskPage() {
 
   const fetchTasks = async function (){
     {
-      const { data: callTasks, error } = await supabase
+      const { data: callTasks, error: callTasksError } = await supabase
         .from("call_tasks")
         .select(
-          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
+          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone), campaigns!fk_campaign(name)"
         );
 
-      if (error) {
-        console.error("Error fetching call tasks:", error.message);
+      if (callTasksError) {
+        console.error("Error fetching call tasks:", callTasksError.message);
         toast.error("Failed to fetch tasks.");
         return;
       }
+      console.log("callTasks",callTasks)
 
       const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
         id: task.id,
         campaign_id: task.campaign_id || null,
+        campaign_name: task.campaigns ? task.campaigns.name : "Unknown",
         call_subject: task.call_subject || "",
         call_status: task.call_status || "",
         priority: task.priority || null,
@@ -78,7 +80,7 @@ export default function TaskPage() {
           ? [task.contacts]
           : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
       }));
-
+      console.log(formattedTasks)
       // Sort tasks by updated_at in descending order (latest first)
       const sortedTasks = formattedTasks.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
 
@@ -100,9 +102,10 @@ export default function TaskPage() {
       }
     });
   };
-  
+  console.log("allColumns",allColumns)
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
+    console.log(columnId)
     return visibleColumns.includes(columnId);
   });
 

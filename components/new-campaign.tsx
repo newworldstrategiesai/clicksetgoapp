@@ -168,10 +168,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       return;
     }
 
-    if (!formData.schedule) {
-      toast.error('Please select a schedule');
-      return;
-    }
+    // if (!formData.schedule) {
+    //   toast.error('Please select a schedule');
+    //   return;
+    // }
 
     // Optional: Add more validations as needed
 

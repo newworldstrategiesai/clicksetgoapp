@@ -32,6 +32,7 @@ import { Column, Row, Table } from "@tanstack/react-table"; // Import Column, Ro
 export type YourTaskType = {
   id: string;
   campaign_id: string | null;
+  campaign_name: string;
   call_subject: string;
   call_status: string;
   priority: string | null;
@@ -146,7 +147,7 @@ export const getColumns = (
         </Tooltip>
       );
     },
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
     meta: { isDefault: true }, // Default column
   },
@@ -182,7 +183,7 @@ export const getColumns = (
         </div>
       );
     },
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
     meta: { isDefault: true }, // Default column
   },
@@ -199,9 +200,25 @@ export const getColumns = (
 
       return <div className="truncate">{contactName || "N/A"}</div>;
     },
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
     meta: { isDefault: true }, // Default column
+  },
+  // campagin name column
+  {
+    accessorFn: (row: YourTaskType) => row.campaign_name || "N/A",
+    id: "campaign_name",
+    header: ({ column }: { column: Column<YourTaskType, any> }) => (
+      <DataTableColumnHeader column={column} title="Campaign Name" />
+    ),
+    cell: ({ row }: { row: Row<YourTaskType> }) => {
+      const campaignName = row.original.campaign_name || "N/A";
+  
+      return <div className="truncate">{campaignName}</div>;
+    },
+    enableSorting: false,
+    enableHiding: false,
+    meta: { isDefault: true }, // Not the default column
   },
   // Call Status Column (Default)
   {
@@ -224,7 +241,7 @@ export const getColumns = (
         </div>
       );
     },
-    enableSorting: true,
+    enableSorting: false,
     enableHiding: false,
     meta: { isDefault: true }, // Default column
     filterFn: (row: Row<YourTaskType>, id: string, value: any) =>
@@ -271,8 +288,8 @@ export const getColumns = (
         </div>
       );
     },
-    enableSorting: true,
-    enableHiding: true,
+    enableSorting: false,
+    enableHiding: false,
     meta: { isDefault: true }, // Optional column
     filterFn: (row: Row<YourTaskType>, id: string, value: any) =>
       value.includes(row.getValue(id)),
@@ -286,8 +303,8 @@ export const getColumns = (
       const campaignId = row.getValue("campaign_id") as string | null;
       return campaignId ? campaignId : "N/A";
     },
-    enableSorting: true,
-    enableHiding: true,
+    enableSorting: false,
+    enableHiding: false,
     meta: { isDefault: false }, // Optional column
   },
   // Add more optional columns as needed

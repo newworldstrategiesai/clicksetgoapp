@@ -27,11 +27,6 @@ export const labels = [
 
 export const statuses = [
   {
-    value: "Active",
-    label: "Active",
-    icon: StopwatchIcon, // Representing ongoing or current
-  },
-  {
     value: "Aborted",
     label: "Aborted",
     icon: CrossCircledIcon, // Representing a failed or terminated status
@@ -50,11 +45,6 @@ export const statuses = [
     value: "Scheduled",
     label: "Scheduled",
     icon: CalendarIcon, // Representing a planned action (you might need to add this icon)
-  },
-  {
-    value: "Resumed",
-    label: "Resumed",
-    icon: ListRestartIcon, // Representing something restarted (you might need to add this icon)
   },
 ];
 

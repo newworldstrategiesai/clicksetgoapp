@@ -13,6 +13,7 @@ export const contactSchema = z.object({
 export const taskSchema = z.object({
   id: z.string().uuid(), // Ensures ID is a UUID
   campaign_id: z.string().uuid().nullable(), // Campaign ID, nullable if not a valid UUID
+  campaign_name: z.string(),
   call_subject: z.string(), // Call subject
   call_status: z.string(), // Call status
   priority: z.string().nullable(), // Priority, nullable
