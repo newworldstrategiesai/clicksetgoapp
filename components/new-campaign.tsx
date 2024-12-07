@@ -28,7 +28,6 @@ const countryCodes: Record<string, string> = {
   US: "+1",
   IN: "+91",
   FR: "+33",
-  UK: "+44",
   DE: "+49",
   ES: "+34",
   IT: "+39",
@@ -439,10 +438,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
             >
+              <option value="">Select Country</option>
               <option value="US">United States</option>
               <option value="IN">India</option>
               <option value="FR">France</option>
-              <option value="UK">United Kingdom</option>
               <option value="DE">Germany</option>
               <option value="ES">Spain</option>
               <option value="IT">Italy</option>

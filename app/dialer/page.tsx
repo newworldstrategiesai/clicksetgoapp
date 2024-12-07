@@ -56,7 +56,7 @@ export default async function DialerPage() {
 
     return (
       <section className="min-h-screen dark:bg-black dark:text-white">
-        <div className="pt-[45px] p-4">
+        <div>
           {/* Adjust the padding-top to match the height of your navbar */}
           <DialerComponent
             userId={user.id}

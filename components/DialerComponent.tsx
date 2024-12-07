@@ -4,7 +4,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
-import { parsePhoneNumberFromString } from 'libphonenumber-js';
+import { CountryCode, parsePhoneNumberFromString } from 'libphonenumber-js';
 import VoiceDropdown from './VoiceDropdown';
 import ContactsModal from './ContactsModal';
 import CallConfirmationModal from './CallConfirmationModal';
@@ -23,6 +23,8 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import './modernSlider.css';
 import { DialerComponentProps } from '@/types';
+import strict from 'assert/strict';
+import { string } from 'zod';
 
 interface Contact {
   id: string;
@@ -57,11 +59,12 @@ interface Agent {
 const DEFAULT_TWILIO_NUMBER = process.env.NEXT_PUBLIC_TWILIO_NUMBER || '';
 
 // Utility function to format phone numbers
-const formatPhoneNumber = (phoneNumber: string) => {
+const formatPhoneNumber = (phoneNumber: string, CountryCode: CountryCode ) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, 'US');
+  const countryCodeObject = { defaultCountry: CountryCode as CountryCode };
+  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, countryCodeObject);
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -236,9 +239,9 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       return;
     }
 
-    const formattedPhoneNumber = formatPhoneNumber(input);
+    const formattedPhoneNumber = formatPhoneNumber(input, selectedCountryCode);
     const contact = contacts.find(
-      (contact) => formatPhoneNumber(contact.phone) === formattedPhoneNumber
+      (contact) => formatPhoneNumber(contact.phone, selectedCountryCode) === formattedPhoneNumber
     );
 
     if (contact) {
@@ -329,7 +332,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       return;
     }
 
-    const formattedPhoneNumber = formatPhoneNumber(input);
+    const formattedPhoneNumber = formatPhoneNumber(input, selectedCountryCode);
     const twilioNumberToUse = selectedTwilioNumber || DEFAULT_TWILIO_NUMBER;
     const credentials = { twilioSid, twilioAuthToken, vapiKey };
 
@@ -412,30 +415,38 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
    * Define Countries and Their Calling Codes
    */
   const countries = {
-    NA: { code: '', name: 'Select Country' },
+    ZZ: { code: '', name: 'Select Country' },
     US: { code: '+1', name: 'United States' },
     IN: { code: '+91', name: 'India' },
     FR: { code: '+33', name: 'France' },
-    UK: { code: '+44', name: 'United Kingdom' },
     DE: { code: '+49', name: 'Germany' },
     ES: { code: '+34', name: 'Spain' },
     IT: { code: '+39', name: 'Italy' },
+    
     // Add more countries as needed
   };
   const [selectedCountryCode, setSelectedCountryCode] = useState<
     keyof typeof countries
-  >('NA');
+  >('ZZ');
 
   /**
    * Handle Contact Selection from Address Book
    */
+  // const handleContactClick = useCallback((contact: Contact) => {
+  //   const formattedPhoneNumber = formatPhoneNumber(contact.phone);
+  //   setInput(formattedPhoneNumber || '');
+  //   setNewFirstName(contact.first_name);
+  //   setNewLastName(contact.last_name);
+  //   setIsAddressBookModalOpen(false);
+  // }, []);
   const handleContactClick = useCallback((contact: Contact) => {
-    const formattedPhoneNumber = formatPhoneNumber(contact.phone);
+    const formattedPhoneNumber = formatPhoneNumber(contact.phone, selectedCountryCode); // Pass the selected country code
     setInput(formattedPhoneNumber || '');
     setNewFirstName(contact.first_name);
     setNewLastName(contact.last_name);
     setIsAddressBookModalOpen(false);
-  }, []);
+  }, [selectedCountryCode]); // Make sure to depend on selectedCountryCode
+  
 
   /**
    * Handle Search Query Changes
@@ -496,7 +507,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       <div
         className={`hidden md:flex flex-col ${
           isSidebarCollapsed ? 'w-16' : 'w-1/3'
-        } p-4 dark:bg-black h-[75vh] overflow-y-auto transition-width duration-300 scrollable-element`}
+        } p-4 dark:bg-black h-[80vh] overflow-y-auto transition-width duration-300 scrollable-element fixed w-1/6 top-16`}
       >
         {/* Sidebar Header */}
         <div className="flex items-center justify-between mb-4">
@@ -562,7 +573,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
                   <li
                     key={contact.id}
                     onClick={() => handleContactClick(contact)}
-                    className="flex items-center p-2 mb-2 cursor-pointer hover:bg-gray-900 rounded transition-colors duration-200"
+                    className="flex items-center p-2 mb-2 cursor-pointer dark:hover:bg-gray-900 hover:bg-gray-200 rounded transition-colors duration-200"
                   >
                     {/* Avatar */}
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center dark:text-white font-bold mr-3">
@@ -635,7 +646,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
             <button
               key={button.value}
               onClick={() => handleButtonClick(button.value)}
-              className="flex flex-col items-center justify-center h-20 w-20 dark:bg-black rounded-full text-3xl hover:bg-gray-900 focus:outline-none transition-colors duration-200 border border-gray-900"
+              className="flex flex-col items-center justify-center h-20 w-20 dark:bg-black rounded-full text-3xl dark:hover:bg-gray-900 hover:bg-gray-200 focus:outline-none transition-colors duration-200 border border-gray-900"
               aria-label={`Dial ${button.value}`}
             >
               {button.value}
@@ -644,7 +655,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
           ))}
           <button
             onClick={handleBackspace}
-            className="flex flex-col items-center justify-center h-20 w-20 dark:bg-black rounded-full text-3xl hover:bg-gray-900 focus:outline-none transition-colors duration-200 border border-gray-900"
+            className="flex flex-col items-center justify-center h-20 w-20 dark:bg-black rounded-full text-3xl dark:hover:bg-gray-900 hover:bg-gray-200 focus:outline-none transition-colors duration-200 border border-gray-900"
             aria-label="Backspace"
           >
             ⌫
@@ -683,7 +694,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
           {/* Add Verified Caller ID Button */}
           <button
             onClick={() => setIsAddCallerIDModalOpen(true)}
-            className="mt-4 p-2 bg-blue-600 dark:text-white rounded hover:bg-blue-500 w-full"
+            className="mt-4 p-2 bg-blue-600 text-white rounded hover:bg-blue-500 w-full"
           >
             Add Verified Caller ID
           </button>
@@ -743,7 +754,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       />
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full -ml-4 dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
+      <div className="fixed bottom-0 w-5/6 bg-white dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
