@@ -142,43 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .eq('id', task.id);
         
         console.log('Call executed for task:', task.id);
-
-        // step 1: Fetch all campaign IDs for the use
-        const {data: campaigns, error: campaignError} = await supabase
-        .from('campaigns')
-        .select('id')
-        .eq("user_id", userId);
         
-        if(campaignError){
-          throw new Error(campaignError.message);
-        }
-
-          // Step 2: Loop through the campaigns and check if all tasks are completed
-          for (let campaign of campaigns) {
-           const { data: callTasks, error: taskError } = await supabase
-           .from('call_tasks')
-           .select('call_status')
-           .eq('campaign_id', campaign.id);
-
-           if(taskError){
-            throw new Error(taskError.message);
-           }
-           // Check if all tasks are completed for the current campaign
-           const allCompleted = callTasks.every(task => task.call_status === 'Completed');
-
-           if (allCompleted) {
-            const { error: updateCampaignError } = await supabase
-              .from('campaigns')
-              .update({ status: 'Completed' })
-              .eq('id', campaign.id);
-      
-            if (updateCampaignError) {
-              throw new Error(updateCampaignError.message);
-            }
-      
-            console.log(`Campaign ${campaign.id} status updated to Completed.`);
-          }
-          }
       } catch (error) {
         console.error('Failed to initiate call:', error);
         // Optionally update the task status to 'Failed' or log the error
