@@ -84,7 +84,7 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md dark:bg-gray-500 dark:text-white"
           />
         </div>
 
@@ -95,10 +95,10 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
           <input
             type="file"
             onChange={handleFileUpload}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
+            className="mt-1 block w-full p-2 bg-white border border-gray-300 rounded-md dark:bg-gray-500 dark:text-white"
             multiple
           />
-          <p className="mt-2 text-sm text-gray-400">Audio or Video files, up to 10MB each</p>
+          <p className="mt-2 text-sm text-gray-800 dark:text-gray-200">Audio or Video files, up to 10MB each</p>
         </div>
 
         <div>
@@ -115,7 +115,7 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-gray-800 dark:text-white"
+            className="mt-1 block w-full p-2 bg-white border border-gray-300 rounded-md dark:bg-gray-500 dark:text-white"
             rows={4}
             placeholder='How would you describe the voice? e.g. "An old American male voice with a slight hoarseness in his throat. Perfect for news."'
           ></textarea>
@@ -125,16 +125,16 @@ const AddVoiceModal: React.FC<AddVoiceModalProps> = ({ isOpen, onClose, apiKey }
           <input
             type="checkbox"
             id="confirm"
-            className="mr-2"
+            className="mr-2 dark:bg-white"
           />
-          <label htmlFor="confirm" className="text-sm text-gray-400">
+          <label htmlFor="confirm" className="text-sm text-gray-800 dark:text-gray-200" >
             I hereby confirm that I have all necessary rights or consents to upload and clone these voice samples...
           </label>
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button variant="flat" onClick={onClose} disabled={isSubmitting}>Cancel</Button>
-          <Button variant="flat" onClick={handleSubmit} loading={isSubmitting}>Add Voice</Button>
+          <Button variant="flat" className='hover:text-white dark:hover:text-white' onClick={onClose} disabled={isSubmitting}>Cancel</Button>
+          <Button variant="flat" className='hover:text-white dark:hover:text-white' onClick={handleSubmit} loading={isSubmitting}>Add Voice</Button>
         </div>
       </div>
     </Modal>
