@@ -82,9 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const countryCode = campaign?.country_code || '+1';
-        const phoneNumber = contact.phone.startsWith(countryCode)
-          ? contact.phone
-          : `${countryCode}${contact.phone}`;
+        const tenDigitNum = contact.phone.slice(-10);
+        const phoneNumber = `${countryCode}${tenDigitNum}`
+        // const phoneNumber = contact.phone.startsWith(countryCode)
+        //   ? contact.phone
+        //   : `${countryCode}${contact.phone}`;
 
   if (apiError) {
     console.error('Error fetching API keys:', apiError.message);
