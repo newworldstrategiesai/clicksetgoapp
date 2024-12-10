@@ -259,8 +259,8 @@ export default function Chats() {
 
       <Layout.Body className='sm:overflow-hidden'>
         <section className='flex h-full gap-6'>
-          {/* Left Side - Chat List */}
-          <div className='flex w-full flex-col gap-2 sm:w-56 lg:w-72 2xl:w-80'>
+          {/* Left Side - Chat List (Hidden on mobile) */}
+          <div className={cn('flex w-full flex-col gap-2 sm:w-56 lg:w-72 2xl:w-80', mobileSelectedUser && 'hidden sm:block')}>
             <div className='sticky top-0 z-10 -mx-4 bg-background px-4 pb-3 shadow-md sm:static sm:z-auto sm:mx-0 sm:p-0 sm:shadow-none'>
               <div className='flex items-center justify-between py-2'>
                 <div className='flex gap-2'>
@@ -275,7 +275,7 @@ export default function Chats() {
                     className='flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90'
                   >
                     <IconPlus className='h-5 w-5' />
-                    <span></span>
+                    <span>New Chat</span>
                   </Button>
                 </div>
               </div>
@@ -328,7 +328,8 @@ export default function Chats() {
             </div>
           </div>
 
-          <div className='flex flex-1 flex-col gap-2 rounded-md px-4 pb-4 pt-0'>
+          {/* Right Side - Chat Window (Full screen on mobile) */}
+          <div className={cn('flex flex-1 flex-col gap-2 rounded-md px-4 pb-4 pt-0', mobileSelectedUser && 'w-full sm:w-auto')}>
               <div className='flex size-full flex-1'>
                 <div className='chat-text-container relative -mr-4 flex flex-1 flex-col overflow-y-hidden'>
                   <div className='chat-flex flex h-40 w-full flex-grow flex-col-reverse justify-start gap-4 overflow-y-auto py-2 pb-4 pr-4'>
