@@ -68,7 +68,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         .select('eleven_labs_key, twilio_sid, twilio_auth_token, vapi_key') // Replace 'some_column' with the actual column for API key
         .eq('user_id', userId) // Use the fetched user ID
         .single();
-  
+
+        const { data: campaign, error: campaignError } = await supabase
+          .from('campaigns')
+          .select('country_code')
+          .eq('id', userId)
+          .single();
+
+        console.log(campaign?.country_code)
+        if (campaignError) {
+          console.error('Error fetching campaign:', campaignError.message);
+          return;
+        }
+
+        const countryCode = campaign?.country_code || '+1';
+        const tenDigitNum = contact.phone.slice(-10);
+        const phoneNumber = `${countryCode}${tenDigitNum}`
+        // const phoneNumber = contact.phone.startsWith(countryCode)
+        //   ? contact.phone
+        //   : `${countryCode}${contact.phone}`;
+
   if (apiError) {
     console.error('Error fetching API keys:', apiError.message);
     return res.status(500).json({ message: 'Failed to fetch API keys' });
@@ -114,7 +133,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         contact: {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
         },
         reason: task.call_subject,
         twilioNumber: selectedTwilioNumber,

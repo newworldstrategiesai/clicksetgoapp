@@ -52,8 +52,8 @@ const AddCallerIDModal: React.FC<AddCallerIDModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-70 z-50">
-      <div className="bg-gray-800 p-6 rounded-lg w-full max-w-md mx-auto relative shadow-lg">
+    <div className="fixed inset-0 flex items-center justify-center z-50 backdrop-blur-sm">
+      <div className="p-6 w-full max-w-md mx-auto relative shadow-lg bg-modal border-2 dark:dark:bg-gray-950 border-solid border-gray-300 rounded-xl">
         <h2 className="text-2xl font-semibold mb-4 dark:text-white">
           Add Verified Caller ID
         </h2>
@@ -65,12 +65,13 @@ const AddCallerIDModal: React.FC<AddCallerIDModalProps> = ({
                 type="text"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                className="w-full mt-1 p-2 dark:bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="w-full mt-1 p-2 rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white dark:bg-gray-700 active"
+                autoFocus
               />
             </label>
             <button
               onClick={initiateVerification}
-              className="mt-4 px-4 py-2 bg-blue-600 dark:text-white font-semibold rounded hover:bg-blue-500"
+              className="mt-4 px-4 py-2 bg-blue-600 dark:text-white font-semibold rounded hover:bg-blue-500 text-white"
               disabled={loading}
             >
               {loading ? "Sending..." : "Send Verification Code"}
@@ -104,7 +105,7 @@ const AddCallerIDModal: React.FC<AddCallerIDModalProps> = ({
             setValidationCode(null);
             setPhoneNumber("");
           }}
-          className="absolute top-2 right-2 text-gray-400 hover:text-white focus:outline-none"
+          className="absolute top-2 right-2 text-gray-400 hover:text-black dark:hover:text-white focus:outline-none "
           aria-label="Close"
         >
           ×

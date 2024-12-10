@@ -105,7 +105,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
   return (
     <div className="flex flex-col flex-grow">
       {/* Header with "+" button */}
-      <div className="flex justify-between items-center px-4 py-2 border-b border-gray-700">
+      <div className="flex justify-between items-center px-4 border-b border-gray-700">
         <Link href="/lists">
           <button className="text-blue-500 text-lg">Lists</button>
         </Link>
@@ -125,7 +125,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
         <input
           type="text"
           placeholder="Search contacts..."
-          className="w-full p-2 rounded bg-gray-800 dark:text-white"
+          className="w-full p-2 rounded dark:bg-gray-800 dark:text-white bg-gray-200"
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
         />
@@ -157,7 +157,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
               {groupedContacts[letter].map((contact: Contact) => (
                 <div
                   key={contact.id}
-                  className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer hover:bg-gray-800 transition-colors ${
+                  className={`flex items-center justify-between py-3 border-b border-gray-700 cursor-pointer dark:hover:bg-gray-800 transition-colors hover:bg-gray-100${
                     selectedContacts.has(contact.id) ? "bg-gray-800" : ""
                   }`}
                   onClick={() => onContactClick(contact)} // This should remain
@@ -173,7 +173,7 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
                       />
                     </div>
                     {/* Avatar */}
-                    <div className="bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center dark:text-white text-lg">
+                    <div className="dark:bg-gray-600 h-10 w-10 rounded-full mr-3 flex items-center justify-center dark:text-white text-lg bg-gray-300">
                       {contact.first_name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-grow">

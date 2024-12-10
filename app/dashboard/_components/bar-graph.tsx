@@ -122,6 +122,8 @@ export function BarGraph() {
               left: 12,
               right: 12
             }}
+            className="dark:bg-gray-800
+            dark:text-white"
           >
             <CartesianGrid vertical={false} />
             <XAxis
@@ -141,7 +143,9 @@ export function BarGraph() {
             <ChartTooltip
               content={
                 <ChartTooltipContent
-                  className="w-[150px]"
+                  className="w-[150px] dark:text-white dark:bg-gray-600
+                  text-white
+                  bg-black"
                   nameKey="views"
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString('en-US', {

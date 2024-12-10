@@ -74,10 +74,14 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
       apiKey: encryptedApiKey, 
       twilioSid: encryptedTwilioSid, 
       twilioAuthToken: encryptedTwilioAuthToken, 
-      vapiKey: encryptedVapiKey 
+      vapiKey: encryptedVapiKey  
     }).toString();
-    
+
     router.push(`/campaigns/${campaignId}?${queryString}`); // Construct the URL with encrypted query parameters
+  };
+  const handleEdit = (campaignId: string) => {
+    const encryptedUserId = CryptoJS.AES.encrypt(userId, process.env.SECRET_KEY || "").toString();
+    router.push(`/editCampaign/${campaignId}`);
   };
 
   // Open modal for campaign details

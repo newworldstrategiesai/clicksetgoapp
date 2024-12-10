@@ -48,7 +48,7 @@ const AddContactModal: React.FC<AddContactModalProps> = ({ isOpen, onClose, onCo
       id: newContactId,
       first_name: firstName,
       last_name: lastName,
-      phone: formattedPhone,
+      phone: phone,
       email_address: email || "",
       user_id: userId,
     };
