@@ -102,7 +102,7 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
                 checked={formValues.emailInboundCalls}
                 onChange={(value) => handleToggleChange('emailInboundCalls', value)}
                 className={`${
-                  formValues.emailInboundCalls ? 'bg-blue-600' : 'bg-gray-400'
+                  formValues.emailInboundCalls ? 'bg-blue-600' : 'dark:bg-gray-400'
                 } relative inline-flex h-6 w-11 items-center rounded-full`}
               >
                 <span

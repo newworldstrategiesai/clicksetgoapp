@@ -24,7 +24,7 @@ import { MainNav } from "@/components/main-nav";
 const navItems = [
   {
     title: "Dashboard",
-    href: "/",
+    href: "/home",
     icon: LayoutDashboard,
   },
   {

@@ -161,7 +161,7 @@ export default function AccountContent({
         <select
           value={storedCountry || 'US'}
           onChange={handleAccountCountryChange}
-          className="bg-gray-800 dark:text-white p-2 rounded shadow"
+          className="dark:bg-gray-800 dark:text-white p-2 rounded shadow"
         >
           {Object.entries(countryCodes).map(([code, { name }]) => (
             <option key={code} value={code}>
