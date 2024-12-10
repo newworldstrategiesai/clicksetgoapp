@@ -1,3 +1,5 @@
+// components/main-nav.tsx
+
 'use client';
 
 import Link from "next/link";
@@ -7,7 +9,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import {
   LayoutDashboard,
   Users,
-  Calendar as CalendarIcon,
+  Calendar,
   FileText,
   Inbox,
   MessageSquare,
@@ -28,7 +30,7 @@ const mainNavItems = [
     items: [
       {
         title: "Dashboard",
-        href: "/overview",
+        href: "/",
         icon: LayoutDashboard,
       },
       {
@@ -51,24 +53,16 @@ const mainNavItems = [
         href: "/contacts",
         icon: Users,
       },
-      {
-        title: "Calendar",
-        href: "/events",
-        icon: CalendarIcon,
-      },
-      {
-        title: "Contracts",
-        href: "/contracts",
-        icon: FileText,
-      },
+     
+      
     ],
   },
   {
     title: "Communications",
     items: [
       {
-        title: "Inbox",
-        href: "/emails",
+        title: "Campaigns",
+        href: "/campaigns",
         icon: Inbox,
       },
       {
@@ -81,11 +75,7 @@ const mainNavItems = [
         href: "/call-logs",
         icon: Phone,
       },
-      {
-        title: "Marketing",
-        href: "/marketing",
-        icon: Megaphone,
-      },
+     
     ],
   },
   {
@@ -93,34 +83,22 @@ const mainNavItems = [
     items: [
       {
         title: "Voice Agents",
-        href: "/agents",
+        href: "/customization/persona",
         icon: Mic,
       },
-      {
-        title: "Automations",
-        href: "/customization/persona",
-        icon: Bot,
-      },
+     
     ],
   },
   {
     title: "Tools",
     items: [
+      
       {
-        title: "Inventory",
-        href: "/equipment",
-        icon: Box,
-      },
-      {
-        title: "Directory",
-        href: "/venues",
+        title: "Voices",
+        href: "/voice-library",
         icon: Map,
       },
-      {
-        title: "QR Generator",
-        href: "/requests",
-        icon: QrCode,
-      },
+     
     ],
   },
 ];
@@ -129,37 +107,8 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <>
-    <style jsx global>{`
-      /* Styles for the scrollbar */
-      ::-webkit-scrollbar {
-        width: 4px; /* Narrow scrollbar */
-      }
-
-      /* Light mode styles */
-      @media (prefers-color-scheme: light) {
-        ::-webkit-scrollbar-thumb {
-          background-color: #333; /* Dark thumb color for light mode */
-        }
-        ::-webkit-scrollbar-track {
-          background: #f0f0f0; /* Light track color */
-        }
-      }
-
-      /* Dark mode styles */
-      @media (prefers-color-scheme: dark) {
-        ::-webkit-scrollbar-thumb {
-          background-color: #ccc; /* Light thumb color for dark mode */
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #ccc; /* Dark track color */
-        }
-      }
-`   }</style>
-
-    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 h-screen mt-16 ">
-      <nav className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">
+    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300">
+      <nav className="flex flex-col gap-2 p-4 flex-1">
         {mainNavItems.map((group) => (
           <div key={group.title} className="mb-6">
             <h3 className="mb-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">
@@ -189,13 +138,13 @@ export function MainNav() {
           </div>
         ))}
       </nav>
-      <div className="p-4 border-t bg-white dark:bg-black border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <Link
-          href="/settings"
+          href="/account"
           className={clsx(
             "flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors mb-2",
             "hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100",
-            pathname === "/settings"
+            pathname === "/account"
               ? "bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               : "text-gray-600 dark:text-gray-300"
           )}
@@ -204,9 +153,10 @@ export function MainNav() {
           Settings
         </Link>
         {/* Integrate the ThemeToggle component here */}
-        
+        <div className="mt-4">
+          <ThemeToggle />
+        </div>
       </div>
     </div>
-    </>
   );
 }
