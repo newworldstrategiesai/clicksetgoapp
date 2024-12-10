@@ -53,7 +53,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/dashboard/overview',
     '/customization/persona',
     '/new-campaign',
-    '/schedule-new-form'
+    '/schedule-new-form',
+    '/home',
   ];
 
   // Define routes where MainNav should be hidden
