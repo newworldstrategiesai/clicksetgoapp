@@ -63,8 +63,11 @@ const formatPhoneNumber = (phoneNumber: string, CountryCode: CountryCode ) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
+// Remove the '+' and keep only the last 10 digits
+  const tenDigitNum = phoneNumber.slice(-10);
   const countryCodeObject = { defaultCountry: CountryCode as CountryCode };
-  const phoneNumberObject = parsePhoneNumberFromString(phoneNumber, countryCodeObject);
+  const phoneNumberObject = parsePhoneNumberFromString(tenDigitNum, countryCodeObject);
+  console.log(phoneNumberObject?.format('E.164'))
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -174,8 +177,18 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         .from('contacts')
         .select('*')
         .eq('user_id', userId);
-      if (error) throw error;
-      setContacts(data || []);
+      // sorting Contacts Alphabetically
+        if (error) {
+          console.error('Error fetching contacts:', error.message);
+        } else {
+          // Sort contacts alphabetically by first name
+          const sortedContacts = data?.sort((a: any, b: any) => {
+            const nameA = a.first_name.toLowerCase();
+            const nameB = b.first_name.toLowerCase();
+            return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+          });
+          setContacts(sortedContacts || []);
+        }
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast.error(
@@ -415,7 +428,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
    * Define Countries and Their Calling Codes
    */
   const countries = {
-    ZZ: { code: '', name: 'Select Country' },
     US: { code: '+1', name: 'United States' },
     IN: { code: '+91', name: 'India' },
     FR: { code: '+33', name: 'France' },
@@ -425,9 +437,22 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
     
     // Add more countries as needed
   };
-  const [selectedCountryCode, setSelectedCountryCode] = useState<
-    keyof typeof countries
-  >('ZZ');
+    const [selectedCountryCode, setSelectedCountryCode] =
+    useState<keyof typeof countries>('US');
+  useEffect(()=> {
+    const fetchUserCountry = async () => {
+      const { data, error } = await supabase
+        .from('client_settings')
+        .select('default_country_name, default_country_code')
+        .eq('user_id', userId)
+        .single();
+      // setDefaultCountry(data?.default_country_name);
+      setSelectedCountryCode(data?.default_country_name)
+      setInput(data?.default_country_code)
+    };
+    fetchUserCountry();
+  },[userId])
+  
 
   /**
    * Handle Contact Selection from Address Book
