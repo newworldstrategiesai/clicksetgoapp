@@ -134,7 +134,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
                 <tr
                   key={campaign.id}
                   className="hover:bg-gray-100 cursor-pointer transition duration-150"
-                  onClick={() => handleEdit(campaign.id)} // Use handleClick function to redirect
+                  onClick={() => handleClick(campaign.id)} // Use handleClick function to redirect
                 >
                   <td className="px-4 py-3 border-b text-gray-800 truncate">{campaign.name || 'No name'}</td>
                   <td className="px-4 py-3 border-b text-gray-800 truncate max-w-xs sm:max-w-md">{campaign.description && campaign.description.length > 30 ? `${campaign.description.substring(0, 30)}...` : campaign.description || 'No description'}</td>
