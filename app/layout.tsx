@@ -54,7 +54,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/customization/persona',
     '/new-campaign',
     '/schedule-new-form',
-    '/campaign_ui'
+    '/campaign_ui',
     '/home',
   ];
 
