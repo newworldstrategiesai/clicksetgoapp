@@ -10,24 +10,38 @@ import { faPlus, faTrash, faEdit } from '@fortawesome/free-solid-svg-icons';
 import { toast, ToastContainer } from 'react-toastify';
 import Card from '@/components/ui/Card/Card'; // Adjust the path as necessary
 import 'react-toastify/dist/ReactToastify.css';
-import { CompanyLink, CompanyInfo } from '@/utils/supabase/types'; // Import the types
 
 interface CompanySettingsProps {
   userId: string;
+}
+
+interface CompanyInfo {
+  company_name: string;
+  company_description: string;
+  company_website: string;
+  company_phone: string;
+}
+
+interface CompanyLink {
+  id: string;
+  title: string;
+  url: string;
 }
 
 const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
   console.log('CompanySettings userId:', userId); // Debugging
 
   if (!userId) {
-    return (
-      <div className="text-red-500">
-        User ID is missing. Please log in again.
-      </div>
-    );
+    return <div className="text-red-500">User ID is missing. Please log in again.</div>;
   }
 
-  const [companyInfo, setCompanyInfo] = useState<CompanyInfo | null>(null);
+  const [companyInfo, setCompanyInfo] = useState<CompanyInfo>({
+    company_name: '',
+    company_description: '',
+    company_website: '',
+    company_phone: '',
+  });
+
   const [links, setLinks] = useState<CompanyLink[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [newLink, setNewLink] = useState<{ title: string; url: string }>({
@@ -45,58 +59,34 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
     const fetchData = async () => {
       setIsLoading(true);
 
-      try {
-        // Fetch company information from 'companies' table
-        const { data: companyData, error: companyError } = await supabase
-          .from('companies')
-          .select('id, name, description, address, website, phone, owner_id, created_at, updated_at')
-          .eq('owner_id', userId)
-          .single(); // Ensure only one row is returned
+      // Fetch company information
+      const { data: companyData, error: companyError } = await supabase
+        .from('agents')
+        .select('company_name, company_description, company_website, company_phone')
+        .eq('user_id', userId)
+        .single();
 
-        if (companyError) {
-          if (companyError.code === 'PGRST116') {
-            // No row exists, possibly insert a default row or handle accordingly
-            console.error('No company information found for the user.');
-            toast.error('No company information found. Please set it up.');
-          } else {
-            console.error('Error fetching company data:', companyError.message);
-            toast.error('Failed to fetch company information.');
-          }
-        } else if (companyData) {
-          setCompanyInfo(companyData as CompanyInfo);
-        }
-
-        // Fetch company links
-        const { data: linksData, error: linksError } = await supabase
-          .from('company_links')
-          .select('id, title, url')
-          .eq('user_id', userId);
-
-        if (linksError) {
-          if (linksError.code === 'PGRST22') {
-            // Column does not exist
-            console.error(
-              'Error fetching company links: "column company_links.user_id does not exist"'
-            );
-            toast.error(
-              'Failed to fetch company links: Missing "user_id" column in the database.'
-            );
-          } else {
-            console.error('Error fetching company links:', linksError.message);
-            toast.error('Failed to fetch company links.');
-          }
-        } else if (linksData) {
-          console.log('Fetched company links:', linksData);
-          console.log('Type of linksData:', typeof linksData);
-          console.log('Is linksData an array:', Array.isArray(linksData));
-          setLinks(linksData as CompanyLink[]);
-        }
-      } catch (err) {
-        console.error('Unexpected error fetching data:', err);
-        toast.error('An unexpected error occurred while fetching data.');
-      } finally {
-        setIsLoading(false);
+      if (companyError) {
+        console.error('Error fetching company data:', companyError.message);
+        toast.error('Failed to fetch company information.');
+      } else if (companyData) {
+        setCompanyInfo(companyData as CompanyInfo);
       }
+
+      // Fetch company links
+      const { data: linksData, error: linksError } = await supabase
+        .from('company_links')
+        .select('id, title, url')
+        .eq('agent_id', userId);
+
+      if (linksError) {
+        console.error('Error fetching company links:', linksError.message);
+        toast.error('Failed to fetch company links.');
+      } else if (linksData) {
+        setLinks(linksData as CompanyLink[]);
+      }
+
+      setIsLoading(false);
     };
 
     fetchData();
@@ -106,49 +96,36 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
   const handleCompanyInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    if (!companyInfo) return;
-
     const { name, value } = e.target;
     setCompanyInfo((prev) => ({
-      ...prev!,
+      ...prev,
       [name]: value,
     }));
   };
 
   // Handle Company Info Submit
-  const handleCompanyInfoSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleCompanyInfoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      const updateData: Partial<CompanyInfo> = {
-        name: companyInfo?.name,
-        description: companyInfo?.description,
-        address: companyInfo?.address,
-        website: companyInfo?.website,
-        phone: companyInfo?.phone,
-      };
+    const { error } = await supabase
+      .from('agents')
+      .update({
+        company_name: companyInfo.company_name,
+        company_description: companyInfo.company_description,
+        company_website: companyInfo.company_website,
+        company_phone: companyInfo.company_phone,
+      })
+      .eq('user_id', userId);
 
-      const { error } = await supabase
-        .from('companies')
-        .update(updateData)
-        .eq('owner_id', userId)
-        .single(); // Ensure only one row is updated
-
-      if (error) {
-        console.error('Error updating company info:', error.message);
-        toast.error('Failed to update company information.');
-      } else {
-        toast.success('Company information updated successfully.');
-      }
-    } catch (err) {
-      console.error('Unexpected error updating company info:', err);
-      toast.error('An unexpected error occurred.');
-    } finally {
-      setIsLoading(false);
+    if (error) {
+      console.error('Error updating company info:', error.message);
+      toast.error('Failed to update company information.');
+    } else {
+      toast.success('Company information updated successfully.');
     }
+
+    setIsLoading(false);
   };
 
   // Handle Link Change (for existing links)
@@ -178,51 +155,35 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('company_links')
-        .insert([
-          {
-            id: uuidv4(),
-            user_id: userId, // Ensure this matches your Supabase schema
-            title: newLink.title,
-            url: newLink.url,
-          },
-        ])
-        .select('*'); // Ensures the inserted row is returned
+    const { data, error } = await supabase.from('company_links').insert([
+      {
+        id: uuidv4(),
+        agent_id: userId,
+        title: newLink.title,
+        url: newLink.url,
+      },
+    ]);
 
-      if (error) {
-        console.error('Error adding new link:', error.message);
-        toast.error('Failed to add new link.');
-      } else if (data && data.length > 0) {
-        setLinks([...links, data[0]]);
-        setNewLink({ title: '', url: '' });
-        toast.success('Link added successfully.');
-      }
-    } catch (err) {
-      console.error('Unexpected error adding new link:', err);
-      toast.error('An unexpected error occurred.');
+    if (error) {
+      console.error('Error adding new link:', error.message);
+      toast.error('Failed to add new link.');
+    } else if (data && data[0]) {
+      setLinks([...links, data[0] as CompanyLink]);
+      setNewLink({ title: '', url: '' });
+      toast.success('Link added successfully.');
     }
   };
 
   // Handle Delete Link
   const handleDeleteLink = async (id: string) => {
-    try {
-      const { error } = await supabase
-        .from('company_links')
-        .delete()
-        .eq('id', id);
+    const { error } = await supabase.from('company_links').delete().eq('id', id);
 
-      if (error) {
-        console.error('Error deleting link:', error.message);
-        toast.error('Failed to delete link.');
-      } else {
-        setLinks(links.filter((link) => link.id !== id));
-        toast.success('Link deleted successfully.');
-      }
-    } catch (err) {
-      console.error('Unexpected error deleting link:', err);
-      toast.error('An unexpected error occurred.');
+    if (error) {
+      console.error('Error deleting link:', error.message);
+      toast.error('Failed to delete link.');
+    } else {
+      setLinks(links.filter((link) => link.id !== id));
+      toast.success('Link deleted successfully.');
     }
   };
 
@@ -247,31 +208,23 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
       return;
     }
 
-    try {
-      const { data, error } = await supabase
-        .from('company_links')
-        .update({ title: editedLink.title, url: editedLink.url })
-        .eq('id', id)
-        .select('*'); // Ensures the updated row is returned
+    const { error } = await supabase
+      .from('company_links')
+      .update({ title: editedLink.title, url: editedLink.url })
+      .eq('id', id);
 
-      if (error) {
-        console.error('Error updating link:', error.message);
-        toast.error('Failed to update link.');
-      } else if (data && data.length > 0) {
-        setLinks(
-          links.map((link) =>
-            link.id === id
-              ? { ...link, title: editedLink.title, url: editedLink.url }
-              : link
-          )
-        );
-        setEditingLinkId(null);
-        setEditedLink({ title: '', url: '' });
-        toast.success('Link updated successfully.');
-      }
-    } catch (err) {
-      console.error('Unexpected error updating link:', err);
-      toast.error('An unexpected error occurred.');
+    if (error) {
+      console.error('Error updating link:', error.message);
+      toast.error('Failed to update link.');
+    } else {
+      setLinks(
+        links.map((link) =>
+          link.id === id ? { ...link, title: editedLink.title, url: editedLink.url } : link
+        )
+      );
+      setEditingLinkId(null);
+      setEditedLink({ title: '', url: '' });
+      toast.success('Link updated successfully.');
     }
   };
 
@@ -292,109 +245,86 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         title="Company Information"
         description="Edit your company's details below."
       >
-        {companyInfo ? (
-          <form onSubmit={handleCompanyInfoSubmit} className="space-y-4">
-            {/* Company Name */}
-            <div>
-              <label htmlFor="name" className="block text-gray-400">
-                Company Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={companyInfo.name}
-                onChange={handleCompanyInfoChange}
-                required
-                className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                placeholder="Your Company Name"
-              />
-            </div>
+        <form onSubmit={handleCompanyInfoSubmit} className="space-y-4">
+          {/* Company Name */}
+          <div>
+            <label htmlFor="company_name" className="block text-gray-400">
+              Company Name
+            </label>
+            <input
+              type="text"
+              id="company_name"
+              name="company_name"
+              value={companyInfo.company_name}
+              onChange={handleCompanyInfoChange}
+              required
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              placeholder="Your Company Name"
+            />
+          </div>
 
-            {/* Company Description */}
-            <div>
-              <label htmlFor="description" className="block text-gray-400">
-                Company Description
-              </label>
-              <textarea
-                id="description"
-                name="description"
-                value={companyInfo.description}
-                onChange={handleCompanyInfoChange}
-                required
-                className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                placeholder="A brief description of your company."
-                rows={4}
-              />
-            </div>
+          {/* Company Description */}
+          <div>
+            <label htmlFor="company_description" className="block text-gray-400">
+              Company Description
+            </label>
+            <textarea
+              id="company_description"
+              name="company_description"
+              value={companyInfo.company_description}
+              onChange={handleCompanyInfoChange}
+              required
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              placeholder="A brief description of your company."
+              rows={4}
+            />
+          </div>
 
-            {/* Company Address */}
-            <div>
-              <label htmlFor="address" className="block text-gray-400">
-                Company Address
-              </label>
-              <input
-                type="text"
-                id="address"
-                name="address"
-                value={companyInfo.address}
-                onChange={handleCompanyInfoChange}
-                required
-                className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                placeholder="1234 Business St, City, Country"
-              />
-            </div>
+          {/* Company Website */}
+          <div>
+            <label htmlFor="company_website" className="block text-gray-400">
+              Company Website
+            </label>
+            <input
+              type="url"
+              id="company_website"
+              name="company_website"
+              value={companyInfo.company_website}
+              onChange={handleCompanyInfoChange}
+              required
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              placeholder="https://yourcompany.com"
+            />
+          </div>
 
-            {/* Company Website */}
-            <div>
-              <label htmlFor="website" className="block text-gray-400">
-                Company Website
-              </label>
-              <input
-                type="url"
-                id="website"
-                name="website"
-                value={companyInfo.website}
-                onChange={handleCompanyInfoChange}
-                required
-                className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                placeholder="https://yourcompany.com"
-              />
-            </div>
+          {/* Company Phone Number */}
+          <div>
+            <label htmlFor="company_phone" className="block text-gray-400">
+              Company Phone Number
+            </label>
+            <input
+              type="tel"
+              id="company_phone"
+              name="company_phone"
+              value={companyInfo.company_phone}
+              onChange={handleCompanyInfoChange}
+              required
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              placeholder="+1 123-456-7890"
+            />
+          </div>
 
-            {/* Company Phone Number */}
-            {companyInfo.phone !== undefined && (
-              <div>
-                <label htmlFor="phone" className="block text-gray-400">
-                  Company Phone Number
-                </label>
-                <input
-                  type="tel"
-                  id="phone"
-                  name="phone"
-                  value={companyInfo.phone || ''}
-                  onChange={handleCompanyInfoChange}
-                  required
-                  className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
-                  placeholder="+1 123-456-7890"
-                />
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200"
-                disabled={isLoading}
-              >
-                {isLoading ? 'Saving...' : 'Save Changes'}
-              </button>
-            </div>
-          </form>
-        ) : (
-          <p className="text-gray-400">No company information available.</p>
-        )}
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
       </Card>
 
       {/* Important Links Manager */}
@@ -405,10 +335,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         {/* Existing Links */}
         {links.length > 0 ? (
           links.map((link) => (
-            <div
-              key={link.id}
-              className="bg-gray-800 shadow rounded-lg p-4 mb-4"
-            >
+            <div key={link.id} className="dark:bg-gray-800 shadow rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-medium">{link.title}</h3>
                 <div className="flex space-x-2">
@@ -437,7 +364,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                   <input
                     type="text"
                     id={`title-${link.id}`}
-                    name="title"
                     value={
                       editingLinkId === link.id ? editedLink.title : link.title
                     }
@@ -446,7 +372,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, title: e.target.value })
                         : handleLinkChange(link.id, 'title', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                    className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="e.g., Facebook"
                   />
                 </div>
@@ -459,7 +385,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                   <input
                     type="url"
                     id={`url-${link.id}`}
-                    name="url"
                     value={
                       editingLinkId === link.id ? editedLink.url : link.url
                     }
@@ -468,7 +393,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, url: e.target.value })
                         : handleLinkChange(link.id, 'url', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                    className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="https://facebook.com/yourcompany"
                   />
                 </div>
@@ -492,7 +417,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         )}
 
         {/* Add New Link */}
-        <div className="bg-gray-800 shadow rounded-lg p-4">
+        <div className="dark:bg-gray-800 shadow rounded-lg p-4">
           <h3 className="text-lg font-medium mb-2">Add New Link</h3>
           <div className="space-y-2">
             {/* Link Title */}
@@ -503,12 +428,11 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               <input
                 type="text"
                 id="newLinkTitle"
-                name="newLinkTitle"
                 value={newLink.title}
                 onChange={(e) =>
                   setNewLink({ ...newLink, title: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="e.g., Instagram"
               />
             </div>
@@ -521,12 +445,11 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               <input
                 type="url"
                 id="newLinkURL"
-                name="newLinkURL"
                 value={newLink.url}
                 onChange={(e) =>
                   setNewLink({ ...newLink, url: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="https://instagram.com/yourcompany"
               />
             </div>
