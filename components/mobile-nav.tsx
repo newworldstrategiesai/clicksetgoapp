@@ -28,13 +28,13 @@ const navItems = [
     icon: LayoutDashboard,
   },
   {
-    title: "Leads",
-    href: "/leads",
+    title: "Contacts",
+    href: "/contacts",
     icon: Users,
   },
   {
-    title: "Events",
-    href: "/events",
+    title: "Campaigns",
+    href: "/campaigns",
     icon: Calendar,
   },
   {
@@ -43,15 +43,11 @@ const navItems = [
     icon: Phone,
   },
   {
-    title: "Messages",
-    href: "/sms",
+    title: "Texts",
+    href: "/sms-logs",
     icon: MessageSquare,
   },
-  {
-    title: "Requests",
-    href: "/requests",
-    icon: Music,
-  },
+  
 ];
 
 export function MobileNav() {
