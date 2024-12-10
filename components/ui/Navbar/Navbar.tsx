@@ -44,7 +44,7 @@ const Navbar: React.FC = () => {
   const homeLink = user ? '/home' : '/index.html';
 
   return (
-    <nav className="bg-white dark:bg-black text-gray-900 dark:text-gray-100 px-4 py-3 w-5/6 flex-grow z-10 top-0 shadow-md transition-colors duration-300 fixed">
+    <nav className="navbar bg-white dark:bg-black text-gray-900 dark:text-gray-100 px-4 py-3 w-full z-10 top-0 shadow-md transition-colors duration-300">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
@@ -58,12 +58,12 @@ const Navbar: React.FC = () => {
             
           </a>
         </div>
-        <div className="hidden lg:flex items-center">
+        <div className="hidden lg:flex space-x-4">
           <Navlinks user={user} />
         </div>
-         {/* Integrate the ThemeToggle component */}
-        <ThemeToggle />
-        <div className="flex items-center space-x-4">          
+        <div className="flex items-center space-x-4">
+          {/* Integrate the ThemeToggle component */}
+          <ThemeToggle />
           <div className="lg:hidden">
             <button
               onClick={toggleMenu}
