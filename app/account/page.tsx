@@ -64,10 +64,8 @@ export default async function Account() {
           {twilioSid && twilioAuthToken ? (
             <PhoneNumbers
               userId={user.id}
-              twilioCredentials={{
-                sid: twilioSid,
-                authToken: twilioAuthToken
-              }}
+              twilioSid={twilioSid}
+              twilioAuthToken={twilioAuthToken}
             />
           ) : (
             <p className="text-center text-gray-400 mt-4">

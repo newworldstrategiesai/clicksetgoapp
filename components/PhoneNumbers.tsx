@@ -1,6 +1,5 @@
 // components/PhoneNumbers.tsx
 'use client';
-
 import React, { useState, useEffect } from 'react';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -14,13 +13,11 @@ interface PhoneNumber {
 
 interface PhoneNumbersProps {
   userId: string;
-  twilioCredentials: {
-    sid: string;
-    authToken: string;
-  };
+  twilioSid: string;
+  twilioAuthToken: string;
 }
 
-const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioCredentials }) => {
+const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioSid, twilioAuthToken }) => {
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDeleting, setIsDeleting] = useState<{ [key: string]: boolean }>({});
@@ -28,15 +25,17 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioCredentials }
   useEffect(() => {
     const fetchPhoneNumbers = async () => {
       try {
-        const response = await fetch('/api/phone-numbers/get', {
+        const response = await fetch('/api/phone-numbers/get', { // Ensure this endpoint exists
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            userId,
-            twilioSid: twilioCredentials.sid,
-            twilioAuthToken: twilioCredentials.authToken
+            user_Id: userId,
+            twilioClient: {
+              twilioSid,
+              twilioAuthToken,
+            },
           }),
         });
 
@@ -56,7 +55,7 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioCredentials }
     };
 
     fetchPhoneNumbers();
-  }, [userId, twilioCredentials]);
+  }, [userId, twilioSid, twilioAuthToken]);
 
   const handleDelete = async (sid: string) => {
     const confirmDelete = confirm('Are you sure you want to delete this phone number?');
@@ -65,33 +64,20 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioCredentials }
     setIsDeleting((prev) => ({ ...prev, [sid]: true }));
 
     try {
-      const response = await fetch(
-        `/api/phone-numbers/delete?sid=${encodeURIComponent(sid)}&userId=${encodeURIComponent(userId)}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            twilioSid: twilioCredentials.sid,
-            twilioAuthToken: twilioCredentials.authToken
-          }),
-        }
-      );
+      const response = await fetch('/api/phone-numbers/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sid, userId }),
+      });
 
       if (!response.ok) {
-        let errorMessage = 'Failed to delete phone number';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (jsonError) {
-          const text = await response.text();
-          console.error('Non-JSON response:', text);
-          errorMessage = 'An unexpected error occurred';
-        }
-        throw new Error(errorMessage);
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete phone number');
       }
 
+      // Remove the deleted number from the list
       setPhoneNumbers((prev) => prev.filter((number) => number.sid !== sid));
       toast.success('Phone number deleted successfully!');
     } catch (error: any) {
@@ -122,9 +108,7 @@ const PhoneNumbers: React.FC<PhoneNumbersProps> = ({ userId, twilioCredentials }
       {isLoading ? (
         <p className="text-center text-gray-600">Loading phone numbers...</p>
       ) : phoneNumbers.length === 0 ? (
-        <p className="text-center text-gray-600">
-          No connected phone numbers found.
-        </p>
+        <p className="text-center text-gray-600">No connected phone numbers found.</p>
       ) : (
         <table className="min-w-full table-auto">
           <thead>

@@ -142,6 +142,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           .eq('id', task.id);
         
         console.log('Call executed for task:', task.id);
+        
       } catch (error) {
         console.error('Failed to initiate call:', error);
         // Optionally update the task status to 'Failed' or log the error

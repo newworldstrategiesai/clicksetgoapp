@@ -19,6 +19,7 @@ interface CallLog {
   summary?: string;
   recordingUrl?: string;
   fullName?: string;
+  first_name?:string;
   createdAt: string;
 }
 
@@ -52,20 +53,9 @@ const UserCallLogs: React.FC = () => {
           headers: { 'Authorization': `Bearer ${userId}` }
         });
 
-        const contactsResponse = await axios.get('/api/contacts');
-        // const [callLogsResponse, contactsResponse] = await Promise.all([
-        //   axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
-        //   axios.get('/api/contacts'),
-        // ]);
-
-        // const [callLogsResponse, contactsResponse] = await Promise.all([
-        //   axios.get('/api/get-call-logs-by-number', { params: { number, page },
-        //     headers: { 'Authorization': `Bearer ${userId}` }
-        //   }),
-        //   axios.get('/api/contacts'),
-        // ]);
-        // main
-
+        const contactsResponse = await axios.get('/api/contacts',{
+          params: {userId}
+        });
         const contacts = contactsResponse.data;
         const contact = contacts.find(
           (contact: any) =>
@@ -163,7 +153,7 @@ const UserCallLogs: React.FC = () => {
                       {log.type === 'inboundPhoneCall' ? 'Inbound' : 'Outbound'}
                     </td>
                     <td className="py-2 px-4 border-b">
-                      {moment(log.startedAt).format('MM/DD/YY hh:mm A')}
+                      {moment(log.startedAt || log.createdAt).format('MM/DD/YY hh:mm A')}
                     </td>
                     <td className="py-2 px-4 border-b">
                       {moment

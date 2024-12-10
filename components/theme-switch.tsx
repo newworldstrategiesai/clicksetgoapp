@@ -7,7 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ThemeProvider, useTheme } from 'next-themes' // Added useTheme import
+import { useTheme } from './theme-provider'
 import { Button } from './custom/button'
 
 export default function ThemeSwitch() {

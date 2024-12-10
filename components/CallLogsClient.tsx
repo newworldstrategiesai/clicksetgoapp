@@ -22,64 +22,92 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   const [error, setError] = useState('');
   const [selectedLog, setSelectedLog] = useState<CallLog | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [limit, setLimit] = useState(10);
 
-  const fetchCallLogs = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      const response = await axios.get('/api/get-call-logs', {
-        params: { userId, limit},
-        headers: {
-          'Authorization': `Bearer ${vapiKey}`, // Send vapiKey as a bearer token
-        },
-      });
-
-      const { data: contacts, error: contactsError } = await supabase
-        .from('contacts')
-        .select('*')
-        .eq("user_id", userId);
-
-      if (contactsError) {
-        console.error('Error fetching contacts from Supabase:', contactsError);
-        return;
-      }
-
-      const callLogsData = response.data.map((log: CallLog) => {
-        if (log.customer && log.customer.number) {
-          const contact = contacts.find(
-            (contact: any) =>
-              contact.phone &&
-              contact.phone.replace(/\D/g, '') ===
-                log.customer?.number?.replace(/\D/g, '')
-          );
-          if (contact) {
-            log.fullName = `${contact.first_name} ${contact.last_name}`;
-          }
+  // Pagination states
+  const [limit] = useState(10); // Fixed limit per page
+  const [firstTimestamp, setFirstTimestamp] = useState<string | null>(null);
+  const [lastTimestamp, setLastTimestamp] = useState<string | null>(null);
+  const [currPage, setCurrPage] = useState(1);
+  const fetchCallLogs = useCallback(
+    async (direction?: 'next' | 'previous') => {
+      try {
+        setLoading(true);
+        setError('');
+  
+        const params: any = { userId, limit };
+       
+        // Handle navigation direction
+        if (direction === 'previous' && lastTimestamp) {
+          params.createdAtGt = lastTimestamp; // Fetch logs starting from the last dataset
+          params.createdAtLt = null; // Clear the previous filter
+          setCurrPage(curr => curr - 1)
+        } else if (direction === 'next' && firstTimestamp) {
+          params.createdAtLt = firstTimestamp; // Fetch logs ending at the first dataset
+          params.createdAtGt = null; // Clear the next filter
+          setCurrPage(curr => curr + 1)
         }
-        return log;
-      });
-
-      // Sort call logs in ascending order based on the startedAt date
-      callLogsData.sort((a: CallLog, b: CallLog) => {
-        const dateA = a.startedAt || a.createdAt;
-        const dateB = b.startedAt || b.createdAt;
-      
-        return moment(dateA).isBefore(moment(dateB)) ? 1 : -1;
-      });
-      
-      setCallLogs(callLogsData);
-    } catch (error) {
+  
+        const response = await axios.get('/api/get-call-logs', {
+          params,
+          headers: {
+            Authorization: `Bearer ${vapiKey}`,
+          },
+        });
+  
+        const { data: contacts, error: contactsError } = await supabase
+          .from('contacts')
+          .select('*')
+          .eq('user_id', userId);
+  
+        if (contactsError) {
+          console.error('Error fetching contacts from Supabase:', contactsError);
+          return;
+        }
+  
+        const callLogsData = response.data.map((log: CallLog) => {
+          if (log.customer && log.customer.number) {
+            const contact = contacts.find(
+              (contact: any) =>
+                contact.phone &&
+                contact.phone.replace(/\D/g, '') === log.customer?.number?.replace(/\D/g, '')
+            );
+            if (contact) {
+              log.fullName = `${contact.first_name} ${contact.last_name}`;
+            }
+          }
+          return log;
+        });
+  
+        // Sort the data in Descending order by startedAt or createdAt
+        callLogsData.sort((a: CallLog, b: CallLog) => {
+          const dateA = a.startedAt || a.createdAt;
+          const dateB = b.startedAt || b.createdAt;
+          return moment(dateA).isBefore(moment(dateB)) ? 1 : -1; // Descending order
+        });
+  
+        // Update state
+        setCallLogs(callLogsData);
+  
+        if (callLogsData.length > 0) {
+          setLastTimestamp(callLogsData[0].startedAt || callLogsData[0].createdAt);
+          setFirstTimestamp(
+            callLogsData[callLogsData.length - 1].startedAt ||
+              callLogsData[callLogsData.length - 1].createdAt
+          );
+        } 
+    }catch (error) {
       console.error('Error fetching call logs:', error);
       setError('Failed to fetch call logs');
     } finally {
       setLoading(false);
     }
-  }, [userId, limit, vapiKey]);
+    },
+    [userId, vapiKey, limit, firstTimestamp, lastTimestamp]
+  );
 
   useEffect(() => {
     fetchCallLogs();
-  }, [fetchCallLogs]);
+  }, []);
 
   const openModal = (log: CallLog) => {
     setSelectedLog(log);
@@ -91,11 +119,6 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
     setIsModalOpen(false);
   };
   
-  const loadMoreLogs = () => {
-    setLimit((prevLimit) => prevLimit + 10); // Increase limit by 10
-    fetchCallLogs();
-  };
-
   return (
     <div className="min-h-screen flex flex-col dark:bg-black dark:text-white pt-16 pb-16">
       <div className="flex justify-between px-4 items-center mb-4">
@@ -136,14 +159,22 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
         ))}
       </ul>
 
+      {/* Pagination Controls */}
+      <div className="flex justify-between px-4 mt-4">
       <button
-        onClick={loadMoreLogs}
-        className={`mt-4 mx-auto px-4 py-2 dark:text-white rounded-lg ${loading ? 'bg-blue-100': 'bg-blue-500'}`}
-        disabled={loading}
-      >
-        Load More
+          onClick={() => fetchCallLogs('previous')}
+          className={`px-4 py-2 text-white rounded-lg ${loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500'} ${currPage === 1 ? 'invisible' : ''}`}
+          disabled={loading}
+        >
+        Previous
+        </button>
+      <button
+          onClick={() => fetchCallLogs('next')}
+          className={`px-4 py-2 text-white rounded-lg ${loading ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500'}`}
+      >          
+      Next
       </button>
-
+      </div>
       {isModalOpen && selectedLog && (
   <div className="fixed inset-0 flex items-center justify-center dark:bg-black bg-opacity-70 z-50">
     <div className="bg-gray-800 p-6 rounded-lg w-full max-w-3xl mx-auto relative shadow-lg">
