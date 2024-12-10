@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
           .select('country_code')
-          .eq('id', userId)
+          .eq('id', task.campaign_id)
           .single();
 
         console.log(campaign?.country_code)
