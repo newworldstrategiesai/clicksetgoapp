@@ -24,7 +24,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/emails', '/sms', '/agents', '/leads/pipeline/automation',
     '/leads/pipeline', '/requests', '/equipment', '/venues', '/playlists',
     '/analytics', '/settings', '/account', '/campaigns', '/signin',
-    '/contacts', '/lists', '/sms-logs', '/tasks',
+    '/contacts', '/lists', '/sms-logs', '/tasks', '/new-campaign',
   ];
 
   const hideMobileNavRoutes = [
