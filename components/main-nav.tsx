@@ -30,7 +30,7 @@ const mainNavItems = [
     items: [
       {
         title: "Dashboard",
-        href: "/overview",
+        href: "/",
         icon: LayoutDashboard,
       },
       {
@@ -86,6 +86,7 @@ const mainNavItems = [
         href: "/customization/persona",
         icon: Mic,
       },
+     
     ],
   },
   {
@@ -137,7 +138,7 @@ export function MainNav() {
           </div>
         ))}
       </nav>
-      <div className="p-4 border-t bg-white dark:bg-black border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-200 bg-white dark:bg-black dark:border-gray-700">
         <Link
           href="/account"
           className={clsx(
@@ -152,9 +153,10 @@ export function MainNav() {
           Settings
         </Link>
         {/* Integrate the ThemeToggle component here */}
-        
+        <div className="mt-4">
+          <ThemeToggle />
+        </div>
       </div>
     </div>
-    </>
   );
 }
