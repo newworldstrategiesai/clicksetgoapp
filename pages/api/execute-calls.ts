@@ -72,7 +72,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
           .select('country_code')
-          .eq('id', userId)
+          .eq('id', task.campaign_id)
           .single();
 
         console.log(campaign?.country_code)
@@ -82,9 +82,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         }
 
         const countryCode = campaign?.country_code || '+1';
-        const phoneNumber = contact.phone.startsWith(countryCode)
-          ? contact.phone
-          : `${countryCode}${contact.phone}`;
+        const tenDigitNum = contact.phone.slice(-10);
+        const phoneNumber = `${countryCode}${tenDigitNum}`
+        // const phoneNumber = contact.phone.startsWith(countryCode)
+        //   ? contact.phone
+        //   : `${countryCode}${contact.phone}`;
 
   if (apiError) {
     console.error('Error fetching API keys:', apiError.message);

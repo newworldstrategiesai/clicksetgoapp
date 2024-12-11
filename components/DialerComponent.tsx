@@ -779,7 +779,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       />
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-5/6 bg-white dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
+      <div className="fixed bottom-0 w-full -ml-4 bg-white dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
