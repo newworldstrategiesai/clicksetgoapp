@@ -200,7 +200,7 @@ const DialerComponent = ({ userId, apiKey }: { userId: string, apiKey: string })
     <div className="min-h-screen flex flex-col dark:bg-black dark:text-white">
       <ToastContainer position="top-center" autoClose={5000} hideProgressBar={false} newestOnTop={true} closeOnClick pauseOnFocusLoss draggable pauseOnHover />
 
-      <div className="flex flex-col items-center justify-center w-full pt-16">
+      <div className="flex flex-col items-center justify-center w-full pt-8">
         <div className="text-4xl dark:text-white mb-8">{input || ''}</div>
         <div className="grid grid-cols-3 gap-4">
           {buttons.map((button) => (

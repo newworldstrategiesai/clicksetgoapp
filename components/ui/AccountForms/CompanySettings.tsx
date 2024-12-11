@@ -54,16 +54,9 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
           .single(); // Ensure only one row is returned
 
         if (companyError) {
-          if (companyError.code === 'PGRST116') {
-            // No row exists, possibly insert a default row or handle accordingly
-            console.error('No company information found for the user.');
-            toast.error('No company information found. Please set it up.');
-          } else {
-            console.error('Error fetching company data:', companyError.message);
-            toast.error('Failed to fetch company information.');
-          }
-        } else if (companyData) {
-          setCompanyInfo(companyData as CompanyInfo);
+          console.error('Error fetching company data:', companyError.message);
+        } else {
+          setCompanyInfo(companyData || null);
         }
 
         // Fetch company links
@@ -106,8 +99,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
   const handleCompanyInfoChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
-    if (!companyInfo) return;
-
     const { name, value } = e.target;
     setCompanyInfo((prev) => ({
       ...prev!,
@@ -116,36 +107,26 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
   };
 
   // Handle Company Info Submit
-  const handleCompanyInfoSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleCompanyInfoSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      const updateData: Partial<CompanyInfo> = {
-        name: companyInfo?.name,
-        description: companyInfo?.description,
-        address: companyInfo?.address,
-        website: companyInfo?.website,
-        phone: companyInfo?.phone,
-      };
-
       const { error } = await supabase
         .from('companies')
-        .update(updateData)
-        .eq('owner_id', userId)
-        .single(); // Ensure only one row is updated
+        .upsert({
+          owner_id: userId,
+          ...companyInfo,
+        });
 
       if (error) {
-        console.error('Error updating company info:', error.message);
-        toast.error('Failed to update company information.');
+        console.error('Error saving company info:', error.message);
+        toast.error('Failed to save company information.');
       } else {
-        toast.success('Company information updated successfully.');
+        toast.success('Company information saved successfully.');
       }
     } catch (err) {
-      console.error('Unexpected error updating company info:', err);
-      toast.error('An unexpected error occurred.');
+      console.error('Unexpected error saving company info:', err);
     } finally {
       setIsLoading(false);
     }
@@ -292,7 +273,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         title="Company Information"
         description="Edit your company's details below."
       >
-        {companyInfo ? (
           <form onSubmit={handleCompanyInfoSubmit} className="space-y-4">
             {/* Company Name */}
             <div>
@@ -303,7 +283,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 type="text"
                 id="name"
                 name="name"
-                value={companyInfo.name}
+                value={companyInfo?.name || ''}
                 onChange={handleCompanyInfoChange}
                 required
                 className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -319,7 +299,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               <textarea
                 id="description"
                 name="description"
-                value={companyInfo.description}
+                value={companyInfo?.description || ''}
                 onChange={handleCompanyInfoChange}
                 required
                 className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -337,7 +317,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 type="text"
                 id="address"
                 name="address"
-                value={companyInfo.address}
+                value={companyInfo?.address || ''}
                 onChange={handleCompanyInfoChange}
                 required
                 className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -354,7 +334,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 type="url"
                 id="website"
                 name="website"
-                value={companyInfo.website}
+                value={companyInfo?.website || ''}
                 onChange={handleCompanyInfoChange}
                 required
                 className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
@@ -363,7 +343,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
             </div>
 
             {/* Company Phone Number */}
-            {companyInfo.phone !== undefined && (
               <div>
                 <label htmlFor="phone" className="block text-gray-400">
                   Company Phone Number
@@ -372,14 +351,13 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                   type="tel"
                   id="phone"
                   name="phone"
-                  value={companyInfo.phone || ''}
+                  value={companyInfo?.phone || ''}
                   onChange={handleCompanyInfoChange}
                   required
                   className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                   placeholder="+1 123-456-7890"
                 />
               </div>
-            )}
 
             {/* Submit Button */}
             <div className="flex justify-end">
@@ -392,9 +370,6 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               </button>
             </div>
           </form>
-        ) : (
-          <p className="text-gray-400">No company information available.</p>
-        )}
       </Card>
 
       {/* Important Links Manager */}

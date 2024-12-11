@@ -120,7 +120,7 @@ const CallLogsClient: React.FC<{ userId: string; vapiKey: string }> = ({ userId,
   };
   
   return (
-    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white pt-16 pb-16">
+    <div className="min-h-screen flex flex-col dark:bg-black dark:text-white pt-2 pb-16">
       <div className="flex justify-between px-4 items-center mb-4">
         <h1 className="text-3xl font-semibold">Voicemail</h1>
         <button className="text-blue-500">Greeting</button>
