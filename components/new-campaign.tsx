@@ -15,6 +15,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
 import moment from "moment-timezone";
+import { useRouter } from 'next/navigation';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -66,7 +67,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     schedule: '',
     agent: ''
   });
-
+  const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
@@ -208,10 +209,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       country_code: defaultCountry.code,
       scheduled_at: scheduledAtUTC
     };
-
     // Debugging: Log the data being sent
-    console.log('Inserting Campaign:', insertData);
-
+    // router.push('/campaigns');
     try {
       const { error } = await supabase.from('campaigns').insert([insertData]);
 
@@ -236,6 +235,13 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           agent: ''
         });
         setIsAdvanced(false); // Reset Advanced section
+      }
+      try{
+        const { data } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(1);
+        const campId = data?.[0].id
+        router.push(`/campaigns/${campId}`);
+      }catch(error){
+        console.error('Error Routing to description page');
       }
     } catch (error) {
       console.error('Error inserting campaign:', error);

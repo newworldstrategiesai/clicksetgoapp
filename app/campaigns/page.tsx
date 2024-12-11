@@ -36,13 +36,13 @@ export default async function CampaignsPage() {
 
         return (
             <section className="mb-32 dark:bg-black min-h-screen">
-                <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
-                    <div className="sm:align-center sm:flex sm:flex-col">
-                        <h1 className="text-4xl font-extrabold dark:text-white sm:text-center sm:text-6xl">
+                {/* <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8"> */}
+                    <div className="sm:align-start sm:flex sm:flex-col ml-20">
+                        <h1 className="text-4xl font-extrabold dark:text-white sm:text-left sm:text-6xl">
                             Campaigns
                         </h1>
                     </div>
-                </div>
+                {/* </div> */}
                 <div className="p-4">
                 <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
                 </div>
