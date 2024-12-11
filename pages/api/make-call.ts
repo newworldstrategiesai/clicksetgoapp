@@ -133,9 +133,7 @@ export default async function handler(
 
   // Use the custom firstMessage if provided, otherwise default to a standard message
   const customizedFirstMessage =
-    firstMessage ||
-    `Hello, this is ${agentSettings.agentName} from ${agentSettings.companyName}. Am I speaking with ${contact.first_name}?`;
-
+    `Hello, this is ${agentSettings.agentName} from ${agentSettings.companyName}. Am I speaking with ${contact.first_name}?`|| firstMessage;
   // **Handle Optional 'prompt'**
   const systemPrompt = `
     You are ${agentSettings.agentName}, a ${agentSettings.role} from ${agentSettings.companyName}.

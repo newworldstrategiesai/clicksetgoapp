@@ -7,7 +7,7 @@ import { CallLog } from '../../types'; // Import the common CallLog type
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-  const { userId, limit, createdAtGt, createdAtLt } = req.query;
+const { userId, limit, createdAtGe, createdAtLe } = req.query;
 const vapiKey = req.headers.authorization?.split(' ')[1];
 
   if (!userId) {
@@ -29,12 +29,12 @@ const vapiKey = req.headers.authorization?.split(' ')[1];
   };
 
   // Add date filters if provided
-  if (createdAtGt) {
-    params.createdAtGt = createdAtGt as string;
+  if (createdAtGe) {
+    params.createdAtGe = createdAtGe as string;
     params.limit=null;
   }
-  if (createdAtLt) {
-    params.createdAtLt = createdAtLt as string;
+  if (createdAtLe) {
+    params.createdAtLe = createdAtLe as string;
   }
 
   console.log('Query Params:', params);
@@ -46,7 +46,7 @@ const vapiKey = req.headers.authorization?.split(' ')[1];
     },
     params, // Flattened params
   });
-  if(createdAtGt){
+  if(createdAtGe){
     response.data.sort((a: CallLog, b: CallLog) => {
     const dateA = a.startedAt || a.createdAt;
     const dateB = b.startedAt || b.createdAt;

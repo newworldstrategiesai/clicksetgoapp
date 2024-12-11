@@ -1,5 +1,3 @@
-// components/ui/Navbar.tsx
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -58,13 +56,14 @@ const Navbar: React.FC = () => {
             
           </a>
         </div>
+        {/* Navbar Links - Only shown on large screens and above */}
         <div className="hidden lg:flex space-x-4">
           <Navlinks user={user} />
         </div>
+        {/* Theme Toggle and Mobile Menu Button */}
         <div className="flex items-center space-x-4">
-          {/* Integrate the ThemeToggle component */}
           <ThemeToggle />
-          <div className="lg:hidden">
+          <div className="hidden">
             <button
               onClick={toggleMenu}
               className="text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -88,6 +87,7 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* Mobile Navigation - conditionally rendered */}
       {isOpen && (
         <div className="lg:hidden absolute inset-x-0 top-full bg-white dark:bg-black p-4 space-y-2 transition-colors duration-300">
           <Navlinks user={user} />

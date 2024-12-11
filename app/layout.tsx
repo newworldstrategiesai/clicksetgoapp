@@ -2,98 +2,75 @@
 
 import { ThemeProvider } from 'next-themes';
 import { useState } from 'react';
+import { cn } from '@/lib/utils';
 import Footer from '@/components/ui/Footer';
 import Navbar from '@/components/ui/Navbar';
 import { Toaster } from '@/components/ui/Toasts/toaster';
 import { PropsWithChildren, Suspense } from 'react';
 import { usePathname } from 'next/navigation';
-import '@/styles/globals.css'; // Ensure Tailwind's CSS is imported
+import '@/styles/globals.css';
 import { CountryProvider } from '@/context/CountryContext';
 import { UserProvider } from '@/context/UserContext';
-import { MainNav } from '@/components/main-nav'; // Import MainNav
-import { MobileNav } from '@/components/mobile-nav'; // Import MobileNav
-import { ThemeToggle } from '@/components/theme-toggle';
+import { MainNav } from '@/components/main-nav';
+import { MobileNav } from '@/components/mobile-nav';
 
 export default function RootLayout({ children }: PropsWithChildren) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const hideFooterRoutes = [
-    '/dialer',
-    '/call-logs',
-    '/overview',
-    '/dialer2',
-    '/voice-library',
-    '/chat',
-    '/leads',
-    '/contracts',
-    '/calls',
-    '/marketing',
-    '/events',
-    '/emails',
-    '/sms',
-    '/agents',
-    '/leads/pipeline/automation',
-    '/leads/pipeline',
-    '/requests',
-    '/equipment',
-    '/venues',
-    '/playlists',
-    '/analytics',
-    '/settings',
-    '/account',
-    '/campaigns',
-    '/signin',
-    '/contacts',
-    '/lists',
-    '/sms-logs',
-    '/tasks',
-    '/signin',
-    '/signin/password_signin',
-    '/dashboard/overview',
-    '/customization/persona',
-    '/new-campaign',
-    '/schedule-new-form',
-    '/campaign_ui'
+    '/dialer', '/call-logs', '/overview', '/dialer2', '/voice-library',
+    '/chat', '/leads', '/contracts', '/calls', '/marketing', '/events',
+    '/emails', '/sms', '/agents', '/leads/pipeline/automation',
+    '/leads/pipeline', '/requests', '/equipment', '/venues', '/playlists',
+    '/analytics', '/settings', '/account', '/campaigns', '/signin',
+    '/contacts', '/lists', '/sms-logs', '/tasks', '/new-campaign', '/campaigns',
   ];
 
-  // Define routes where MainNav should be hidden
-  const hideNavRoutes = ['/signin', '/signin/password_signin'];
+  const hideMobileNavRoutes = [
+    '/chat',
+    '/signin',
+    '/signin/password_signin',
+    '/dialer'
+  ];
 
-  // Define routes where MobileNav should be hidden
-  const hideMobileNavRoutes = ['/signin', '/signin/password_signin', '/dialer'];
+  const hideNavbarMobileRoutes = [
+    '/chat',
+    '/signin',
+    '/signin/password_signin',
+    '/dialer'
+  ];
+
+  const shouldHideNavbar = hideNavbarMobileRoutes.includes(pathname || '');
+  const shouldHideMobileNav = hideMobileNavRoutes.includes(pathname || '');
 
   return (
     <html lang="en" className="transition-colors duration-300">
       <body className="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
-        {/* Corrected the ThemeProvider attribute */}
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
           <UserProvider>
             <div className="flex h-screen">
-              {/* Sidebar */}
-              {!hideNavRoutes.includes(pathname || '') && (
-                <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
-                  <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700 fixed top-0">
-                    <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                      CLICK SET GO
-                    </h1>
-                    <div className="mx-4 mt-1">
-                     <ThemeToggle />
-                    </div>
-                  </div>
-                  <MainNav /> {/* Include MainNav */}
-                </aside>
-              )}
+              <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
+                <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
+                  <h1 className="text-xl font-bold text-gray-900 dark:text-white"></h1>
+                </div>
+                <MainNav />
+              </aside>
 
-              {/* Main content area */}
               <div className="flex-1 flex flex-col">
-                {/* Navbar (hidden on mobile devices) */}
-                <div className="hidden md:block">
+                <div className={cn(
+                  'md:block', // Always show on desktop
+                  shouldHideNavbar ? 'hidden' : 'block' // Hide on mobile for specific routes
+                )}>
                   <Navbar />
                 </div>
                 <main
                   id="skip"
-                  className="min-h-[calc(100dvh-4rem)] md:min-h-[calc(100dvh-5rem)] mt-3"
+                  className={cn(
+                    "min-h-[calc(100dvh-4rem)]",
+                    "md:min-h-[calc(100dvh-5rem)]",
+                    shouldHideNavbar ? "mt-0" : "mt-3" // Remove top margin when navbar is hidden
+                  )}
                 >
                   <CountryProvider>{children}</CountryProvider>
                 </main>
@@ -102,10 +79,9 @@ export default function RootLayout({ children }: PropsWithChildren) {
             </div>
           </UserProvider>
 
-          {/* Mobile Navigation */}
-          {!hideMobileNavRoutes.includes(pathname || '') && <MobileNav />}
+          {/* Mobile Navigation - conditionally rendered */}
+          {!shouldHideMobileNav && <MobileNav />}
 
-          {/* Toast Notifications */}
           <Suspense fallback={null}>
             <Toaster />
           </Suspense>
