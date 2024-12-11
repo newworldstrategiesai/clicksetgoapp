@@ -61,8 +61,6 @@ const Navbar: React.FC = () => {
         <div className="hidden lg:flex items-center">
           <Navlinks user={user} />
         </div>
-         {/* Integrate the ThemeToggle component */}
-        <ThemeToggle />
         <div className="flex items-center space-x-4">          
           <div className="lg:hidden">
             <button

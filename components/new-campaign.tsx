@@ -167,10 +167,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       return;
     }
 
-    if (!formData.schedule) {
-      toast.error('Please select a schedule');
-      return;
-    }
+    // if (!formData.schedule) {
+    //   toast.error('Please select a schedule');
+    //   return;
+    // }
 
     // Optional: Add more validations as needed
 
@@ -262,10 +262,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   };
 
   return (
-    <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">New Campaign</h1>
-      <form onSubmit={handleSubmit} className="space-y-6 dark:bg-black shadow-md rounded-lg p-8">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">New Campaign</h1>
+      <form onSubmit={handleSubmit} className="space-y-6 bg-modal dark:bg-gray-900 shadow-md rounded-lg p-8 transition-all duration-200">
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -277,7 +277,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign name"
               value={formData.name}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -289,7 +289,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter campaign description"
               value={formData.description}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -304,7 +304,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -316,7 +316,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
@@ -327,10 +327,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="timezone">Timezone</Label>
             <Select onValueChange={handleTimezoneChange} value={formData.timezone}>
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder="Select a timezone" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
                 {timezones.map((tz) => (
                   <SelectItem key={tz.value} value={tz.value}>
                     {tz.label}
@@ -342,10 +342,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="audience">Audience</Label>
             <Select onValueChange={handleSelectChange} value={formData.audience}>
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder={selectedListName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
                 {lists.map((list) => (
                   <SelectItem key={list.id} value={list.id}>
                     {list.name}
@@ -368,7 +368,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter budget"
               value={formData.budget}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -381,7 +381,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter allocation"
               value={formData.allocation}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -397,7 +397,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Source"
               value={formData.utmSource}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
@@ -409,7 +409,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Medium"
               value={formData.utmMedium}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
         </div>
@@ -425,7 +425,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               placeholder="Enter UTM Campaign"
               value={formData.utmCampaign}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="flex flex-col">
@@ -435,7 +435,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               onChange={handleCountryChange}
               name="countryCode"
               id="countryCode"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border-black rounded-lg p-2 mt-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
               required
             >
               <option value="">Select Country</option>
@@ -453,12 +453,12 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Schedule and Agent */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <Label htmlFor="schedule">Schedule</Label>
+            <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
             <Select onValueChange={handleScheduleChange} value={formData.schedule}>
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
                 {schedules.map((schedule) => (
                   <SelectItem key={schedule.id} value={schedule.id}>
                     {schedule.name}
@@ -470,10 +470,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           <div>
             <Label htmlFor="agent">Agent</Label>
             <Select onValueChange={handleAgentChange} value={formData.agent}>
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                 <SelectValue placeholder={selectedAgentName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
                 {agents.map((agent) => (
                   <SelectItem key={agent.id} value={agent.id}>
                     {agent.agent_name}
@@ -487,7 +487,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-blue-600 dark:text-white hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-500 dark:bg-blue-500 text-white dark:text-white hover:bg-blue-600 transition duration-200"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Creating Campaign...' : 'Create Campaign'}

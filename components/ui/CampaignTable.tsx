@@ -106,7 +106,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
     <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-300" /> 
   </button>
   <button 
-    className="bg-blue-500 dark:text-white px-4 py-2 rounded hover:bg-blue-600"
+    className="bg-blue-500 text-white dark:text-white px-4 py-2 rounded hover:bg-blue-600"
     onClick={() => router.push('/new-campaign')}
   >
     Create New Campaign
@@ -174,13 +174,22 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
           onDelete={async () => {
             const confirmation = window.confirm("Are you sure you want to delete this campaign?");
             if (confirmation) {
-              const { error } = await supabase
+              const { error: callTaskError } = await supabase
+                .from('call_tasks')
+                .delete()
+                .eq('campaign_id', selectedCampaign.id);
+
+              if (callTaskError) {
+                console.error('Error deleting call tasks:', callTaskError.message || callTaskError);
+                return; // Exit if there was an error deleting call tasks
+              }
+              const { error:campaignError  } = await supabase
                 .from('campaigns')
                 .delete()
                 .eq('id', selectedCampaign.id);
 
-              if (error) {
-                console.error('Error deleting campaign:', error.message||error);
+              if (campaignError ) {
+                console.error('Error deleting campaign:', campaignError .message||campaignError );
               } else {
                 console.log('Campaign deleted:', selectedCampaign.id);
                 await fetchCampaigns(); // Call the fetchCampaigns function here

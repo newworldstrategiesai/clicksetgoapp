@@ -28,7 +28,7 @@ const mainNavItems = [
     items: [
       {
         title: "Dashboard",
-        href: "/",
+        href: "/overview",
         icon: LayoutDashboard,
       },
       {
@@ -98,7 +98,7 @@ const mainNavItems = [
       },
       {
         title: "Automations",
-        href: "/leads/pipeline/automation",
+        href: "/customization/persona",
         icon: Bot,
       },
     ],
@@ -129,8 +129,37 @@ export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 overflow-y-auto">
-      <nav className="flex flex-col gap-2 p-4 flex-1">
+    <>
+    <style jsx global>{`
+      /* Styles for the scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px; /* Narrow scrollbar */
+      }
+
+      /* Light mode styles */
+      @media (prefers-color-scheme: light) {
+        ::-webkit-scrollbar-thumb {
+          background-color: #333; /* Dark thumb color for light mode */
+        }
+        ::-webkit-scrollbar-track {
+          background: #f0f0f0; /* Light track color */
+        }
+      }
+
+      /* Dark mode styles */
+      @media (prefers-color-scheme: dark) {
+        ::-webkit-scrollbar-thumb {
+          background-color: #ccc; /* Light thumb color for dark mode */
+        }
+
+        ::-webkit-scrollbar-track {
+          background: #ccc; /* Dark track color */
+        }
+      }
+`   }</style>
+
+    <div className="flex flex-col flex-1 bg-white dark:bg-black transition-colors duration-300 h-screen mt-16 ">
+      <nav className="flex flex-col gap-2 p-4 flex-1 overflow-y-auto">
         {mainNavItems.map((group) => (
           <div key={group.title} className="mb-6">
             <h3 className="mb-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 tracking-wider uppercase">
@@ -160,7 +189,7 @@ export function MainNav() {
           </div>
         ))}
       </nav>
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t bg-white dark:bg-black border-gray-200 dark:border-gray-700">
         <Link
           href="/settings"
           className={clsx(
@@ -175,10 +204,9 @@ export function MainNav() {
           Settings
         </Link>
         {/* Integrate the ThemeToggle component here */}
-        <div className="mt-4">
-          <ThemeToggle />
-        </div>
+        
       </div>
     </div>
+    </>
   );
 }

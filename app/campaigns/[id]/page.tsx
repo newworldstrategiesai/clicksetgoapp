@@ -28,7 +28,7 @@ interface CallTask {
 interface CampaignData {
   id: string;
   name: string;
-  status: string;
+  status: 'Aborted' | 'Paused' | 'Scheduled' | 'Active' | 'Resumed' | 'Completed'| 'Pending';
   start_date: string;
   end_date: string;
   description: string;
@@ -134,8 +134,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     ) {
       return true;
     } else if (
-      buttonName === 'abortBtn' &&
-      campaignData?.status !== 'Completed'
+      buttonName === 'abortBtn' && 
+      ( campaignData?.status === 'Scheduled' || campaignData?.status === 'Resumed'|| campaignData?.status === 'Paused')
     ) {
       return true;
     } else if (
@@ -349,7 +349,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         .from('call_tasks')
         .update({ call_status: 'Paused' }) // Update the status based on current state
         .eq('campaign_id', id) // Update all tasks related to the campaign
-        .in('call_status', ['Scheduled', 'Active']);
+        .in('call_status', ['Scheduled', 'Active', 'Resumed']);
 
       if (updateStatusError) {
         console.error(
@@ -543,9 +543,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
       <button
         onClick={() => router.push('/campaigns')} // Navigate back to the campaign table
-        className="flex items-center mb-4 bg-gray-200 text-gray-800 hover:bg-gray-300 rounded-lg px-4 py-2 transition"
+        className="flex items-center mb-6 bg-gray-200 text-gray-800 hover:bg-gray-300 
+    dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 rounded-lg px-4 py-2 "
       >
-        <FontAwesomeIcon icon={faArrowLeft} className=" text-gray-600" />
+        <FontAwesomeIcon icon={faArrowLeft} className=" mr-2 text-gray-600 dark:text-gray-300" />
       </button>
       <ToastContainer
         position="top-right"
@@ -560,12 +561,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
       />{' '}
       {error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="text-red-500 dark:text-red-400">{error}</p>
       ) : campaignData ? (
         <>
-          <h1 className="text-3xl font-bold mb-6">{campaignData.name}</h1>
-          <div style={{display:'flex', justifyContent:'space-evenly'}}>
-                <div style={{}}>
+          <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">{campaignData.name}</h1>
+          <div className="flex flex-wrap bg-gray-200 dark:bg-gray-800 justify-between p-4 text-left gap-2">
+          <div className="p-4 rounded-lg text-lg font-medium">
                     <p>Status: {campaignData.status}</p>
                     <p>
                       Start Date: {new Date(campaignData.start_date).toLocaleDateString()}
@@ -575,7 +576,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                     </p>
                     <p>Description: {campaignData.description}</p>
                 </div>
-                <div>
+                <div className="p-4 rounded-lg text-lg font-medium">
                     <p>Timezone: {campaignData.start_timezone}</p>
                     <p>Audience Name: {campaignData.lists?.name}</p>
                     <p>Budget: {campaignData.budget}</p>
@@ -646,31 +647,31 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             )}
           </div>
 
-          <h2 className="text-2xl font-bold mt-6">Call Tasks</h2>
+          <h2 className="text-2xl font-bold mt-6 text-gray-900 dark:text-gray-100">Call Tasks</h2>
           <div className="overflow-x-auto">
-            <table className="table-auto w-full text-left border-collapse mt-4">
+            <table className="table-auto w-full border-collapse mt-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
               <thead>
-                <tr className="bg-gray-800">
-                  <th className="px-4 py-2 border">Call Subject</th>
-                  <th className="px-4 py-2 border">Contact Name</th>
-                  <th className="px-4 py-2 border">Call Status</th>
-                  <th className="px-4 py-2 border">Scheduled At</th>
-                  <th className="px-4 py-2 border">Actions</th>
+                <tr className="bg-gray-200 dark:bg-gray-700">
+                  <th className="px-4 py-2 border dark:border-gray-600">Call Subject</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Contact Name</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Call Status</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Scheduled At</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {campaignTasks.map((task) => (
-                  <tr key={task.id} className="hover:bg-gray-700">
-                    <td className="border px-4 py-2">{task.call_subject}</td>
-                    <td className="border px-4 py-2">{task.contact_name}</td>
-                    <td className="border px-4 py-2">{task.call_status}</td>
-                    <td className="border px-4 py-2">
+                  <tr key={task.id} className="hover:bg-gray-300 text-center dark:hover:bg-gray-700">
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.call_subject}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.contact_name}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.call_status}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">
                       {moment
                         .utc(task.scheduled_at)
                         .local()
                         .format('YYYY-MM-DD HH:mm:ss')}
                     </td>
-                    <td className="border px-4 py-2">
+                    <td className="border px-4 py-2 dark:border-gray-600">
                       <button
                         onClick={() => openModal(task)} // Open modal on row click
                         className="text-blue-500 hover:underline"
@@ -706,7 +707,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           )}
         </>
       ) : (
-        <p>No campaign data found.</p>
+        <p className='text-gray-900 dark:text-gray-100'>No campaign data found.</p>
       )}
     </div>
   );

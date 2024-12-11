@@ -1,0 +1,27 @@
+/* File: AnimatedLoader.css */
+
+.loader-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 70vh; /* Full viewport height */
+  width: 100%; /* Full width */
+  background-color: #f8f9fa; /* Optional: Add a light background */
+}
+
+.loader {
+  display: inline-block;
+  border: 4px solid #f3f3f3; /* Light gray fallback border */
+  border-radius: 50%;
+  animation: spin 1.2s linear infinite;
+  /* Dynamic border colors and size from props will override default styling */
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

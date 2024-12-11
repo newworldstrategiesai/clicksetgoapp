@@ -44,21 +44,18 @@ export default function TaskPage() {
       );
 
     setVisibleColumns(defaultVisible);
-
-    console.log("Initialized Columns:", columns);
-    console.log("Default Visible Columns:", defaultVisible);
   };
 
   const fetchTasks = async function (){
     {
-      const { data: callTasks, error } = await supabase
+      const { data: callTasks, error: callTasksError } = await supabase
         .from("call_tasks")
         .select(
-          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone)"
+          "id, campaign_id, call_subject, call_status, priority, scheduled_at, created_at, updated_at, contacts(first_name, last_name, phone), campaigns!fk_campaign(name)"
         );
 
-      if (error) {
-        console.error("Error fetching call tasks:", error.message);
+      if (callTasksError) {
+        console.error("Error fetching call tasks:", callTasksError.message);
         toast.error("Failed to fetch tasks.");
         return;
       }
@@ -66,6 +63,7 @@ export default function TaskPage() {
       const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
         id: task.id,
         campaign_id: task.campaign_id || null,
+        campaign_name: task.campaigns ? task.campaigns.name : "Unknown",
         call_subject: task.call_subject || "",
         call_status: task.call_status || "",
         priority: task.priority || null,
@@ -78,7 +76,6 @@ export default function TaskPage() {
           ? [task.contacts]
           : [{ first_name: "Unknown", last_name: "Unknown", phone: "" }],
       }));
-
       // Sort tasks by updated_at in descending order (latest first)
       const sortedTasks = formattedTasks.sort((a, b) => b.updated_at.getTime() - a.updated_at.getTime());
 
@@ -100,7 +97,6 @@ export default function TaskPage() {
       }
     });
   };
-  
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
     return visibleColumns.includes(columnId);
@@ -154,7 +150,7 @@ export default function TaskPage() {
         <ToastContainer />
 
         {/* Mobile View Images */}
-        <div className="md:hidden flex justify-center items-center p-4">
+        <div className="md:hidden flex justify-center items-center">
           <div className="relative w-full h-64 sm:h-80">
             <Image
               src="/examples/tasks-light.png"
@@ -176,7 +172,7 @@ export default function TaskPage() {
         </div>
 
         {/* Task List Visible on All Screen Sizes */}
-        <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8 mt-10">
           {/* Header with Force Launch Button */}
           <div className="flex items-center justify-between">
             <div>

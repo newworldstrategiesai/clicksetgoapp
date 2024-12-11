@@ -15,6 +15,7 @@ import {
   faVoicemail,
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface NavlinksProps {
   user?: any;
@@ -153,6 +154,8 @@ export default function Navlinks({ user }: NavlinksProps) {
           Sign In
         </Link>
       )}
+      {/* Integrate the ThemeToggle component */}
+      <ThemeToggle />
     </div>
   );
 }

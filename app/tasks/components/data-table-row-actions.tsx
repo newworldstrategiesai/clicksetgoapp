@@ -25,6 +25,7 @@ import { toast } from 'react-toastify'; // For user feedback
 interface Task {
   id: string;
   campaign_id: string | null;
+  campaign_name: string;
   call_subject: string;
   call_status: string;
   priority: string | null;
@@ -45,6 +46,7 @@ export default function DataTableRowActions({
 }: DataTableRowActionsProps) {
   let task: Task;
   try {
+    console.log("row in data-table-row-actions 49",row.original);
     const parsedTask = taskSchema.parse(row.original); // Validate the task schema
     // Ensure all contacts have a phone number
     const contactsWithPhone = parsedTask.contacts.map(contact => ({

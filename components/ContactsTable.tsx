@@ -142,8 +142,8 @@ const ContactsTable: React.FC<ContactsTableProps> = ({
           />
           <label className="text-gray-400">Select All</label>
         </div>
-        <button className="p-2 bg-blue-500 dark:text-white rounded" onClick={handleGoClick}>
-          Go
+        <button className="p-2 bg-blue-500 text-white rounded" onClick={handleGoClick}>
+          Add List
         </button>
       </div>
 
