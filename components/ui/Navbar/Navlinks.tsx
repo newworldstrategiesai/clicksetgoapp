@@ -154,8 +154,8 @@ export default function Navlinks({ user }: NavlinksProps) {
           Sign In
         </Link>
       )}
-{/*       {/* Integrate the ThemeToggle component */}
-      <ThemeToggle /> */}
+      {/* Integrate the ThemeToggle component */}
+      {/* <ThemeToggle /> */}
     </div>
   );
 }
