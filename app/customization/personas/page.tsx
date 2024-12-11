@@ -135,7 +135,7 @@ export default function PersonasPage() {
                   onChange={(e) =>
                     setSelectedPersona({ ...selectedPersona, agent_name: e.target.value })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 dark:text-white rounded-md"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 

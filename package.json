@@ -137,6 +137,7 @@
     "react-hook-form": "^7.53.2",
     "react-merge-refs": "^2.1.1",
     "react-modal": "^3.16.1",
+    "react-phone-number-input": "^3.4.10",
     "react-popper": "^2.3.0",
     "react-query": "^3.39.3",
     "react-resizable-panels": "^1.0.10",
@@ -159,9 +160,9 @@
     "unist": "^0.0.1",
     "unist-builder": "^4.0.0",
     "unist-util-visit": "^5.0.0",
+    "uuid": "^11.0.3",
     "vaul": "^0.9.1",
     "wavesurfer.js": "^7.8.9",
-    "uuid": "^11.0.3",
     "zod": "^3.23.8"
   },
   "devDependencies": {

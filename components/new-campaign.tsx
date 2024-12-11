@@ -1,4 +1,6 @@
-"use client";
+// components/ui/NewCampaign.tsx
+
+'use client';
 
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/NewCampaign/label";
@@ -70,6 +72,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
+  const [isAdvanced, setIsAdvanced] = useState(false); // State for Advanced section
 
   useEffect(() => {
     const fetchData = async () => {
@@ -232,6 +235,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           schedule: '',
           agent: ''
         });
+        setIsAdvanced(false); // Reset Advanced section
       }
     } catch (error) {
       console.error('Error inserting campaign:', error);
@@ -259,6 +263,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       console.error('Error updating country in Supabase:', error.message);
       window.alert('Error updating country. Please try again.');
     }
+  };
+
+  const toggleAdvanced = () => {
+    setIsAdvanced(prev => !prev);
   };
 
   return (
@@ -355,80 +363,9 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             </Select>
           </div>
         </div>
-
-        {/* Budget and Allocation */}
+        {/* Country Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <Label htmlFor="budget">Budget</Label>
-            <Input
-              id="budget"
-              name="budget"
-              type="number"
-              min="0"
-              placeholder="Enter budget"
-              value={formData.budget}
-              onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <Label htmlFor="allocation">Allocation</Label>
-            <Input
-              id="allocation"
-              name="allocation"
-              type="number"
-              min="0"
-              placeholder="Enter allocation"
-              value={formData.allocation}
-              onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* UTM Parameters */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="utmSource">UTM Source</Label>
-            <Input
-              id="utmSource"
-              name="utmSource"
-              type="text"
-              placeholder="Enter UTM Source"
-              value={formData.utmSource}
-              onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <Label htmlFor="utmMedium">UTM Medium</Label>
-            <Input
-              id="utmMedium"
-              name="utmMedium"
-              type="text"
-              placeholder="Enter UTM Medium"
-              value={formData.utmMedium}
-              onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* UTM Campaign and Country */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="utmCampaign">UTM Campaign</Label>
-            <Input
-              id="utmCampaign"
-              name="utmCampaign"
-              type="text"
-              placeholder="Enter UTM Campaign"
-              value={formData.utmCampaign}
-              onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div className="flex flex-col">
             <Label htmlFor="countryCode">Country</Label>
             <select
               value={defaultCountry.name}
@@ -448,41 +385,122 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               {/* Add more country options as needed */}
             </select>
           </div>
+          <div className="flex items-center justify-end">
+            <Button
+              type="button"
+              onClick={toggleAdvanced}
+              variant="secondary"
+              className="mt-6"
+            >
+              {isAdvanced ? 'Hide Advanced' : 'Show Advanced'}
+            </Button>
+          </div>
         </div>
+        {/* Advanced Section */}
+        {isAdvanced && (
+          <div className="border-t border-gray-300 dark:border-gray-700 pt-6">
+            <h2 className="text-xl font-semibold mb-4 text-gray-800 dark:text-white">Advanced Settings</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Budget and Allocation */}
+              <div>
+                <Label htmlFor="budget">Budget</Label>
+                <Input
+                  id="budget"
+                  name="budget"
+                  type="number"
+                  min="0"
+                  placeholder="Enter budget"
+                  value={formData.budget}
+                  onChange={handleChange}
+                  className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <Label htmlFor="allocation">Allocation</Label>
+                <Input
+                  id="allocation"
+                  name="allocation"
+                  type="number"
+                  min="0"
+                  placeholder="Enter allocation"
+                  value={formData.allocation}
+                  onChange={handleChange}
+                  className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
 
-        {/* Schedule and Agent */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-          <div>
-            <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
-            <Select onValueChange={handleScheduleChange} value={formData.schedule}>
-              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
-                <SelectValue placeholder={selectedScheduleName} />
-              </SelectTrigger>
-              <SelectContent className="bg-white dark:bg-gray-800 dark:text-white">
-                {schedules.map((schedule) => (
-                  <SelectItem key={schedule.id} value={schedule.id}>
-                    {schedule.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              {/* UTM Parameters */}
+              <div className="sm:col-span-2">
+                <Label htmlFor="utmSource">UTM Source</Label>
+                <Input
+                  id="utmSource"
+                  name="utmSource"
+                  type="text"
+                  placeholder="Enter UTM Source"
+                  value={formData.utmSource}
+                  onChange={handleChange}
+                  className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="utmMedium">UTM Medium</Label>
+                <Input
+                  id="utmMedium"
+                  name="utmMedium"
+                  type="text"
+                  placeholder="Enter UTM Medium"
+                  value={formData.utmMedium}
+                  onChange={handleChange}
+                  className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="utmCampaign">UTM Campaign</Label>
+                <Input
+                  id="utmCampaign"
+                  name="utmCampaign"
+                  type="text"
+                  placeholder="Enter UTM Campaign"
+                  value={formData.utmCampaign}
+                  onChange={handleChange}
+                  className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+
+              {/* Schedule and Agent */}
+              <div>
+                <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
+                <Select onValueChange={handleScheduleChange} value={formData.schedule}>
+                  <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                    <SelectValue placeholder={selectedScheduleName} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                    {schedules.map((schedule) => (
+                      <SelectItem key={schedule.id} value={schedule.id}>
+                        {schedule.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="agent">Agent</Label>
+                <Select onValueChange={handleAgentChange} value={formData.agent}>
+                  <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                    <SelectValue placeholder={selectedAgentName} />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                    {agents.map((agent) => (
+                      <SelectItem key={agent.id} value={agent.id}>
+                        {agent.agent_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </div>
-          <div>
-            <Label htmlFor="agent">Agent</Label>
-            <Select onValueChange={handleAgentChange} value={formData.agent}>
-              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
-                <SelectValue placeholder={selectedAgentName} />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
-                {agents.map((agent) => (
-                  <SelectItem key={agent.id} value={agent.id}>
-                    {agent.agent_name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
+        )}
 
         {/* Submit Button */}
         <Button

@@ -59,6 +59,7 @@ export default function TaskPage() {
         toast.error("Failed to fetch tasks.");
         return;
       }
+      console.log("callTasks",callTasks)
 
       const formattedTasks: YourTaskType[] = callTasks.map((task: any) => ({
         id: task.id,
@@ -99,6 +100,7 @@ export default function TaskPage() {
   };
   const filteredColumns = allColumns.filter((column) => {
     const columnId = column.id || (hasAccessorKey(column) ? column.accessorKey : "");
+    console.log(columnId)
     return visibleColumns.includes(columnId);
   });
 

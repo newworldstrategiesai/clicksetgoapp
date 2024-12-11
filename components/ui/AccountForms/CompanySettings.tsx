@@ -258,7 +258,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_name}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="Your Company Name"
             />
           </div>
@@ -274,7 +274,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_description}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="A brief description of your company."
               rows={4}
             />
@@ -292,7 +292,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_website}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="https://yourcompany.com"
             />
           </div>
@@ -309,7 +309,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               value={companyInfo.company_phone}
               onChange={handleCompanyInfoChange}
               required
-              className="mt-1 block w-full p-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              className="mt-1 block w-full p-2 dark:bg-gray-800 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
               placeholder="+1 123-456-7890"
             />
           </div>
@@ -335,7 +335,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         {/* Existing Links */}
         {links.length > 0 ? (
           links.map((link) => (
-            <div key={link.id} className="bg-gray-800 shadow rounded-lg p-4 mb-4">
+            <div key={link.id} className="dark:bg-gray-800 shadow rounded-lg p-4 mb-4">
               <div className="flex justify-between items-center mb-2">
                 <h3 className="text-lg font-medium">{link.title}</h3>
                 <div className="flex space-x-2">
@@ -372,7 +372,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, title: e.target.value })
                         : handleLinkChange(link.id, 'title', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                    className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="e.g., Facebook"
                   />
                 </div>
@@ -393,7 +393,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                         ? setEditedLink({ ...editedLink, url: e.target.value })
                         : handleLinkChange(link.id, 'url', e.target.value)
                     }
-                    className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                    className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                     placeholder="https://facebook.com/yourcompany"
                   />
                 </div>
@@ -417,7 +417,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
         )}
 
         {/* Add New Link */}
-        <div className="bg-gray-800 shadow rounded-lg p-4">
+        <div className="dark:bg-gray-800 shadow rounded-lg p-4">
           <h3 className="text-lg font-medium mb-2">Add New Link</h3>
           <div className="space-y-2">
             {/* Link Title */}
@@ -432,7 +432,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 onChange={(e) =>
                   setNewLink({ ...newLink, title: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="e.g., Instagram"
               />
             </div>
@@ -449,7 +449,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
                 onChange={(e) =>
                   setNewLink({ ...newLink, url: e.target.value })
                 }
-                className="mt-1 block w-full p-2 bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+                className="mt-1 block w-full p-2 dark:bg-gray-700 border border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
                 placeholder="https://instagram.com/yourcompany"
               />
             </div>

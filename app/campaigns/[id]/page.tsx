@@ -121,8 +121,6 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setShowResumeBtn(shouldShowButton('resumeBtn'));
   }, [campaignData?.status, campaignTasks]); // Re-run the effect when campaignData changes
 
-  console.log(campaignData?.status);
-
   const shouldShowButton = (buttonName: string) => {
     if (buttonName === 'launchBtn' && campaignData?.status === 'Pending') {
       return true;
@@ -537,7 +535,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   if (loading) {
     return <p className="text-center">Loading campaign data...</p>;
-  }
+  } 
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
