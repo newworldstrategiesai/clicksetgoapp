@@ -42,7 +42,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }));
 
     // Combine both lists and remove duplicates based on phone number
-    const allNumbers = [...twilioNumbers, ...callerIds].reduce((acc, current) => {
+    // const allNumbers = [...twilioNumbers, ...callerIds].reduce((acc, current) => {
+    const allNumbers = [...twilioNumbers].reduce((acc, current) => {
       if (!acc.find(item => item.phoneNumber === current.phoneNumber)) {
         acc.push(current);
       }

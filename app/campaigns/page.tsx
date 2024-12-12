@@ -35,14 +35,15 @@ export default async function CampaignsPage() {
         const vapiKey = data.vapi_key;
 
         return (
-            <section className="mb-16 dark:bg-black min-h-screen">
-                <div className="max-w-6xl px-4 py-2 mx-auto sm:px-6 sm:pt-6 lg:px-8">
-                    <div className="sm:align-center sm:flex sm:flex-col">
-                        <h1 className="text-2xl font-extrabold dark:text-white sm:text-left sm:text-4xl">
+            <section className="mb-32 dark:bg-black min-h-screen">
+                {/* <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8"> */}
+                    <div className="sm:align-start sm:flex sm:flex-col ml-20">
+                        <h1 className="text-4xl font-extrabold dark:text-white sm:text-left sm:text-6xl">
+           
                             Campaigns
                         </h1>
                     </div>
-                </div>
+                {/* </div> */}
                 <div className="p-4">
                 <CampaignTable userId={user.id} apiKey={apiKey} twilioSid = {twilioSid} twilioAuthToken = {twilioAuthToken} vapiKey = {vapiKey}/>
                 </div>

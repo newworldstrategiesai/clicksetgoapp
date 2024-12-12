@@ -11,14 +11,14 @@ interface CardProps {
 
 const Card = ({ title, description, footer, children, className }: CardProps) => {
   return (
-    <div className={`w-full max-w-3xl m-auto my-8 border rounded-md p border-zinc-700 ${className}`}>
+    <div className={`w-full max-w-3xl m-auto my-8 border rounded-md p bg-white border-zinc-700 ${className} dark:bg-gray-700`}>
       <div className="px-5 py-4">
         <h3 className="mb-1 text-2xl font-medium">{title}</h3>
-        <p className="text-zinc-300">{description}</p>
+        <p className="dark:text-zinc-300 text-gray-500">{description}</p>
         {children}
       </div>
       {footer && (
-        <div className="p-4 border-t rounded-b-md border-zinc-700 bg-zinc-900 text-zinc-500">
+        <div className="p-4 border-t bg-modal rounded-b-md dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-500">
           {footer}
         </div>
       )}

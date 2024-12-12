@@ -50,6 +50,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
           <UserProvider>
             <div className="flex h-screen">
+
               <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
                 <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
                   <h1 className="text-xl font-bold text-gray-900 dark:text-white"></h1>
@@ -71,6 +72,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
                     "md:min-h-[calc(100dvh-5rem)]",
                     shouldHideNavbar ? "mt-0" : "mt-3" // Remove top margin when navbar is hidden
                   )}
+
                 >
                   <CountryProvider>{children}</CountryProvider>
                 </main>

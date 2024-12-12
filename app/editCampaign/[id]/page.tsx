@@ -49,7 +49,6 @@ interface FormData {
 const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
   const { defaultCountry, setDefaultCountry } = useCountry();
   const { id } = use(params);
-  console.log(id);
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
@@ -76,6 +75,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>(
     []
   );
+  const [isReadOnly, setIsReadOnly] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [user_id, setUser_id] = useState('');
   const fetchData = async () => {
@@ -136,8 +136,6 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
       const matchedSchedule = schedulesRes.data?.find(
         (schedule) => schedule.id === campaign.schedule
       );
-
-      console.log(listsRes, schedulesRes, agentsRes);
 
       const fetchedCountryCode = campaign.country_code || '';
 
@@ -210,10 +208,12 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
-
-  const isReadOnly = ['Completed', 'Aborted', 'Active', 'Resumed'].includes(
-    formData.status
-  );
+  useEffect(() => {
+    const isReadOnly = ['Pending', 'Scheduled'].includes(
+      formData.status
+    );
+    setIsReadOnly(!isReadOnly);
+  })
 
   const handleSelectChange = async (field: keyof FormData, value: string) => {
     if (field === 'audience' && value !== formData.audience) {
@@ -247,6 +247,9 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
 
     setIsSubmitting(true);
     try {
+      const format1 = "YYYY-MM-DD HH:mm:ss";  
+      const selectedTimeString = moment(formData.startDate).format(format1);  
+      const scheduledAtUTC = moment.tz(selectedTimeString, formData.timezone).utc().toISOString();
       const updateRes = await supabase
         .from('campaigns')
         .update({
@@ -265,7 +268,8 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
           schedule: formData.schedule,
           agent: formData.agent,
           country_code: formData.country,
-          updated_at: new Date()
+          updated_at: new Date(),
+          scheduled_at: scheduledAtUTC
         })
         .eq('id', id);
 
@@ -371,7 +375,8 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter campaign description"
               value={formData.description}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className={`border rounded-lg p-2 w-full bg-gray-700 dark:text-white`}
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -389,6 +394,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               dateFormat="Pp"
               placeholderText="Select start date and time"
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
               required
             />
           </div>
@@ -404,6 +410,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholderText="Select end date and time"
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
+              disabled= {isReadOnly}
             />
           </div>
         </div>
@@ -414,6 +421,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
             <Label htmlFor="timezone">Timezone</Label>
             <Select
               onValueChange={(value) => handleSelectChange('timezone', value)}
+              disabled={isReadOnly}
               value={formData.timezone}
             >
               <SelectTrigger className="bg-gray-700 dark:text-white">
@@ -433,6 +441,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
             <Select
               onValueChange={(value) => handleSelectChange('audience', value)}
               value={formData.audience}
+              disabled={isReadOnly}
             >
               <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedListName} />
@@ -461,6 +470,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.budget}
               onChange={handleChange}
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -474,6 +484,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.allocation}
               onChange={handleChange}
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -490,6 +501,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.utmSource}
               onChange={handleChange}
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
             />
           </div>
           <div>
@@ -502,6 +514,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.utmMedium}
               onChange={handleChange}
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
             />
           </div>
         </div>
@@ -518,6 +531,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.utmCampaign}
               onChange={handleChange}
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              disabled={isReadOnly}
             />
           </div>
           <div className="flex flex-col">
@@ -529,6 +543,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               id="countryCode"
               className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
               required
+              disabled={isReadOnly}
             >
               <option value="">Select Country</option>
               <option value="US">United States</option>
@@ -549,6 +564,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
             <Select
               onValueChange={(value) => handleSelectChange('schedule', value)}
               value={formData.schedule}
+              disabled={isReadOnly}
             >
               <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
@@ -567,6 +583,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
             <Select
               onValueChange={(value) => handleSelectChange('agent', value)}
               value={formData.agent}
+              disabled={isReadOnly}
             >
               <SelectTrigger className="bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedAgentName} />

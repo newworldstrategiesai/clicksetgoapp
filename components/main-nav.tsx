@@ -138,7 +138,7 @@ export function MainNav() {
           </div>
         ))}
       </nav>
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+      <div className="p-4 border-t border-gray-200 bg-white dark:bg-black dark:border-gray-700">
         <Link
           href="/account"
           className={clsx(

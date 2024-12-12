@@ -15,6 +15,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
 import moment from "moment-timezone";
+import { useRouter } from 'next/navigation';
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -67,7 +68,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     agent: '',
     callDistribution: 'Immediate'
   });
-
+  const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
@@ -216,10 +217,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       scheduled_at: scheduledAtUTC,
       call_distribution: formData.callDistribution
     };
-
     // Debugging: Log the data being sent
-    console.log('Inserting Campaign:', insertData);
-
+    // router.push('/campaigns');
     try {
       const { error } = await supabase.from('campaigns').insert([insertData]);
 
@@ -245,6 +244,13 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           callDistribution: 'Instant'
         });
         setIsAdvanced(false); // Reset Advanced section
+      }
+      try{
+        const { data } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(1);
+        const campId = data?.[0].id
+        router.push(`/campaigns/${campId}`);
+      }catch(error){
+        console.error('Error Routing to description page');
       }
     } catch (error) {
       console.error('Error inserting campaign:', error);
@@ -403,7 +409,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             </Select>
           </div>
         </div>
-
         {/* Country Selection */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
@@ -437,7 +442,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
             </Button>
           </div>
         </div>
-
         {/* Advanced Section */}
         {isAdvanced && (
           <div className="border-t border-gray-300 dark:border-gray-700 pt-6">

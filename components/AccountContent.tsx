@@ -15,6 +15,10 @@ import { supabase } from '@/utils/supabaseClient'; // Ensure correct path
 const countryCodes: Record<string, { code: string; name: string }> = {
   US: { code: '+1', name: 'United States' },
   IN: { code: '+91', name: 'India' },
+  FR: { code: '+33', name: 'France' },
+  DE: { code: '+49', name: 'Germany' },
+  ES: { code: '+34', name: 'Spain' },
+  IT: { code: '+39', name: 'Italy' },
   // ... other countries
 };
 
@@ -99,9 +103,9 @@ export default function AccountContent({
     <div className="p-4">
       <div className="text-center mb-6">
         <select
-          value={defaultCountry.name || 'US'}
+          value={defaultCountry.name || countryCodes['US'].name}
           onChange={handleAccountCountryChange}
-          className="bg-gray-800 dark:text-white p-2 rounded shadow"
+          className="dark:bg-gray-800 dark:text-white bg-white text-black p-2 rounded shadow cursor-pointer"
         >
           {Object.entries(countryCodes).map(([code, { name }]) => (
             <option key={code} value={code}>
