@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@supabase/supabase-js";
 import classNames from 'classnames'; // If using classnames library
+import moment from "moment";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -21,19 +22,20 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
   // State for form fields
   const [callStatus, setCallStatus] = useState(task ? task.call_status : "");
   const [callSubject, setCallSubject] = useState(task ? task.call_subject : "");
-  const [scheduledAt, setScheduledAt] = useState(task ? task.scheduled_at : "");
+  const [scheduledAt, setScheduledAt] = useState(task && task.scheduled_at ? moment.utc(task.scheduled_at).local().format("YYYY-MM-DDTHH:mm") : "");
   const [priority, setPriority] = useState(task ? task.priority : "medium");
   const [firstMessage, setFirstMessage] = useState(task ? task.first_message : "Hello, this is Sarah from I T Niche");
 
   const [isSaving, setIsSaving] = useState(false); // Track the save button state
   const [error, setError] = useState<string | null>(null); // Track error messages
+  console.log(scheduledAt)
 
   // UseEffect to update form fields when the task changes
   useEffect(() => {
     if (task) {
       setCallStatus(task.call_status || "");
       setCallSubject(task.call_subject || "");
-      setScheduledAt(task.scheduled_at || "");
+      setScheduledAt(moment.utc(task.scheduled_at).local().format("YYYY-MM-DDTHH:mm") || "");
       setPriority(task.priority || "medium");
       setFirstMessage(task.first_message || "Hello, this is Sarah from I T Niche");
     }
@@ -44,7 +46,7 @@ export default function TaskModal({ task, onClose, onSave, className }: TaskModa
     setIsSaving(true);
 
     // Sanitize scheduled_at (empty string should become null)
-    const sanitizedScheduledAt = scheduledAt || null;
+    const sanitizedScheduledAt = scheduledAt ? moment(scheduledAt).utc().format() : null;
 
     if (!task || !task.id) {
       console.error("Task is not valid.");
