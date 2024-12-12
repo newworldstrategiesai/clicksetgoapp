@@ -567,10 +567,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           <div className="p-4 rounded-lg text-lg font-medium">
                     <p>Status: {campaignData.status}</p>
                     <p>
-                      Start Date: {new Date(campaignData.start_date).toLocaleDateString()}
+                      Start Date: {moment.utc(campaignData.start_date).local().format('YYYY-MM-DD HH:mm:ss A')}
                     </p>
                     <p>
-                      End Date: {new Date(campaignData.end_date).toLocaleDateString()}
+                      End Date: {moment.utc(campaignData.end_date).local().format('YYYY-MM-DD HH:mm:ss A')}
                     </p>
                     <p>Description: {campaignData.description}</p>
                 </div>
@@ -667,7 +667,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                       {moment
                         .utc(task.scheduled_at)
                         .local()
-                        .format('YYYY-MM-DD HH:mm:ss')}
+                        .format('YYYY-MM-DD HH:mm:ss A')}
                     </td>
                     <td className="border px-4 py-2 dark:border-gray-600">
                       <button
