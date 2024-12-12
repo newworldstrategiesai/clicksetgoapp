@@ -65,7 +65,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmMedium: '',
     utmCampaign: '',
     schedule: '',
-    agent: ''
+    agent: '',
+    callDistribution: 'Immediate'
   });
   const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
@@ -156,6 +157,12 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       agent: value
     }));
   };
+  const handleDistributionMethodChange = (value: string) => {  // Handle the distribution method change
+    setFormData(prevData => ({
+      ...prevData,
+      distributionMethod: value
+    }));
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -207,7 +214,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       utm_campaign: formData.utmCampaign || null,
       user_id: userId,
       country_code: defaultCountry.code,
-      scheduled_at: scheduledAtUTC
+      scheduled_at: scheduledAtUTC,
+      call_distribution: formData.callDistribution
     };
     // Debugging: Log the data being sent
     // router.push('/campaigns');
@@ -232,7 +240,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           utmMedium: '',
           utmCampaign: '',
           schedule: '',
-          agent: ''
+          agent: '',
+          callDistribution: 'Instant'
         });
         setIsAdvanced(false); // Reset Advanced section
       }
@@ -278,7 +287,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800 dark:text-white">New Campaign</h1>
+      <h1 className="text-2xl font-bold mb-6 text-left text-gray-800 dark:text-white">New Campaign</h1>
       <form onSubmit={handleSubmit} className="space-y-6 bg-modal dark:bg-gray-900 shadow-md rounded-lg p-8 transition-all duration-200">
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -339,21 +348,6 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         {/* Timezone and Audience */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
-            <Label htmlFor="timezone">Timezone</Label>
-            <Select onValueChange={handleTimezoneChange} value={formData.timezone}>
-              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
-                <SelectValue placeholder="Select a timezone" />
-              </SelectTrigger>
-              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
-                {timezones.map((tz) => (
-                  <SelectItem key={tz.value} value={tz.value}>
-                    {tz.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
             <Label htmlFor="audience">Audience</Label>
             <Select onValueChange={handleSelectChange} value={formData.audience}>
               <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
@@ -363,6 +357,52 @@ export function NewCampaign({ userId }: NewCampaignProps) {
                 {lists.map((list) => (
                   <SelectItem key={list.id} value={list.id}>
                     {list.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+              <Label htmlFor="distributionMethod">Call Distribution</Label>
+              <Select value={formData.callDistribution} onValueChange={handleDistributionMethodChange}>
+                <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                  <SelectValue placeholder="Select Method" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                  <SelectItem value="Immediate">Immediate</SelectItem>
+                  <SelectItem value="Distributed">Distributed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+        </div>
+
+        {/* Schedule and Agent */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
+            <Select onValueChange={handleScheduleChange} value={formData.schedule}>
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                  <SelectValue placeholder={selectedScheduleName} />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                {schedules.map((schedule) => (
+                  <SelectItem key={schedule.id} value={schedule.id}>
+                    {schedule.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label htmlFor="agent">Agent</Label>
+            <Select onValueChange={handleAgentChange} value={formData.agent}>
+              <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                <SelectValue placeholder={selectedAgentName} />
+              </SelectTrigger>
+              <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                {agents.map((agent) => (
+                  <SelectItem key={agent.id} value={agent.id}>
+                    {agent.agent_name}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -422,6 +462,21 @@ export function NewCampaign({ userId }: NewCampaignProps) {
                 />
               </div>
               <div>
+                <Label htmlFor="timezone">Timezone</Label>
+                <Select onValueChange={handleTimezoneChange} value={formData.timezone}>
+                  <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
+                    <SelectValue placeholder="Select a timezone" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
+                    {timezones.map((tz) => (
+                      <SelectItem key={tz.value} value={tz.value}>
+                        {tz.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
                 <Label htmlFor="allocation">Allocation</Label>
                 <Input
                   id="allocation"
@@ -471,44 +526,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
                   onChange={handleChange}
                   className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
-              </div>
-
-              {/* Schedule and Agent */}
-              <div>
-                <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
-                <Select onValueChange={handleScheduleChange} value={formData.schedule}>
-                  <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
-                    <SelectValue placeholder={selectedScheduleName} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
-                    {schedules.map((schedule) => (
-                      <SelectItem key={schedule.id} value={schedule.id}>
-                        {schedule.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="agent">Agent</Label>
-                <Select onValueChange={handleAgentChange} value={formData.agent}>
-                  <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
-                    <SelectValue placeholder={selectedAgentName} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-100 dark:bg-gray-800 dark:text-white">
-                    {agents.map((agent) => (
-                      <SelectItem key={agent.id} value={agent.id}>
-                        {agent.agent_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+              </div> 
             </div>
           </div>
         )}
-
-        {/* Submit Button */}
         <Button
           type="submit"
           className="w-full bg-blue-500 dark:bg-blue-500 text-white dark:text-white hover:bg-blue-600 transition duration-200"
