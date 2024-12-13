@@ -1,18 +1,16 @@
-"use client";
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
 
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { supabase } from "@/utils/supabaseClient";
-import { DataTable } from "./components/data-table";
-import { UserNav } from "./components/user-nav";
-import { getColumns, YourTaskType } from "./components/columns";
-import TaskModal from "@/components/TaskModal";
-import { TooltipProvider } from "@/components/tasks/tooltip";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { redirect } from 'next/navigation';
+import { createClient } from '@/server';
+import { getUser } from '@/utils/supabase/queries';
+import TaskPage from './components/TaskPage';
 
-import { CustomColumnDef } from "./components/custom-column-def";
-import { ErrorBoundary } from "@/components/ErrorBoundary";
+export default async function TasksPage() {
+  try {
+    const supabase = await createClient();
+    const user = await getUser(supabase);
+
 
 export default function TaskPage() {
   const [tasks, setTasks] = useState<YourTaskType[]>([]);
@@ -104,124 +102,14 @@ export default function TaskPage() {
     return visibleColumns.includes(columnId);
   });
 
-  useEffect(() => {
-    const savedColumns = localStorage.getItem("visibleColumns");
-    if (savedColumns) {
-      setVisibleColumns(JSON.parse(savedColumns));
+    if (!user) {
+      return redirect('/signin');
     }
-  }, []);
 
-  useEffect(() => {
-    if (visibleColumns.length > 0) {
-      localStorage.setItem("visibleColumns", JSON.stringify(visibleColumns));
-    }
-  }, [visibleColumns]);
 
-  // Force Launch Handler
-  const handleForceLaunch = async () => {
-    try {
-      const { data, error } = await supabase
-        .from("campaigns")
-        .update({ status: "active", updated_at: new Date() })
-        .eq("status", "pending");
-
-      if (error) {
-        throw error;
-      }
-
-      toast.success("Campaigns force launched successfully!");
-      // Optionally, refresh the task list
-      fetchTasks();
-    } catch (error: any) {
-      console.error("Error force launching campaigns:", error.message);
-      toast.error("Failed to force launch campaigns.");
-    }
-  };
-
-  if (allColumns.length === 0) {
-    return (
-      <div className="flex justify-center items-center h-screen dark:text-white">
-        Loading...
-      </div>
-    );
+    return <TaskPage userId={user.id} />; // Pass userId to CallLogsClient
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    return redirect('/signin');
   }
-
-  return (
-    <ErrorBoundary>
-      <>
-        <ToastContainer />
-
-        {/* Mobile View Images */}
-        <div className="md:hidden flex justify-center items-center">
-          <div className="relative w-full h-64 sm:h-80">
-            <Image
-              src="/examples/tasks-light.png"
-              alt="Tasks Light Mode"
-              layout="fill"
-              objectFit="contain"
-              className="block dark:hidden"
-              priority
-            />
-            <Image
-              src="/examples/tasks-dark.png"
-              alt="Tasks Dark Mode"
-              layout="fill"
-              objectFit="contain"
-              className="hidden dark:block"
-              priority
-            />
-          </div>
-        </div>
-
-        {/* Task List Visible on All Screen Sizes */}
-        <div className="flex flex-col space-y-8 p-4 sm:p-6 lg:p-8 mt-10">
-          {/* Header with Force Launch Button */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight dark:text-white">Welcome back!</h2>
-              <p className="text-muted-foreground">
-                Here's a list of your call tasks!
-              </p>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={handleForceLaunch}
-                className="bg-red-600 dark:text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm sm:text-base"
-                aria-label="Force Launch Campaigns"
-              >
-                Force Launch
-              </button>
-              <UserNav />
-            </div>
-          </div>
-
-          {/* Task List */}
-          <TooltipProvider>
-            <div className="overflow-x-auto">
-              <DataTable
-                data={tasks}
-                columns={filteredColumns}
-                allColumns={allColumns}
-                visibleColumns={visibleColumns}
-                toggleColumn={handleToggleColumn}
-              />
-            </div>
-          </TooltipProvider>
-
-          {/* Task Modal */}
-          {showModal && selectedTask && (
-            <TaskModal
-              task={selectedTask}
-              onClose={() => setShowModal(false)}
-              onSave={() => {
-                setShowModal(false);
-                toast.success("Task updated successfully.");
-              }}
-              className="max-w-full sm:max-w-lg"
-            />
-          )}
-        </div>
-      </>
-    </ErrorBoundary>
-  );
 }
