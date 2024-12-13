@@ -29,8 +29,6 @@ interface CompanyLink {
 }
 
 const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
-  console.log('CompanySettings userId:', userId); // Debugging
-
   if (!userId) {
     return <div className="text-red-500">User ID is missing. Please log in again.</div>;
   }
@@ -63,16 +61,19 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
           .from('agents')
           .select('company_name, company_description, company_website, company_phone')
           .eq('user_id', userId)
-          .single();
     
         if (companyError) throw companyError;
-    
-        setCompanyInfo(companyData || {
-          company_name: '',
-          company_description: '',
-          company_website: '',
-          company_phone: '',
-        });
+        
+        if (companyData && companyData.length > 0) {
+          setCompanyInfo(companyData[0]); // Use the first record or decide how to handle multiple
+        } else {
+          setCompanyInfo({
+            company_name: '',
+            company_description: '',
+            company_website: '',
+            company_phone: '',
+          });
+        }
       } catch (error) {
         console.error('Error fetching company data:', error);
         toast.error('Failed to fetch company information.');
