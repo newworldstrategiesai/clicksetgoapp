@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import VoiceDropdown from './VoiceDropdown';
 
 interface Agent {
   id: string;
@@ -10,6 +11,13 @@ interface Agent {
   prompt: string;
   default_voice: string;
   // Add other fields as necessary
+}
+interface Voice {
+  voice_id: string;
+  name: string;
+  gender: string;
+  accent: string;
+  preview_url: string;
 }
 
 interface CallConfirmationModalProps {
@@ -36,10 +44,13 @@ interface CallConfirmationModalProps {
   setCompanyName: React.Dispatch<React.SetStateAction<string>>;
   prompt: string;
   setPrompt: React.Dispatch<React.SetStateAction<string>>;
+  voiceId: string;
+  setVoiceId: React.Dispatch<React.SetStateAction<string>>;
   defaultAgentName: string;
   defaultRole: string;
   defaultCompanyName: string;
-  agents: Agent[]; // Add agents prop
+  agents: Agent[];
+  voices: Voice[] // Add agents prop
 }
 
 const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
@@ -66,6 +77,9 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
   setCompanyName,
   prompt,
   setPrompt,
+  voiceId,
+  setVoiceId,
+  voices = [],
   defaultAgentName,
   defaultRole,
   defaultCompanyName,
@@ -73,6 +87,7 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
 }) => {
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [selectedAgentId, setSelectedAgentId] = useState<string>('');
+  const [selectedVoiceId, setSelectedVoiceId] = useState<string>(voiceId); // Store voice ID
 
   // Autopopulate advanced settings with default agent settings
   useEffect(() => {
@@ -96,10 +111,10 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
         setCompanyName(selectedAgent.company_name);
         setPrompt(selectedAgent.prompt);
         // Optionally, set other fields like voiceId
-        // setVoiceId(selectedAgent.default_voice);
+        setVoiceId(selectedAgent.default_voice);
       }
     }
-  }, [selectedAgentId, agents, setAgentName, setRole, setCompanyName, setPrompt]);
+  }, [selectedAgentId, agents, setAgentName, setRole, setCompanyName, setPrompt, setVoiceId]);
 
   if (!isOpen) return null;
 
@@ -255,6 +270,14 @@ const CallConfirmationModal: React.FC<CallConfirmationModalProps> = ({
                 rows={3}
                 aria-label="Prompt"
               ></textarea>
+            </div>
+            {/* Voice Dropdown */}
+            <div className="mb-4">
+              <VoiceDropdown
+                voices={voices}
+                selectedVoice={voiceId}
+                setSelectedVoice={setVoiceId}
+              />
             </div>
           </div>
         )}

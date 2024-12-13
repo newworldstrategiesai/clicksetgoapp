@@ -11,11 +11,11 @@ import 'react-toastify/dist/ReactToastify.css';
 interface ApiKeysFormProps {
   userId: string;
   apiKeys: {
-    twilio_sid: string;
-    twilio_auth_token: string;
-    eleven_labs_key: string;
-    vapi_key: string;
-    open_ai_api_key: string;
+    twilio_sid: string | null;
+    twilio_auth_token: string | null;
+    eleven_labs_key: string | null;
+    vapi_key: string | null;
+    open_ai_api_key: string | null;
   } | null;
 }
 
@@ -112,7 +112,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             value={formValues.twilioSid}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
-            required
+            
           />
         </div>
         <div>
@@ -126,7 +126,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             value={formValues.twilioAuthToken}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
-            required
+            
           />
         </div>
         <div>
@@ -140,7 +140,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             value={formValues.elevenLabsKey}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
-            required
+            
           />
         </div>
         <div>
@@ -154,7 +154,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             value={formValues.vapiKey}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
-            required
+            
           />
         </div>
         <div>
@@ -168,7 +168,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             value={formValues.openAiApiKey}
             onChange={handleInputChange}
             className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
-            required
+            
           />
         </div>
         <div>

@@ -98,6 +98,9 @@ export default function AccountContent({
       window.alert('Error updating country. Please try again.');
     }
   };
+  if(!defaultCountry.name){
+    setDefaultCountry({ name: 'US', code: '+1' })
+  }
 
   return (
     <div className="p-4">

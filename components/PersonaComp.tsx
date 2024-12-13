@@ -52,7 +52,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   const [agentName, setAgentName] = useState('');
   const [companyName, setCompanyName] = useState('  ');
   const [companyDescription, setCompanyDescription] = useState('');
-  const [timezone, setTimezone] = useState('');
+  // const [timezone, setTimezone] = useState('');
   const [toneOfVoice, setToneOfVoice] = useState('Friendly');
   const [emojiUsage, setEmojiUsage] = useState(true);
   const [emojiLimit, setEmojiLimit] = useState('');
@@ -106,7 +106,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
       agent_name: agentName,
       company_name: companyName,
       company_description: companyDescription,
-      default_timezone: timezone,
+      // default_timezone: timezone,
       tone_of_voice: toneOfVoice,
       allow_emoji_usage: emojiUsage,
       emoji_limit: emojiLimit,
@@ -207,8 +207,8 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
             setCompanyName={setCompanyName}
             companyDescription={companyDescription}
             setCompanyDescription={setCompanyDescription}
-            timezone={timezone}
-            setTimezone={setTimezone}
+            // timezone={timezone}
+            // setTimezone={setTimezone}
             selectedRole={selectedRole}
             setSelectedRole={setSelectedRole}
           />
@@ -269,8 +269,8 @@ function IdentityAndCompany({
   setCompanyName,
   companyDescription,
   setCompanyDescription,
-  timezone,
-  setTimezone,
+  // timezone,
+  // setTimezone,
   selectedRole,
   setSelectedRole,
 }: {
@@ -280,8 +280,8 @@ function IdentityAndCompany({
   setCompanyName: (name: string) => void;
   companyDescription: string;
   setCompanyDescription: (description: string) => void;
-  timezone: string;
-  setTimezone: (timezone: string) => void;
+  // timezone: string;
+  // setTimezone: (timezone: string) => void;
   selectedRole: string;
   setSelectedRole: (role: string) => void;
 }) {
@@ -329,7 +329,7 @@ function IdentityAndCompany({
         </p>
       </div>
 
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Default Timezone</label>
         <select
           value={timezone}
@@ -344,7 +344,7 @@ function IdentityAndCompany({
         <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
           Provides a default date and time for the AI Agent to reference when it is unable to retrieve the user's timezone to personalize conversations.
         </p>
-      </div>
+      </div> */}
     </div>
   );
 }
