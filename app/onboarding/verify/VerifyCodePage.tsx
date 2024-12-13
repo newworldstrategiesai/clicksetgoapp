@@ -8,6 +8,25 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { useOnboarding } from "@/context/OnboardingContext";
 
+// Helper function to parse the phone number into country code and phone number
+const parsePhoneNumber = (phoneNumber: string) => {
+  // Remove spaces, dashes, or parentheses to simplify matching
+  phoneNumber = phoneNumber.replace(/[\s\(\)\-]/g, '');
+
+  // Ensure the phone number has at least 10 digits
+  if (phoneNumber.length < 10) {
+    return ['', phoneNumber];  // Return empty country code if the number is too short
+  }
+
+  // Get the last 10 digits as the phone number
+  const phoneWithoutCountryCode = phoneNumber.slice(-10);
+
+  // Get the rest of the number as the country code
+  const countryCode = phoneNumber.slice(0, phoneNumber.length - 10);
+
+  return [countryCode, phoneWithoutCountryCode];
+};
+
 const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
   const [code, setCode] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
@@ -18,6 +37,10 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
   const { toast } = useToast();
   const { setStep } = useOnboarding();
   const phoneNumber = searchParams?.get("phone") || "";
+
+  // Assuming the phone number includes the country code
+  const [countryCode, phoneWithoutCountryCode] = parsePhoneNumber(phoneNumber);
+  console.log(countryCode, phoneWithoutCountryCode);
 
   useEffect(() => {
     if (!userId) {
@@ -80,7 +103,13 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ phoneNumber, code }),
+        body: JSON.stringify({ 
+          phoneNumber,
+          phoneWithoutCC: phoneWithoutCountryCode, 
+          countryCode,
+          userId, 
+          code 
+        }),
         credentials: "same-origin",
       });
 
@@ -93,7 +122,7 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
         description: "Phone number verified successfully.",
       });
 
-      setStep(2);
+      setStep(2, "carrier");
       router.push(`/onboarding/carrier?phone=${encodeURIComponent(phoneNumber)}`);
     } catch (error: any) {
       setAttemptsLeft((prev) => (prev > 0 ? prev - 1 : 0));
@@ -116,6 +145,7 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
     }
   };
 
+  // Rest of the component remains the same...
   return (
     <div className="container max-w-md mx-auto p-8">
       <Card className="p-6 space-y-6">
@@ -148,7 +178,7 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-black text-white dark:bg-white dark:text-black"
             disabled={code.length !== 6 || loading || attemptsLeft <= 0}
           >
             {loading ? "Verifying..." : "Verify Code"}
@@ -172,4 +202,4 @@ const VerifyCodePage:React.FC<{ userId: string}> = ({userId}) =>{
   );
 }
 
-export default VerifyCodePage
+export default VerifyCodePage;
