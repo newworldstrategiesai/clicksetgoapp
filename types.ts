@@ -141,3 +141,20 @@ export interface DialerComponentProps {
   prompt: string;
   voiceId: string;
 }
+
+export interface YourTaskType {
+  id: string;
+  campaign_id: string | null;
+  campaign_name: string;
+  call_subject: string;
+  call_status: string;
+  priority: number | null;
+  scheduled_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+  contacts: Array<{
+    first_name: string;
+    last_name: string;
+    phone: string;
+  }>;
+}

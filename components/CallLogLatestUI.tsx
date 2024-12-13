@@ -104,7 +104,7 @@ export const CallLogsPage = ({user}:CallLogsPage) => {
   return (
     <div className="p-4 max-w-full overflow-hidden">
       <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl mb-4 text-center md:text-left">
-        Call Logs
+        Calls
       </h1>
       {error && <p className="text-red-500">{error}</p>}
       {loading ? (
