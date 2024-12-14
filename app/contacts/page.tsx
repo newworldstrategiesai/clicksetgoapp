@@ -28,13 +28,13 @@ export default async function ContactsPage() {
 
     if (error || !data) {
       console.error('Failed to fetch API keys');
-      return redirect('/signin'); // Handle this case as appropriate
+    //   return redirect('/signin'); // Handle this case as appropriate
     }
 
-    const apiKey = data.eleven_labs_key;
-    const twilioSid = data.twilio_sid;
-    const twilioAuthToken = data.twilio_auth_token;
-    const vapiKey = data.vapi_key;
+    const apiKey = data?.eleven_labs_key;
+    const twilioSid = data?.twilio_sid;
+    const twilioAuthToken = data?.twilio_auth_token;
+    const vapiKey = data?.vapi_key;
 
     const AllApiKeys = {apiKey, twilioSid, twilioAuthToken, vapiKey};
 

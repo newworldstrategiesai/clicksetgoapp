@@ -2,22 +2,24 @@
 import twilio from 'twilio';
 
 export default async function handler(req, res) {
-  const { pageSize = 100, pageToken, } = req.query;
+  const { pageSize = 100, maxRecords = 1000 } = req.query;
   const limit = parseInt(pageSize);
+  const maxLimit = parseInt(maxRecords);
 
   const accountSid = req.headers['twiliosid'];
   const authToken = req.headers['twilioauthtoken'];
   const client = twilio(accountSid, authToken);
 
   try {
-    // Fetch the messages for the current page
-    const params = {
-      limit,
-    };
+    let allMessages = [];
+    let nextPageToken = null;
 
-    if (pageToken) {
-      params.pageToken = pageToken;
-    }
+    do {
+    // Fetch the messages for the current page
+      const params = { limit };
+      if (nextPageToken) {
+        params.pageToken = nextPageToken;
+      }
 
     const messagesPage = await client.messages.list(params);
 
@@ -26,17 +28,27 @@ export default async function handler(req, res) {
     }
 
     const formattedMessages = messagesPage.map((msg) => ({
-      id: msg.sid,
-      from: msg.from,
-      to: msg.to,
-      body: msg.body,
-      dateSent: msg.dateSent.toISOString(),
+        id: msg.sid,
+        from: msg.from,
+        to: msg.to,
+        body: msg.body,
+        dateSent: msg.dateSent.toISOString(),
     }));
 
+      allMessages = [...allMessages, ...formattedMessages];
+
+      // Stop fetching if we have reached the max limit
+      if (allMessages.length >= maxLimit) {
+        allMessages = allMessages.slice(0, maxLimit);
+        break;
+      }
+
+      nextPageToken = messagesPage.nextPageUri ? new URLSearchParams(messagesPage.nextPageUri).get('PageToken') : null;
+    } while (nextPageToken);
+
     res.status(200).json({
-      messages: formattedMessages,
-      nextPageToken: messagesPage.nextPageUri ? new URLSearchParams(messagesPage.nextPageUri).get('PageToken') : null,
-      totalCount: 120, // Adjust this number based on your typical usage
+      messages: allMessages,
+      totalCount: allMessages.length,
     });
   } catch (error) {
     console.error('Error fetching SMS logs:', error.message);

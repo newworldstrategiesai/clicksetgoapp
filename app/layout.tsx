@@ -25,7 +25,15 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/leads/pipeline', '/requests', '/equipment', '/venues', '/playlists',
     '/analytics', '/settings', '/account', '/campaigns', '/signin',
     '/contacts', '/lists', '/sms-logs', '/tasks', '/new-campaign', '/campaigns',
+    '/editCampaign', '/customization/persona', '/schedule-new-form', '/pricing'
   ];
+  const hideSideBar = [
+    '/signin',
+    '/signup',
+    '/signin/password_signin',
+    '/signin/signup',
+    '/signin/email_signin'
+  ]
 
   const hideMobileNavRoutes = [
     '/chat',
@@ -43,20 +51,22 @@ export default function RootLayout({ children }: PropsWithChildren) {
 
   const shouldHideNavbar = hideNavbarMobileRoutes.includes(pathname || '');
   const shouldHideMobileNav = hideMobileNavRoutes.includes(pathname || '');
-
+  const shouldHideFooter = hideFooterRoutes.some(route => pathname?.startsWith(route))
+  console.log(pathname);
   return (
     <html lang="en" className="transition-colors duration-300">
       <body className="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={true}>
           <UserProvider>
             <div className="flex h-screen">
-
+              { !hideSideBar.includes(pathname || '') &&
               <aside className="hidden md:block w-64 border-r bg-background dark:bg-black transition-colors duration-300">
                 <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-gray-700">
                   <h1 className="text-xl font-bold text-gray-900 dark:text-white"></h1>
                 </div>
                 <MainNav />
               </aside>
+              }
 
               <div className="flex-1 flex flex-col">
                 <div className={cn(
@@ -76,7 +86,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
                 >
                   <CountryProvider>{children}</CountryProvider>
                 </main>
-                {!hideFooterRoutes.includes(pathname || '') && <Footer />}
+                {!shouldHideFooter && <Footer />}
               </div>
             </div>
           </UserProvider>

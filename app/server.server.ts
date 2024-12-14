@@ -22,7 +22,7 @@ export const createClient =async () => {
         },
         remove(name: string, options: CookieOptions) {
           try {
-            cookieStore.set({ name, value: '', ...options });
+            cookieStore.set({ name, ...options });
           } catch (error) {
             console.error('Error removing cookie:', error);
           }

@@ -25,6 +25,7 @@ import './modernSlider.css';
 import { DialerComponentProps } from '@/types';
 import strict from 'assert/strict';
 import { string } from 'zod';
+import { useCountry } from '@/context/CountryContext';
 
 interface Contact {
   id: string;
@@ -67,7 +68,6 @@ const formatPhoneNumber = (phoneNumber: string, CountryCode: CountryCode ) => {
   const tenDigitNum = phoneNumber.slice(-10);
   const countryCodeObject = { defaultCountry: CountryCode as CountryCode };
   const phoneNumberObject = parsePhoneNumberFromString(tenDigitNum, countryCodeObject);
-  console.log(phoneNumberObject?.format('E.164'))
   return phoneNumberObject ? phoneNumberObject.format('E.164') : null;
 };
 
@@ -135,7 +135,10 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
 
   // Initialize agents state
   const [agents, setAgents] = useState<Agent[]>([]);
-
+  const { defaultCountry, setDefaultCountry } = useCountry();
+  if(!defaultCountry.name){
+    setDefaultCountry({ name: 'US', code: '+1' })
+  }
   /**
    * Fetch Twilio Numbers from the backend API
    */
@@ -711,11 +714,11 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
               ))}
             </select>
           </label>
-          <VoiceDropdown
+          {/* <VoiceDropdown
             voices={voices}
             selectedVoice={selectedVoice}
             setSelectedVoice={setSelectedVoice}
-          />
+          /> */}
           {/* Add Verified Caller ID Button */}
           <button
             onClick={() => setIsAddCallerIDModalOpen(true)}
@@ -755,7 +758,9 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         defaultRole={defaultRole}
         defaultCompanyName={defaultCompanyName}
         agents={agents} // Pass the agents state here
-      />
+        voiceId={voiceIdState}
+        setVoiceId={setVoiceIdState} 
+        voices={voices}      />
 
       {/* Modal for Address Book */}
       {isAddressBookModalOpen && (
