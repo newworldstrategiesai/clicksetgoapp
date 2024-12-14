@@ -29,7 +29,7 @@ export const createClient = async (): Promise<ReturnType<typeof createServerClie
 
   const removeCookie = (name: string, options: CookieOptions): void => {
     try {
-      cookieStore.set({ name, ...options });
+      cookieStore.set({ name, value: '', ...options });
     } catch (error) {
       console.error('Error removing cookie:', error);
     }
