@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+import { toast} from 'react-toastify';
 import Button from '@/components/ui/Button/Button'; // Changed to default import
 import Card from '@/components/ui/Card/Card';
 import { saveApiKeys } from '@/utils/supabase/queries';
@@ -88,18 +88,6 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
       title="API Keys"
       description="Manage your API keys for Twilio, ElevenLabs, VAPI, and OpenAI."
     >
-       <ToastContainer
-        position="top-right"
-        autoClose={3000} // Adjust timing as desired
-        hideProgressBar={false}
-        newestOnTop={true}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
-      />
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="twilioSid" className="block text-sm font-medium dark:text-white">
@@ -172,8 +160,8 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
           />
         </div>
         <div>
-          <Button type="submit">
-            Save API Keys
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Save API Keys'}
           </Button>
         </div>
       </form>
