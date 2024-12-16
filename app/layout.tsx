@@ -52,7 +52,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
   const shouldHideNavbar = hideNavbarMobileRoutes.includes(pathname || '');
   const shouldHideMobileNav = hideMobileNavRoutes.includes(pathname || '');
   const shouldHideFooter = hideFooterRoutes.some(route => pathname?.startsWith(route))
-  
+  console.log(pathname);
   return (
     <html lang="en" className="transition-colors duration-300">
       <body className="bg-white dark:bg-black text-black dark:text-white transition-colors duration-300">
