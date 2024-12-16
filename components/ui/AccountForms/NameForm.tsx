@@ -34,7 +34,6 @@ export default function NameForm({ userName, userId }: { userName: string, userI
             variant="slim"
             type="submit"
             form="nameForm"
-            className=' hover:text-white dark:hover:text-white'
             loading={isSubmitting}
           >
             Update Name
