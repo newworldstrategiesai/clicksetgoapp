@@ -22,7 +22,7 @@ export default async function Account() {
   try {
     const supabase = await createClient();
     const user = await getUser(supabase);
-    console.log('Fetched user:', user);
+    // console.log('Fetched user:', user);
 
     if (!user) {
       console.log('No user found, redirecting to /signin');
@@ -33,9 +33,9 @@ export default async function Account() {
     const subscription = await getSubscription(supabase);
     const apiKeys = await getApiKeys(supabase, user.id);
 
-    console.log('Fetched userDetails:', userDetails);
-    console.log('Fetched subscription:', subscription);
-    console.log('Fetched apiKeys:', apiKeys);
+    // console.log('Fetched userDetails:', userDetails);
+    // console.log('Fetched subscription:', subscription);
+    // console.log('Fetched apiKeys:', apiKeys);
 
     // Extract Twilio credentials from apiKeys
     const twilioSid = apiKeys?.twilio_sid || '';

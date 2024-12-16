@@ -35,8 +35,6 @@ export default function AccountContent({
   subscription,
   apiKeys,
 }: AccountContentProps) {
-  console.log('AccountContent user:', user);
-  console.log('user.id:', user.id);
 
   if (!user || !user.id) {
     return <div className="text-red-500">User information is missing. Please log in again.</div>;
