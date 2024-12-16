@@ -10,7 +10,6 @@ import { isValidPhoneNumber } from "libphonenumber-js";
 import { useToast } from "@/hooks/use-toast";
 import "react-phone-number-input/style.css";
 import { useOnboarding } from "@/context/OnboardingContext";
-import { supabase } from "@/utils/supabaseClient";
 
   const PhoneVerificationPage : React.FC<{ userId: string}> = ({userId}) =>{
   const [mounted, setMounted] = useState(false);
@@ -52,11 +51,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     return;
   }
 
-  // Assuming the phone number includes the country code
-  const [countryCode, phoneWithoutCountryCode] = parsePhoneNumber(phoneNumber);  // You might need a function to parse the phone number
-  console.log(countryCode, phoneWithoutCountryCode);  
-  setLoading(true);
-
   try {
     const response = await fetch("/api/send-verification-code", {
       method: "POST",
@@ -65,23 +59,13 @@ const handleSubmit = async (e: React.FormEvent) => {
     });
 
     if (!response.ok) throw new Error("Failed to send verification code");
-      
-    const { data, error } = await supabase
-      .from('users')
-      .update({ phone_number: phoneWithoutCountryCode, default_country_code: countryCode })
-      .eq('id', userId)
-      .select()
-
-    if (error) {
-      throw new Error("Error sending data to supabase");
-    }
 
     toast({
       title: "Verification Code Sent",
       description: "Please check your phone for the verification code",
     });
 
-    setStep(1);
+    setStep(1, "phone");
     router.push(`/onboarding/verify?phone=${encodeURIComponent(phoneNumber)}`);
   } catch (error) {
     toast({
@@ -92,25 +76,6 @@ const handleSubmit = async (e: React.FormEvent) => {
   } finally {
     setLoading(false);
   }
-};
-
-// Helper function to parse the phone number into country code and phone number
-const parsePhoneNumber = (phoneNumber: string) => {
-  // Remove spaces, dashes, or parentheses to simplify matching
-  phoneNumber = phoneNumber.replace(/[\s\(\)\-]/g, '');
-
-  // Ensure the phone number has at least 10 digits
-  if (phoneNumber.length < 10) {
-    return ['', phoneNumber];  // Return empty country code if the number is too short
-  }
-
-  // Get the last 10 digits as the phone number
-  const phoneWithoutCountryCode = phoneNumber.slice(-10);
-
-  // Get the rest of the number as the country code
-  const countryCode = phoneNumber.slice(0, phoneNumber.length - 10);
-
-  return [countryCode, phoneWithoutCountryCode];
 };
 
   return (
@@ -136,7 +101,7 @@ const parsePhoneNumber = (phoneNumber: string) => {
             />
           </div>
 
-          <Button type="submit" className="w-full" disabled={!phoneNumber || loading}>
+          <Button type="submit" className="w-full bg-black text-white dark:bg-white dark:text-black" disabled={!phoneNumber || loading}>
             {loading ? "Sending Code..." : "Send Verification Code"}
           </Button>
         </form>

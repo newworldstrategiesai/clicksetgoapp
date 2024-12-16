@@ -103,7 +103,7 @@ const CARRIERS = [
     });
 
     // Update onboarding step
-    setStep(3);
+    setStep(3,"carriers");
 
     router.push("/onboarding/notifications");
   };

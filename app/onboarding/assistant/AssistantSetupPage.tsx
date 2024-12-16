@@ -39,6 +39,7 @@ import { useOnboarding } from "@/context/OnboardingContext";
         const response = await fetch("/api/assistant-setup", {
           method: "GET",
           headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({userId}),
         });
 
         if (!response.ok) throw new Error("Failed to fetch assistant settings");
@@ -78,9 +79,9 @@ import { useOnboarding } from "@/context/OnboardingContext";
       const response = await fetch("/api/assistant-setup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({...formData, userId}),
       });
-
+      
       if (!response.ok) throw new Error("Failed to save assistant settings");
 
       toast({
@@ -89,7 +90,7 @@ import { useOnboarding } from "@/context/OnboardingContext";
       });
 
       // Update onboarding step
-      setStep(5);
+      setStep(5,"assistants");
 
       router.push("/onboarding/trial");
     } catch (error) {
@@ -230,7 +231,7 @@ import { useOnboarding } from "@/context/OnboardingContext";
             </div>
           </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
+          <Button type="submit" className="w-full bg-black text-white dark:bg-white dark:text-black" disabled={loading}>
             {loading ? "Saving..." : "Continue"}
           </Button>
         </form>
