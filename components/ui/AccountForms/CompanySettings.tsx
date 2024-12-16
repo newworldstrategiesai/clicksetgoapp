@@ -324,7 +324,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md dark:text-white transition-colors duration-200"
               disabled={isLoading}
             >
               {isLoading ? 'Saving...' : 'Save Changes'}
@@ -465,7 +465,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
               <button
                 onClick={handleAddLink}
                 type="button"
-                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-md dark:text-white transition-colors duration-200 flex items-center space-x-2"
+                className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-md dark:text-white transition-colors duration-200 flex items-center space-x-2"
               >
                 <FontAwesomeIcon icon={faPlus} />
                 <span>Add Link</span>

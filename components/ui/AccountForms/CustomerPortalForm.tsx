@@ -64,7 +64,7 @@ export default function CustomerPortalForm({ subscription }: Props) {
             variant="slim"
             onClick={handleStripePortalRequest}
             loading={isSubmitting}
-            className='hover:bg-gray-300'
+            className=' hover:text-white dark:hover:text-white'
           >
             Open customer portal
           </Button>

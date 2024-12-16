@@ -226,7 +226,9 @@ const NotificationsForm: React.FC<NotificationsFormProps> = ({ userId }) => {
 
         {/* Save Button */}
         <div className="pt-4 border-t border-gray-700">
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" 
+          className=' hover:text-white dark:hover:text-white'
+          disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save Notification Settings'}
           </Button>
         </div>
