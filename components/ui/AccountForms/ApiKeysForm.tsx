@@ -160,7 +160,9 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
           />
         </div>
         <div>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" 
+          className=' hover:text-white dark:hover:text-white'
+          disabled={isSubmitting}>
             {isSubmitting ? 'Saving...' : 'Save API Keys'}
           </Button>
         </div>
