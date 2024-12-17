@@ -345,12 +345,12 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-3xl font-bold mb-6 text-center dark:text-white">
+      <h1 className="text-5xl font-bold mb-6 text-center dark:text-white">
         Edit Campaign
       </h1>
       <form
         onSubmit={handleSubmit}
-        className="space-y-6 dark:bg-black shadow-md rounded-lg p-8"
+        className="space-y-6 dark:bg-black shadow-md p-8 bg-modal rounded-xl"
       >
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -363,7 +363,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter campaign name"
               value={formData.name}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               required
             />
           </div>
@@ -375,7 +375,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter campaign description"
               value={formData.description}
               onChange={handleChange}
-              className={`border rounded-lg p-2 w-full bg-gray-700 dark:text-white`}
+              className={`border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white`}
               disabled={isReadOnly}
             />
           </div>
@@ -393,7 +393,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select start date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
               required
             />
@@ -408,7 +408,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               showTimeSelect
               dateFormat="Pp"
               placeholderText="Select end date and time"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               required
               disabled= {isReadOnly}
             />
@@ -424,10 +424,10 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               disabled={isReadOnly}
               value={formData.timezone}
             >
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 <SelectValue placeholder="Select a timezone" />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 {timezones.map((tz) => (
                   <SelectItem key={tz.value} value={tz.value}>
                     {tz.label}
@@ -443,10 +443,10 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.audience}
               disabled={isReadOnly}
             >
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedListName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 {lists.map((list) => (
                   <SelectItem key={list.id} value={list.id}>
                     {list.name}
@@ -469,7 +469,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter budget"
               value={formData.budget}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
             />
           </div>
@@ -483,7 +483,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter allocation"
               value={formData.allocation}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
             />
           </div>
@@ -500,7 +500,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter UTM Source"
               value={formData.utmSource}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
             />
           </div>
@@ -513,7 +513,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter UTM Medium"
               value={formData.utmMedium}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
             />
           </div>
@@ -530,7 +530,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               placeholder="Enter UTM Campaign"
               value={formData.utmCampaign}
               onChange={handleChange}
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               disabled={isReadOnly}
             />
           </div>
@@ -541,7 +541,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               onChange={handleCountryChange}
               name="countryCode"
               id="countryCode"
-              className="border rounded-lg p-2 w-full bg-gray-700 dark:text-white"
+              className="border p-2 w-full  bg-white rounded-xl dark:bg-gray-700 dark:text-white"
               required
               disabled={isReadOnly}
             >
@@ -566,10 +566,10 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.schedule}
               disabled={isReadOnly}
             >
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedScheduleName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 {schedules.map((schedule) => (
                   <SelectItem key={schedule.id} value={schedule.id}>
                     {schedule.name}
@@ -585,10 +585,10 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
               value={formData.agent}
               disabled={isReadOnly}
             >
-              <SelectTrigger className="bg-gray-700 dark:text-white">
+              <SelectTrigger className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 <SelectValue placeholder={selectedAgentName} />
               </SelectTrigger>
-              <SelectContent className="bg-gray-700 dark:text-white">
+              <SelectContent className=" bg-white rounded-xl dark:bg-gray-700 dark:text-white">
                 {agents.map((agent) => (
                   <SelectItem key={agent.id} value={agent.id}>
                     {agent.agent_name}
@@ -602,7 +602,7 @@ const EditCampaign = ({ params }: { params: Promise<{ id: string }> }) => {
         {/* Submit Button */}
         <Button
           type="submit"
-          className="w-full bg-blue-600 dark:text-white hover:bg-blue-700 transition duration-200"
+          className="w-full bg-blue-600 text-white hover:bg-blue-700 transition duration-200 rounded-2xl"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Editing Campaign...' : 'Edit Campaign'}

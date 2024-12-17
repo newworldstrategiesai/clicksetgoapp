@@ -255,9 +255,8 @@ const Contacts: React.FC<ContactsProps> = ({ userId, onAddToList, AllApiKeys }) 
       )}
 
       {/* Header with "+" button and "Go" button */}
-      <div className="flex justify-between items-center mb-4 px-4">
-     
-       
+      <div className="flex justify-between items-center mb-4 px-4 text-5xl">
+      Contacts       
       </div>
 
       {/* Contacts Table */}

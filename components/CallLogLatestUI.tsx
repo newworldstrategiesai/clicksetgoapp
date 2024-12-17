@@ -194,8 +194,8 @@ export const CallLogsPage = ({user}:CallLogsPage) => {
       )}
 
       {isModalOpen && selectedLog && (
-        <div className="fixed inset-0 flex items-center justify-center dark:bg-black dark:bg-opacity-70 bg-white bg-opacity-70 z-50">
-          <div className="dark:bg-gray-800 p-6 w-full max-w-3xl mx-auto relative shadow-lg bg-modal rounded-2xl">
+        <div className="fixed inset-0 flex items-center justify-center dark:bg-black dark:bg-opacity-70 bg-opacity-70 z-50 backdrop-blur-sm" onClick={closeModal}>
+          <div className="dark:bg-gray-800 p-6 w-full max-w-3xl mx-auto relative shadow-lg bg-modal rounded-2xl" onClick={(e) => e.stopPropagation()}>
             <h2 className="text-3xl font-semibold mb-6 text-black dark:text-white">
               Call Details
             </h2>

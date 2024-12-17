@@ -134,12 +134,12 @@ const SMSLogsClient: React.FC<{
   const indexOfFirstLog = indexOfLastLog - logsPerPage;
   const currentLogs = smsLogs.slice(indexOfFirstLog, indexOfLastLog);
   return (
-    <div className="flex flex-col h-screen p-4 mt-16 max-w-full">
-      <h1 className="text-xl mb-4 text-center md:text-left">SMS Logs</h1>
+    <div className="flex flex-col h-screen p-4 max-w-full">
+      <h1 className="text-5xl mb-4 text-center md:text-left">SMS Logs</h1>
 
       <button
         onClick={downloadCSV}
-        className={`mb-4 px-4 py-2 bg-blue-500 dark:text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         disabled={csvLoading}
       >
         {csvLoading ? 'Generating CSV...' : 'Download All SMS Logs as CSV'}

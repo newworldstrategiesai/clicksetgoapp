@@ -42,27 +42,25 @@ const Navbar: React.FC = () => {
   const homeLink = user ? '/home' : '/index.html';
 
   return (
-    <nav className="navbar bg-white dark:bg-black text-gray-900 dark:text-gray-100 px-4 py-3 w-full z-10 top-0 shadow-md transition-colors duration-300">
+    <nav className="navbar bg-white dark:bg-black text-gray-900 dark:text-gray-100 px-4 py-3 z-10 top-0 shadow-md transition-colors duration-300 w-fill-available m-auto">
       <a href="#skip" className="sr-only focus:not-sr-only">
         Skip to content
       </a>
-      <div className="max-w-8xl mx-auto flex items-center justify-between">
+      <div className="flex items-center justify-between">
         <div className="text-xl mr-6 font-bold">
           {/* Conditional redirect for the link */}
           <a
             href={homeLink}
             className="hover:text-gray-500 text-lg sm:text-xl md:text-2xl lg:text-2xl whitespace-nowrap transition-colors duration-300"
-          >
-            
-          </a>
+          ></a>
         </div>
         {/* Navbar Links - Only shown on large screens and above */}
-        <div className="hidden lg:flex space-x-4">
+        <div className="hidden lg:flex space-x-2">
           <Navlinks user={user} />
         </div>
         {/* Theme Toggle and Mobile Menu Button */}
         <div className="flex items-center space-x-4">
-          <ThemeToggle />
+          {/* <ThemeToggle /> */}
           <div className="hidden">
             <button
               onClick={toggleMenu}

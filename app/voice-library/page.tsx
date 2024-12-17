@@ -29,7 +29,7 @@ const VoicePage = () => {
   // const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="p-4 pt-20 md:pt-24 lg:pt-12"> {/* Added padding top */}
+    <div className="px-4 pb-4"> {/* Added padding top */}
       {apiKey ? (
         <>
           <VoiceLibrary apiKey={apiKey} />

@@ -191,12 +191,12 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Contact Details Modal" className={"bg-modal dark:bg-black text-black dark:text-white   fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg p-5 rounded-lg max-h-[80vh] overflow-y-auto"}>
+    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Contact Details Modal" className={"bg-modal dark:bg-black text-black fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg p-5 rounded-lg max-h-[80vh] overflow-y-auto z-50 backdrop-blur-sm"}>
       <h2 className="text-xl font-bold mb-4">Contact Details</h2>
       {deleteSuccess ? (
         <p>Contact Successfully Deleted</p>
       ) : (
-        <div className='bg-wbite dark:bg-black'>
+        <div className='dark:bg-black'>
           {editedContact && (
             <div className='bg-modal  dark:bg-black'>
               <label className="block mb-2">

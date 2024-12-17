@@ -150,9 +150,9 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-slate-200 dark:bg-black dark:text-white min-h-screen">
-      <div className="flex items-center justify-between mb-6">
-      <h1 className="text-3xl font-bold mb-6">Persona</h1>
+    <div className="max-w-6xl mx-auto p-6 bg-slate-200 dark:bg-black dark:text-white min-h-screen">
+      <div className="flex items-center justify-between mb-3  ">
+      <h1 className="text-5xl font-bold">Persona</h1>
       <div className="mb-6">
         <Link href={`/customization/personas?usd=${userId}`}>
           <span className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-400">

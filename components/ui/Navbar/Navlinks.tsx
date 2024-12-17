@@ -15,7 +15,7 @@ import {
   faVoicemail,
   faSearch,
 } from '@fortawesome/free-solid-svg-icons';
-// import { ThemeToggle } from '@/components/theme-toggle';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 interface NavlinksProps {
   user?: any;
@@ -33,7 +33,7 @@ export default function Navlinks({ user }: NavlinksProps) {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row lg:space-x-4">
+    <div className="flex flex-col lg:flex-row lg:space-x-2">
       <Link
         href={user ? '/pricing' : '/pricing.html'}
         className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 px-3 py-2 rounded-md transition-colors"
@@ -155,7 +155,9 @@ export default function Navlinks({ user }: NavlinksProps) {
         </Link>
       )}
       {/* Integrate the ThemeToggle component */}
-      {/* <ThemeToggle /> */}
+      <div className='py-2'>
+      <ThemeToggle />
+      </div>
     </div>
   );
 }

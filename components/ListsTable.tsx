@@ -136,15 +136,15 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists, userId }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                   <button
                     onClick={(e) => handleEdit(e, list.id, list.name)}
-                    className="text-blue-400 hover:text-blue-300 transition duration-150 ease-in-out mr-3"
+                    className="text-blue-400 hover:text-blue-300 transition duration-150 ease-in-out px-3 py-2 hover:bg-gray-200 rounded-2xl"
                   >
-                    <FontAwesomeIcon icon={faEdit} />
+                    <FontAwesomeIcon icon={faEdit} className='w-5 h-5'/>
                   </button>
                   <button
                     onClick={(e) => handleDelete(e, list.id, list.name)}
-                    className="text-red-400 hover:text-red-300 transition duration-150 ease-in-out"
+                    className="text-red-400 hover:text-red-300 transition duration-150 ease-in-out px-3 py-2 hover:bg-gray-200 rounded-2xl"
                   >
-                    <FontAwesomeIcon icon={faTrash} />
+                    <FontAwesomeIcon icon={faTrash} className='w-5 h-5'/>
                   </button>
                 </td>
               </tr>
@@ -161,18 +161,18 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists, userId }) => {
             type="text"
             value={editingList.name}
             onChange={(e) => setEditingList({ ...editingList, name: e.target.value })}
-            className="w-full bg-gray-700 dark:text-white px-3 py-2 rounded mb-4"
+            className="w-full dark:bg-gray-700 dark:text-white bg-gray-300 px-3 py-2 rounded mb-4"
           />
           <div className="flex justify-end">
             <button
               onClick={() => setIsEditModalOpen(false)}
-              className="bg-gray-500 hover:bg-gray-600 dark:text-white font-bold py-2 px-4 rounded mr-2"
+              className="bg-gray-500 hover:bg-gray-600 dark:text-white font-bold py-2 text-gray-200 px-4 rounded mr-2"
             >
               Cancel
             </button>
             <button
               onClick={handleSaveEdit}
-              className="bg-blue-500 hover:bg-blue-600 dark:text-white font-bold py-2 px-4 rounded"
+              className="bg-blue-500 hover:bg-blue-600 dark:text-white text-gray-200 font-bold py-2 px-4 rounded"
             >
               Save
             </button>
@@ -188,13 +188,13 @@ const ListsTable: React.FC<ListsTableProps> = ({ lists, userId }) => {
           <div className="flex justify-end">
             <button
               onClick={() => setDeleteConfirmation(null)}
-              className="bg-gray-500 hover:bg-gray-600 dark:text-white font-bold py-2 px-4 rounded mr-2"
+              className="bg-gray-500 hover:bg-gray-600 text-white  font-bold py-2 px-4 rounded mr-2"
             >
               Cancel
             </button>
             <button
               onClick={confirmDelete}
-              className="bg-red-500 hover:bg-red-600 dark:text-white font-bold py-2 px-4 rounded"
+              className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded"
             >
               Delete
             </button>

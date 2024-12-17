@@ -125,7 +125,7 @@ export default function PersonasClient({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
+    <div className="max-w-6xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       {/* <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired
@@ -138,8 +138,8 @@ export default function PersonasClient({
         pauseOnHover
         style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
       /> */}
-      <h1 className="text-3xl font-bold mb-6">All Personas</h1>
-      <div className="space-y-4">
+      <h1 className="text-5xl font-bold mb-6">All Personas</h1>
+      {/* <div className="space-y-4">
         <div className="px-4 flex items-center justify-between w-full">
           <p className="text-xl font-semibold text-gray-900 dark:text-white w-1/8">
             Name
@@ -184,10 +184,60 @@ export default function PersonasClient({
             </div>
           </div>
         ))}
+      </div> */}
+      <div className="overflow-x-auto">
+        <table className="table-auto w-full border-collapse border border-gray-300 dark:border-gray-700">
+          <thead className="bg-gray-100 dark:bg-gray-700">
+            <tr>
+              <th className="px-4 py-2 text-xl font-semibold text-gray-900 dark:text-white text-left w-1/6 border border-gray-300 dark:border-gray-600">
+                Name
+              </th>
+              <th className="px-4 py-2 text-xl font-semibold text-gray-900 dark:text-white text-center w-1/4 border border-gray-300 dark:border-gray-600">
+                Company
+              </th>
+              <th className="px-4 py-2 text-xl font-semibold text-gray-900 dark:text-white text-center w-1/5 border border-gray-300 dark:border-gray-600">
+                Role
+              </th>
+              <th className="px-4 py-2 text-xl font-semibold text-gray-900 dark:text-white text-center w-1/4 border border-gray-300 dark:border-gray-600">
+                Tone
+              </th>
+              <th className="px-4 py-2 text-xl font-semibold text-gray-900 dark:text-white text-center border border-gray-300 dark:border-gray-600">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {personas.map((persona) => (
+              <tr key={persona.id} className="bg-gray-200 dark:bg-gray-800">
+                <td className="px-4 py-2 text-l font-semibold text-gray-900 dark:text-white text-left border border-gray-300 dark:border-gray-600">
+                  {persona.agent_name}
+                </td>
+                <td className="px-4 py-2 text-l font-semibold text-gray-900 dark:text-white text-center border border-gray-300 dark:border-gray-600">
+                  {persona.company_name}
+                </td>
+                <td className="px-4 py-2 text-l font-semibold text-gray-900 dark:text-white text-center border border-gray-300 dark:border-gray-600">
+                  {persona.role}
+                </td>
+                <td className="px-4 py-2 text-l font-semibold text-gray-900 dark:text-white text-center border border-gray-300 dark:border-gray-600">
+                  {persona.tone_of_voice}
+                </td>
+                <td className="px-4 py-2 text-center border border-gray-300 dark:border-gray-600">
+                  <button
+                    onClick={() => openModal(persona)}
+                    className="text-gray-900 dark:text-white hover:bg-blue-300 px-3 py-2 rounded-xl hover:text-white"
+                  >
+                    {/* &#x22EE; */}
+                    Edit
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {isModalOpen && selectedPersona && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-75 dark:bg-opacity-80">
+        <div className="fixed inset-0 z-50 flex items-center justify-center dark:bg-black bg-opacity-75 dark:bg-opacity-80 backdrop-blur-sm">
           <div className="bg-modal dark:bg-gray-900 p-6 rounded-md max-w-3xl w-full max-h-[80vh] overflow-y-auto">
             <h2 className="text-xl font-semibold mb-4 text-black dark:text-gray-300">
               Edit Persona

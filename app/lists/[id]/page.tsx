@@ -122,17 +122,17 @@ const ListPage = ({ params }: ListPage) => {
 
   return (
     <section className="mb-32 dark:bg-black min-h-screen">
-      <div className="fixed top-0 left-0 w-full dark:bg-black dark:text-white py-4 z-10">
-        <div className="max-w-6xl px-4 py-2 mx-auto sm:px-6 sm:pt-24 lg:px-8">
-          <h1 className="text-4xl font-extrabold sm:text-center sm:text-6xl">
+      {/* <div className="fixed top-0 left-0 w-full dark:bg-black dark:text-white py-4 z-10"> */}
+        <div className="max-w-6xl px-4 py-2 sm:px-6 lg:px-8">
+          <h1 className="text-4xl font-extrabold sm:text-left sm:text-5xl">
             {listName}
           </h1>
         </div>
-      </div>
-      <div className="pt-24"> {/* Add padding to avoid overlap with fixed header */}
-        <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
-          {/* No search bar and no buttons here as per your requirement */}
-        </div>
+      {/* </div> */}
+      <div> {/* Add padding to avoid overlap with fixed header */}
+        {/* <div className="max-w-6xl px-4 py-8 mx-auto sm:px-6 sm:pt-24 lg:px-8">
+          // No search bar and no buttons here as per your requirement 
+        </div> */}
         <div className="p-4">
           {loading ? (
             <p>Loading...</p>

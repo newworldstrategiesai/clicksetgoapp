@@ -287,7 +287,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <ToastContainer />
-      <h1 className="text-2xl font-bold mb-6 text-left text-gray-800 dark:text-white">New Campaign</h1>
+      <h1 className="text-5xl font-bold mb-6 text-left text-gray-800 dark:text-white">New Campaign</h1>
       <form onSubmit={handleSubmit} className="space-y-6 bg-modal dark:bg-gray-900 shadow-md rounded-lg p-8 transition-all duration-200">
         {/* Campaign Info */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">

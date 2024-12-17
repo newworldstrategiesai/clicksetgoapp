@@ -24,7 +24,7 @@ export default async function NewCampaignPage() {
 
     // Render the NewCampaign component with the userId passed as a prop
     return (
-      <div className="pt-16"> {/* Add padding to prevent navbar overlap */}
+      <div className=""> {/* Add padding to prevent navbar overlap */}
         <NewCampaign userId={user.id} />
       </div>
     );

@@ -48,7 +48,7 @@ const SMSList: React.FC<SMSListProps> = ({
               logs.map((log, index) => (
                 <tr
                   key={`${log.id}-${index}`}
-                  className="hover:bg-gray-700 cursor-pointer"
+                  className="hover:bg-gray-200 dark:hover:bg-gray-700 cursor-pointer"
                   onClick={() => onRowClick(log)}
                 >
                   <td className="py-2 px-4 border-b truncate max-w-xs">

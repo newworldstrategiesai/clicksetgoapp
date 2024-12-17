@@ -39,7 +39,7 @@ export default async function PersonaDetailPage() {
   const userId: string = user.id as string; // Ensure user.id is treated as a string
   return (
     <section className="min-h-screen text-black dark:bg-gray-900 dark:text-white">
-      <div className="pt-[60px] p-4"> {/* Adjust padding to match your layout */}
+      <div className="p-4"> {/* Adjust padding to match your layout */}
         <PersonaPage 
           userId={userId} 
           apiKey={apiKey} 

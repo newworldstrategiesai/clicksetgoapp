@@ -23,7 +23,7 @@ export default async function ScheduleNewFormPage() {
 
     // Render the ScheduleNewForm component with the userId passed as a prop
     return (
-      <div className="pt-16">
+      <div className="">
         <ScheduleNewForm userId={user.id} />
       </div>
     );

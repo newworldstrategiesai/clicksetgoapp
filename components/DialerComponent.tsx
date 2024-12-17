@@ -540,7 +540,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         {/* Sidebar Header */}
         <div className="flex items-center justify-between mb-4">
           {!isSidebarCollapsed && (
-            <h2 className="text-xl font-semibold">Contacts</h2>
+            <h2 className="text-2xl font-semibold">Contacts</h2>
           )}
           <button
             onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
@@ -784,7 +784,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       />
 
       {/* Bottom Navigation */}
-      <div className="fixed bottom-0 w-full -ml-4 bg-white dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border">
+      <div className="fixed bottom-0 bg-white dark:bg-black border-t border-gray-900 flex justify-around py-4 dark:text-white box-border w-fill-available">
         <Link href="/favorites">
           <div className="flex flex-col items-center">
             <FontAwesomeIcon icon={faStar} size="lg" />
