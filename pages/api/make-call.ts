@@ -1,5 +1,3 @@
-// pages/api/make-call.ts
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
@@ -239,6 +237,7 @@ export default async function handler(
     res.status(200).json({
       message: 'Call initiated successfully',
       data: response.data,
+      listenUrl: response.data.listenUrl, // Provide listenUrl for the live call modal
     });
   } catch (error) {
     if (axios.isAxiosError(error)) {

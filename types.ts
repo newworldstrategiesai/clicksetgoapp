@@ -158,3 +158,16 @@ export interface YourTaskType {
     phone: string;
   }>;
 }
+
+// types.ts
+export interface ChartData {
+  date: string;
+  inbound: number;
+  outbound: number;
+}
+
+export interface LineGraphProps {
+  userId: string;
+  vapiKey: string;
+  onDataFetched?: (data: ChartData[]) => void;
+}
