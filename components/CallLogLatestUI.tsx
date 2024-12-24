@@ -65,9 +65,9 @@ export const CallLogsPage = ({user}:CallLogsPage) => {
     } catch (error: any) {
       if (axios.isAxiosError(error)) {
         console.error('API Error:', error.response?.data || error.message);
-        setError(
-          `Failed to fetch call logs: ${error.response?.statusText || error.message}`
-        );
+        // setError(
+        //   `Failed to fetch call logs: ${error.response?.statusText || error.message}`
+        // );
       } else {
         console.error('Unexpected Error:', error);
         setError('An unexpected error occurred while fetching call logs.');

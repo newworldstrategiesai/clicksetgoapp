@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import moment from 'moment';
 
@@ -47,7 +47,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     res.status(200).json(response.data); // Send the call logs to the client
   } catch (error) {
-    console.error('Error fetching call logs:', error.response ? error.response.data : error.message);
+    // Ensure 'error' is treated as an AxiosError
+    if (error instanceof AxiosError) {
+      console.error('Error fetching call logs:', error.response ? error.response.data : error.message);
+    } else {
+      console.error('Unexpected error:', error);
+    }
     res.status(500).json({ error: 'Failed to fetch call logs' });
   }
 }

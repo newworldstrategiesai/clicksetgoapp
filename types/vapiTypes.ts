@@ -23,13 +23,17 @@ export interface VapiResponse {
   };
   artifact?: {
     messages: Array<{
-      role: string;
+      role: 'system' | 'bot' | 'user'; // Enforced role types
       message: string;
       time: number;
       endTime: number;
       secondsFromStart: number;
     }>;
-    transcript?: string;
+    transcript?: string[]; // Changed to an array of strings
   };
+  customer?: { // Add the customer property as optional
+    number: string;
+    name?: string; // Name is optional
+  };
+  userId?: string; // Add the `userId` property here
 }
-

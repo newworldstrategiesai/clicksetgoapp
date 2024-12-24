@@ -27,7 +27,7 @@ const VoiceDropdown: React.FC<VoiceDropdownProps> = ({ voices, selectedVoice, se
           {voices.length > 0 ? (
             voices.map((voice) => (
               <option key={voice.voice_id} value={voice.voice_id}>
-                {voice.name} (ID: {voice.voice_id}) - {voice.gender}, {voice.accent}
+                {voice.name}
               </option>
             ))
           ) : (

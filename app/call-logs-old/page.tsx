@@ -23,10 +23,10 @@ export default async function CallLogsPage() {
 
     if (error || !data) {
       console.error('Failed to fetch API keys');
-      return redirect('/signin'); // Handle this case as appropriate
+      // return redirect('/signin'); // Handle this case as appropriate
     }
 
-    const vapiKey = data.vapi_key;
+    const vapiKey = data?.vapi_key;
 
     return <CallLogsClient userId={user.id} vapiKey = {vapiKey} />; // Pass userId to CallLogsClient
   } catch (error) {

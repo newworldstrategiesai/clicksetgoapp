@@ -30,10 +30,14 @@ const Button = forwardRef<HTMLButtonElement, Props>((props, buttonRef) => {
   const [mergeRefs, setMergeRefs] = useState<any>(null);
 
   useEffect(() => {
-    import('react-merge-refs').then(module => {
-      setMergeRefs(() => module.mergeRefs);
-    });
-  }, []);
+    import('react-merge-refs')
+      .then((module) => {
+        setMergeRefs(() => module.mergeRefs);
+      })
+      .catch((error) => {
+        console.error('Failed to load react-merge-refs:', error);
+      });
+  }, []);  
 
   if (!mergeRefs) return null;
 

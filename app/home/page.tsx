@@ -24,10 +24,10 @@ export default async function OverViewPage() {
 
     if (error || !data) {
       console.error('Failed to fetch API keys', error);
-      return redirect('/signin'); // Redirect or handle as appropriate
+      // return redirect('/signin'); // Redirect or handle as appropriate
     }
 
-    const vapiKey = data.vapi_key;
+    const vapiKey = data?.vapi_key;
 
     // Pass only userId and vapiKey as props to OverViewClient
     return <OverViewClient userId={user.id} vapiKey={vapiKey} />;

@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation';
 import LiveCallModal from './LiveCallModal'; // Import LiveCallModal
 
 interface LiveCallMonitorProps {
-  userId: string;
+  userId: string;  // Expect userId as prop instead of callData
 }
 
 export const LiveCallMonitor: React.FC<LiveCallMonitorProps> = ({ userId }) => {
@@ -19,6 +19,7 @@ export const LiveCallMonitor: React.FC<LiveCallMonitorProps> = ({ userId }) => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const wsRef = useRef<WebSocket | null>(null);
 
+  // Fetch calls from API
   const fetchCalls = async () => {
     try {
       const response = await axios.get('/api/api-call-logs_pagination', {
@@ -57,8 +58,18 @@ export const LiveCallMonitor: React.FC<LiveCallMonitorProps> = ({ userId }) => {
         const data = JSON.parse(event.data);
         if (data.type === 'transcript') {
           setSelectedCall((prev) => {
-            if (prev) {
-              return { ...prev, transcript: [...prev.transcript, data.content] };
+            if (prev && prev.artifact) {
+              const updatedTranscript = prev.artifact.transcript
+                ? [...prev.artifact.transcript, data.content]
+                : [data.content];  // If transcript is not initialized, initialize it
+
+              return {
+                ...prev,
+                artifact: {
+                  ...prev.artifact,
+                  transcript: updatedTranscript,
+                },
+              };
             }
             return prev;
           });

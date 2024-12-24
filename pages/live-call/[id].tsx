@@ -9,6 +9,7 @@ const LiveCallPage: React.FC = () => {
   const [callData, setCallData] = useState<VapiResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Fetch call data based on the `callId` passed in the URL
   const fetchCallData = useCallback(async (callId: string) => {
     try {
       setIsLoading(true);
@@ -36,14 +37,16 @@ const LiveCallPage: React.FC = () => {
     return <div>Error: Unable to load call data</div>;
   }
 
+  // Now that `userId` exists in `callData`, pass it to LiveCallMonitor
+  const userId = callData.userId || 'defaultUserId'; // Use a fallback value if userId is missing
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold mb-6">Live Call</h1>
       <CallInfo callData={callData} />
-      <LiveCallMonitor callData={callData} />
+      <LiveCallMonitor userId={userId} /> {/* Pass userId to LiveCallMonitor */}
     </div>
   );
 };
 
 export default LiveCallPage;
-

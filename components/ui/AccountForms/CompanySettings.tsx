@@ -29,8 +29,6 @@ interface CompanyLink {
 }
 
 const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
-  console.log('CompanySettings userId:', userId); // Debugging
-
   if (!userId) {
     return <div className="text-red-500">User ID is missing. Please log in again.</div>;
   }
@@ -58,37 +56,45 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-
-      // Fetch company information
-      const { data: companyData, error: companyError } = await supabase
-        .from('agents')
-        .select('company_name, company_description, company_website, company_phone')
-        .eq('user_id', userId)
-        .single();
-
-      if (companyError) {
-        console.error('Error fetching company data:', companyError.message);
+      try {
+        const { data: companyData, error: companyError } = await supabase
+          .from('agents')
+          .select('company_name, company_description, company_website, company_phone')
+          .eq('user_id', userId)
+    
+        if (companyError) throw companyError;
+        
+        if (companyData && companyData.length > 0) {
+          setCompanyInfo(companyData[0]); // Use the first record or decide how to handle multiple
+        } else {
+          setCompanyInfo({
+            company_name: '',
+            company_description: '',
+            company_website: '',
+            company_phone: '',
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching company data:', error);
         toast.error('Failed to fetch company information.');
-      } else if (companyData) {
-        setCompanyInfo(companyData as CompanyInfo);
       }
-
-      // Fetch company links
-      const { data: linksData, error: linksError } = await supabase
-        .from('company_links')
-        .select('id, title, url')
-        .eq('agent_id', userId);
-
-      if (linksError) {
-        console.error('Error fetching company links:', linksError.message);
+    
+      try {
+        const { data: linksData, error: linksError } = await supabase
+          .from('company_links')
+          .select('id, title, url')
+          .eq('user_id', userId);
+    
+        if (linksError) throw linksError;
+    
+        setLinks(linksData || []);
+      } catch (error) {
+        console.error('Error fetching company links:', error);
         toast.error('Failed to fetch company links.');
-      } else if (linksData) {
-        setLinks(linksData as CompanyLink[]);
+      } finally {
+        setIsLoading(false);
       }
-
-      setIsLoading(false);
     };
-
     fetchData();
   }, [userId]);
 
@@ -158,7 +164,7 @@ const CompanySettings: React.FC<CompanySettingsProps> = ({ userId }) => {
     const { data, error } = await supabase.from('company_links').insert([
       {
         id: uuidv4(),
-        agent_id: userId,
+        user_id: userId,
         title: newLink.title,
         url: newLink.url,
       },

@@ -17,6 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useCountry } from "@/context/CountryContext";
 
 
 interface OverViewClientProps {
@@ -25,6 +26,10 @@ interface OverViewClientProps {
 }
 
 const OverViewClient: React.FC<OverViewClientProps> = ({ userId, vapiKey }) => {
+  const { defaultCountry, setDefaultCountry } = useCountry();
+  if(!defaultCountry.name){
+    setDefaultCountry({ name: 'US', code: '+1' })
+  }
   return (
     <div className="flex h-screen">
       {/* Sidebar Component */}

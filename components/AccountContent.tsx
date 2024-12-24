@@ -35,8 +35,6 @@ export default function AccountContent({
   subscription,
   apiKeys,
 }: AccountContentProps) {
-  console.log('AccountContent user:', user);
-  console.log('user.id:', user.id);
 
   if (!user || !user.id) {
     return <div className="text-red-500">User information is missing. Please log in again.</div>;
@@ -98,6 +96,9 @@ export default function AccountContent({
       window.alert('Error updating country. Please try again.');
     }
   };
+  if(!defaultCountry.name){
+    setDefaultCountry({ name: 'US', code: '+1' })
+  }
 
   return (
     <div className="p-4">

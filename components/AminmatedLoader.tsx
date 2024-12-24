@@ -12,7 +12,7 @@ const AnimatedLoader = ({ size = '50px', color = '#3498db' }) => {
   };
 
   return (
-    <div className="loader-container">
+    <div className="loader-container dark:bg-black">
       <div className="loader" style={loaderStyle}></div>
     </div>
   );
