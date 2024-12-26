@@ -71,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
-          .select('country_code')
+          .select('country_code, prompt')
           .eq('id', task.campaign_id)
           .single();
 
@@ -134,7 +134,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           first_name: contact.first_name,
           last_name: contact.last_name,
           phone: phoneNumber,
+          lead_status: contact.lead_status,
+          lead_source: contact.lead_source,
+          notes: contact.notes,
+          preferred_language: contact.preferred_language,
+          opt_in_status: contact.opt_in_status,
+          vertical: contact.vertical,
+          sub_category: contact.sub_category,
         },
+        prompt:campaign.prompt,
         reason: task.call_subject,
         twilioNumber: selectedTwilioNumber,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,

@@ -11,6 +11,13 @@ interface Contact {
   first_name: string;
   last_name: string;
   phone: string;
+  lead_status: string;
+  lead_source: string;
+  opt_in_status: boolean;
+  notes: string;
+  vertical: string;
+  sub_category: string;
+  preferred_language: string;
 }
 
 interface AgentSettings {
@@ -30,6 +37,7 @@ interface Credentials {
 interface MakeCallRequestBody {
   contact: Contact;
   reason: string;
+  prompt: string;
   twilioNumber: string;
   firstMessage?: string;
   voiceId?: string;
@@ -65,6 +73,7 @@ export default async function handler(
     twilioNumber,
     firstMessage,
     voiceId,
+    prompt,
     userId,
     credentials,
     agentSettings,
@@ -131,6 +140,21 @@ export default async function handler(
       .json({ message: 'Invalid phone number format' });
   }
 
+  const contextDetails = `
+  Contact Name: ${contact.first_name || 'Unknown'} ${contact.last_name || ''}.
+  Lead Source: ${contact.lead_source || 'Unknown'}.
+  Vertical/Sub-category: ${contact.vertical || 'Unknown'}.
+  Preferred Language: ${contact.preferred_language || 'Unknown'}.
+  Notes: ${contact.notes || 'None'}.
+  Opt-in Status: ${contact.opt_in_status ? 'Opted-in' : 'Not Opted-in'}.
+`;
+
+  const toneAdjustments = contact.lead_status === 'cold' 
+  ? 'Adopt a more engaging and persuasive tone.' 
+  : contact.lead_status === 'warm'
+  ? 'Maintain a friendly and professional tone.' 
+  : 'Proceed confidently with a closing-oriented tone.';
+
   // Use the custom firstMessage if provided, otherwise default to a standard message
   const customizedFirstMessage =
     `Hello, this is ${agentSettings.agentName} from ${agentSettings.companyName}. Am I speaking with ${contact.first_name}?`|| firstMessage;
@@ -139,12 +163,13 @@ export default async function handler(
     You are ${agentSettings.agentName}, a ${agentSettings.role} from ${agentSettings.companyName}.
     Purpose of Call: "The purpose of the call is to ${reason}." Keep responses concise, as this is a phone conversation. Ensure you wait for the person to finish speaking before responding.
     If you didn't get what the user is saying, ask them politely to repeat it.
-    Avoid asking, "How may I help you today?" Remember, you are a salesperson representing the company, so communicate in a professional tone.
+    Avoid asking, "How may I help you today?" Remember, you are a ${agentSettings.role} representing the company, ${toneAdjustments}.
     Do not repeat the closing sentence multiple times. Before delivering the closing sentence, if there is prolonged silence, use the closing sentence to wrap up the conversation.
     If the customer ends the conversation, call the Twilio hungup function to disconnect the call.
     If the customer asks any questions not related to the product or the call's purpose, answer politely and steer the conversation back on track.
     If the customer wishes to schedule a consultation, ask them for the date and time for the consultation.
-    Never verbally provide a URL unless requested; URLs should only be sent in SMS form.${agentSettings.prompt ? ' ' + agentSettings.prompt : ''}
+    Never verbally provide a URL unless requested; URLs should only be sent in SMS form.${(prompt ||  agentSettings.prompt) ? ' ' + (prompt ||  agentSettings.prompt) : ''}
+    ${contextDetails}
     The current date and time at the beginning of this phone call is: ${new Date().toISOString()}.
     Here is the contact information we have for the caller:
     Phone number they are calling from: ${formattedContactNumber}. 
