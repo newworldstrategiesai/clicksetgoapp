@@ -71,7 +71,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
-  const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; prompt:string }[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
   const [isAdvanced, setIsAdvanced] = useState(false); // State for Advanced section
@@ -107,7 +107,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         // Fetch Agents
         const agentsResponse = await supabase
           .from('agents')
-          .select('id, agent_name')
+          .select('id, agent_name, prompt')
           .eq('user_id', userId)
 
         if (agentsResponse.error) {
@@ -153,10 +153,14 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   };
 
   const handleAgentChange = (value: string) => {
+    const selectedAgent = agents.find((agent) => agent.id === value);
     setFormData(prevData => ({
       ...prevData,
-      agent: value
+      agent: value,
     }));
+    setPrompt(selectedAgent?.prompt || ""); // Update the prompt based on the selected agent
+    // setPrompt(agents.prompt)
+    // console.log(agents.prompt, value)
   };
   const handleDistributionMethodChange = (value: string) => {  // Handle the distribution method change
     setFormData(prevData => ({

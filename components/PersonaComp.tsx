@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
+import { Textarea } from './ui/textarea';
 
 interface Voice {
   voice_id: string;
@@ -64,7 +65,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [selectedRole, setSelectedRole] = useState<string>("");
-
+  const [prompt, setPrompt] = useState("");
   // Fetch available voices from Eleven Labs
   const fetchVoices = async () => {
     try {
@@ -117,6 +118,7 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
       no_competitors: noCompetitors,
       default_voice: selectedVoice,
       role: selectedRole,
+      prompt: prompt,
     };
 
     let error;
@@ -231,6 +233,8 @@ export default function PersonaPage({ userId, apiKey,twilioSid, twilioAuthToken,
             voices={voices}
             selectedVoice={selectedVoice}
             setSelectedVoice={setSelectedVoice}
+            prompt={prompt}
+            setPrompt={setPrompt}
           />
         </div>
         )}
@@ -363,7 +367,9 @@ function ToneAndStyle({
   setMultistepInstructions,
   voices,
   selectedVoice,
-  setSelectedVoice
+  setSelectedVoice,
+  prompt,
+  setPrompt,
 }: {
   toneOfVoice: string;
   setToneOfVoice: (tone: string) => void;
@@ -378,6 +384,8 @@ function ToneAndStyle({
   voices: Voice[];
   selectedVoice: string;
   setSelectedVoice: (voiceId: string) => void;
+  prompt: string;
+  setPrompt: (prompt: string) => void
 }) {
   return (
     <div className="space-y-8">
@@ -450,6 +458,17 @@ function ToneAndStyle({
             setSelectedVoice={setSelectedVoice}
           />
         </div>
+        <div>
+          <label htmlFor="prompt">Prompt:</label>
+          <Textarea          
+            id="prompt"
+            name="prompt"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Wite your Prompt."
+            className="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+          />
+          </div>
       </div>
     </div>
   );
