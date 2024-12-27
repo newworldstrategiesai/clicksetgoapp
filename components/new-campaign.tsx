@@ -71,10 +71,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
-  const [agents, setAgents] = useState<{ id: string; agent_name: string }[]>([]);
+  const [agents, setAgents] = useState<{ id: string; agent_name: string; prompt:string }[]>([]);
 
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
   const [isAdvanced, setIsAdvanced] = useState(false); // State for Advanced section
+  const [prompt, setPrompt] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -106,7 +107,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         // Fetch Agents
         const agentsResponse = await supabase
           .from('agents')
-          .select('id, agent_name')
+          .select('id, agent_name, prompt')
           .eq('user_id', userId)
 
         if (agentsResponse.error) {
@@ -152,10 +153,14 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   };
 
   const handleAgentChange = (value: string) => {
+    const selectedAgent = agents.find((agent) => agent.id === value);
     setFormData(prevData => ({
       ...prevData,
-      agent: value
+      agent: value,
     }));
+    setPrompt(selectedAgent?.prompt || ""); // Update the prompt based on the selected agent
+    // setPrompt(agents.prompt)
+    // console.log(agents.prompt, value)
   };
   const handleDistributionMethodChange = (value: string) => {  // Handle the distribution method change
     setFormData(prevData => ({
@@ -215,7 +220,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       user_id: userId,
       country_code: defaultCountry.code,
       scheduled_at: scheduledAtUTC,
-      call_distribution: formData.callDistribution
+      call_distribution: formData.callDistribution,
+      prompt:prompt
     };
     // Debugging: Log the data being sent
     // router.push('/campaigns');
@@ -283,6 +289,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
   const toggleAdvanced = () => {
     setIsAdvanced(prev => !prev);
   };
+
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -410,6 +417,18 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           </div>
         </div>
         {/* Country Selection */}
+
+        <div>
+          <label htmlFor="prompt">Prompt:</label>
+          <Textarea          
+            id="prompt"
+            name="prompt"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Wite your Prompt."
+            className="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+          />
+          </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="countryCode">Country</Label>
@@ -418,7 +437,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               onChange={handleCountryChange}
               name="countryCode"
               id="countryCode"
-              className="border-black rounded-lg p-2 mt-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="border-black rounded-lg p-2 mt-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500 cursor-pointer"
               required
             >
               <option value="">Select Country</option>

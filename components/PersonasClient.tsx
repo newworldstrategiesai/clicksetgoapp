@@ -10,6 +10,7 @@ import VoiceDropdown from '@/components/VoiceDropdown';
 import { createClient } from '@supabase/supabase-js';
 import { supabase } from '@/utils/supabaseClient'; // Ensure this is the correct path
 import { ListApiKeysResponse } from 'resend';
+import { Textarea } from './ui/textarea';
 
 // Define interfaces
 interface Persona {
@@ -32,6 +33,7 @@ interface Persona {
   created_at: string | null;
   updated_at: string | null;
   default_voice: string;
+  prompt: string;
 }
 
 interface Voice {
@@ -104,7 +106,7 @@ export default function PersonasClient({
         no_personal_info: selectedPersona.no_personal_info,
         no_competitors: selectedPersona.no_competitors,
         default_voice: selectedVoice,
-
+        prompt: selectedPersona.prompt,
       })
       .eq('id', selectedPersona.id);
 
@@ -125,7 +127,7 @@ export default function PersonasClient({
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
+    <div className="mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       {/* <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired
@@ -138,7 +140,7 @@ export default function PersonasClient({
         pauseOnHover
         style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
       /> */}
-      <h1 className="text-3xl font-bold mb-6">All Personas</h1>
+      {/* <h1 className="text-3xl font-bold mb-6">All Personas</h1>
       <div className="space-y-4">
         <div className="px-4 flex items-center justify-between w-full">
           <p className="text-xl font-semibold text-gray-900 dark:text-white w-1/8">
@@ -184,6 +186,76 @@ export default function PersonasClient({
             </div>
           </div>
         ))}
+      </div> */}
+      <h1 className="text-3xl font-bold mb-6">All Personas</h1>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100 dark:bg-gray-700">
+              <th className="px-4 py-3 text-left w-1/4">
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">Name</span>
+              </th>
+              <th className="px-4 py-3 text-left w-1/4">
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">Company</span>
+              </th>
+              <th className="px-4 py-3 text-left w-1/4">
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">Role</span>
+              </th>
+              <th className="px-4 py-3 text-left w-1/6">
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">Tone</span>
+              </th>
+              <th className="px-4 py-3 w-1/6 text-left">
+                <span className="text-xl font-semibold text-gray-900 dark:text-white">Edit</span>
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {personas.map((persona) => (
+              <tr
+                key={persona.id}
+                className="bg-gray-200 dark:bg-gray-800 border-b border-gray-300 dark:border-gray-700"
+              >
+                <td className="px-4 py-4">
+                  <div className="truncate max-w-xs">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {persona.agent_name}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="truncate max-w-xs">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {persona.company_name}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="truncate max-w-xs">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {persona.role}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <div className="truncate max-w-xs">
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      {persona.tone_of_voice}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-4 py-4">
+                  <button
+                    onClick={() => openModal(persona)}
+                    className="text-gray-900 dark:text-white hover:text-blue-300"
+                  >
+                    <span className='px-5 font-extrabold'>⋮</span>
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
 
       {isModalOpen && selectedPersona && (
@@ -206,7 +278,7 @@ export default function PersonasClient({
                       agent_name: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -223,7 +295,7 @@ export default function PersonasClient({
                       company_name: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -240,7 +312,7 @@ export default function PersonasClient({
                       role: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -265,7 +337,7 @@ export default function PersonasClient({
                       company_description: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -301,7 +373,7 @@ export default function PersonasClient({
                       tone_of_voice: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Friendly</option>
                   <option>Professional</option>
@@ -309,7 +381,17 @@ export default function PersonasClient({
                   {/* Add more tone options here */}
                 </select>
               </div>
-
+              <div>
+                  <label htmlFor="prompt">Prompt:</label>
+                  <Textarea          
+                    id="prompt"
+                    name="prompt"
+                    value={selectedPersona.prompt}
+                    onChange={(e) => setSelectedPersona({...selectedPersona , prompt: e.target.value})}
+                    placeholder="Wite your Prompt."
+                    className="w-full border rounded-xl p-2 bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
+                  />
+              </div>
               <div className="flex items-center justify-between">
                 <label className="block text-sm font-medium text-black dark:text-gray-400">
                   Allow Emoji Usage
@@ -338,7 +420,7 @@ export default function PersonasClient({
                       emoji_limit: parseFloat(e.target.value) // Convert to number
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
@@ -354,7 +436,7 @@ export default function PersonasClient({
                       message_length: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Normal</option>
                   <option>Short</option>
@@ -374,7 +456,7 @@ export default function PersonasClient({
                       multistep_instructions: e.target.value
                     })
                   }
-                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="mt-1 block w-full p-2 border border-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option>Send multiple steps</option>
                   <option>Send all at once</option>
@@ -428,13 +510,13 @@ export default function PersonasClient({
             <div className="mt-6 flex justify-end space-x-4">
               <button
                 onClick={closeModal}
-                className="bg-gray-400 dark:bg-gray-700 dark:text-white py-2 px-4 rounded-md"
+                className="bg-gray-500 dark:bg-gray-700 text-white hover:bg-gray-600 dark:hover:bg-gray-500 py-2 px-4 rounded-xl"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
-                className="bg-blue-600 dark:bg-blue-700 dark:text-white py-2 px-4 rounded-md"
+                className="bg-blue-600 dark:bg-blue-800 text-white hover:bg-blue-700 dark:hover:bg-blue-600 py-2 px-4 rounded-xl"
               >
                 Save
               </button>

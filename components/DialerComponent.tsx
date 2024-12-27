@@ -371,6 +371,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
           phone: formattedPhoneNumber,
         },
         reason: callReason,
+        prompt:promptState,
         firstMessage: firstMessage || undefined,
         twilioNumber: twilioNumberToUse,
         voiceId: selectedVoice,
