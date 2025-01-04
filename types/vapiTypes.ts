@@ -1,3 +1,5 @@
+// types/vapiTypes.ts
+
 export interface VapiResponse {
   id: string;
   orgId: string;
@@ -16,24 +18,50 @@ export interface VapiResponse {
     tts: number;
     vapi: number;
     total: number;
+    llmPromptTokens?: number;
+    llmCompletionTokens?: number;
+    ttsCharacters?: number;
+    analysisCostBreakdown?: {
+      summary?: number;
+      summaryPromptTokens?: number;
+      summaryCompletionTokens?: number;
+      structuredData?: number;
+      structuredDataPromptTokens?: number;
+      structuredDataCompletionTokens?: number;
+      successEvaluation?: number;
+      successEvaluationPromptTokens?: number;
+      successEvaluationCompletionTokens?: number;
+    };
   };
   monitor: {
     listenUrl: string;
     controlUrl: string;
   };
-  artifact?: {
-    messages: Array<{
-      role: 'system' | 'bot' | 'user'; // Enforced role types
-      message: string;
-      time: number;
-      endTime: number;
-      secondsFromStart: number;
-    }>;
-    transcript?: string[]; // Changed to an array of strings
-  };
-  customer?: { // Add the customer property as optional
-    number: string;
-    name?: string; // Name is optional
-  };
-  userId?: string; // Add the `userId` property here
+  artifact?: Artifact;
+  customer?: Customer;
+  userId?: string;
+}
+
+export interface Artifact {
+  messages: Array<{
+    role: 'system' | 'bot' | 'user';
+    message: string;
+    time: number;
+    endTime: number;
+    secondsFromStart: number;
+  }>;
+  transcript?: string[];
+  recordingUrl?: string;
+  stereoRecordingUrl?: string;
+  videoRecordingUrl?: string;
+  videoRecordingStartDelaySeconds?: number;
+  messagesOpenAIFormatted?: Array<{
+    role: string;
+    // Add other properties if they exist
+  }>;
+}
+
+export interface Customer {
+  number: string;
+  name?: string;
 }

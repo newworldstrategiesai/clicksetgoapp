@@ -14,10 +14,12 @@ export default function CallTranscriptPage() {
   const params = useParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [callRecordingUrl, setCallRecordingUrl] = useState<string | null>(null); // For storing the recording URL
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const callId = params?.id;
 
+  // Fetch messages and call details (including the recording URL)
   useEffect(() => {
     if (callId) {
       // Fetch messages from the getMessages API
@@ -31,6 +33,17 @@ export default function CallTranscriptPage() {
           }
         })
         .catch((err) => console.error('Error fetching messages:', err));
+
+      // Fetch call recording details from the API (or wherever it's stored)
+      fetch(`/api/get-call-data?userId=someUserId&callId=${callId}`) // Assuming the API URL here
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.length > 0) {
+            const callData = data[0]; // Assuming we're only fetching one call at a time
+            setCallRecordingUrl(callData.monitor?.listenUrl || null);  // Set the recording URL
+          }
+        })
+        .catch((err) => console.error('Error fetching call details:', err));
     }
   }, [callId]);
 
@@ -55,6 +68,18 @@ export default function CallTranscriptPage() {
       <h1 className="text-3xl font-bold mb-6">
         Call Transcript - ID: {callId || 'Loading...'}
       </h1>
+
+      {/* Display the audio player if the recording URL exists */}
+      {callRecordingUrl && (
+        <div className="mb-6">
+          <strong className="text-gray-700">Call Recording:</strong>
+          <audio controls className="mt-2 w-full">
+            <source src={callRecordingUrl} type="audio/mp3" />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      )}
+
       <div className="bg-white shadow-md rounded-lg p-4 mb-4 h-[50vh] overflow-y-auto">
         {messages.map((message, index) => (
           <div
@@ -73,6 +98,7 @@ export default function CallTranscriptPage() {
         ))}
         <div ref={messagesEndRef} />
       </div>
+
       <form onSubmit={handleSubmit} className="flex">
         <input
           type="text"

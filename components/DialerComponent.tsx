@@ -58,13 +58,12 @@ interface Agent {
 }
 
 const DEFAULT_TWILIO_NUMBER = process.env.NEXT_PUBLIC_TWILIO_NUMBER || '';
-
 // Utility function to format phone numbers
-const formatPhoneNumber = (phoneNumber: string, CountryCode: CountryCode ) => {
+const formatPhoneNumber = (phoneNumber: string, CountryCode: CountryCode) => {
   if (typeof phoneNumber !== 'string') {
     return null;
   }
-// Remove the '+' and keep only the last 10 digits
+  // Remove the '+' and keep only the last 10 digits
   const tenDigitNum = phoneNumber.slice(-10);
   const countryCodeObject = { defaultCountry: CountryCode as CountryCode };
   const phoneNumberObject = parsePhoneNumberFromString(tenDigitNum, countryCodeObject);
@@ -85,7 +84,6 @@ const fetchVoices = async (apiKey: string): Promise<Voice[]> => {
     throw new Error('Failed to fetch voices');
   }
 };
-
 const DialerComponent: React.FC<DialerComponentProps> = ({
   userId,
   apiKey,
@@ -124,10 +122,10 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
   const [companyNameState, setCompanyNameState] = useState<string>(companyName || '');
   const [promptState, setPromptState] = useState<string>(prompt || '');
   const [voiceIdState, setVoiceIdState] = useState<string>(voiceId || '');
-
+  
   // State for Add Caller ID Modal
   const [isAddCallerIDModalOpen, setIsAddCallerIDModalOpen] = useState(false);
-
+  
   // Default agent settings
   const defaultAgentName = agentName;
   const defaultRole = role;
@@ -136,8 +134,8 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
   // Initialize agents state
   const [agents, setAgents] = useState<Agent[]>([]);
   const { defaultCountry, setDefaultCountry } = useCountry();
-  if(!defaultCountry.name){
-    setDefaultCountry({ name: 'US', code: '+1' })
+  if (!defaultCountry.name) {
+    setDefaultCountry({ name: 'US', code: '+1' });
   }
   /**
    * Fetch Twilio Numbers from the backend API
@@ -180,18 +178,18 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         .from('contacts')
         .select('*')
         .eq('user_id', userId);
-      // sorting Contacts Alphabetically
-        if (error) {
-          console.error('Error fetching contacts:', error.message);
-        } else {
-          // Sort contacts alphabetically by first name
-          const sortedContacts = data?.sort((a: any, b: any) => {
-            const nameA = a.first_name.toLowerCase();
-            const nameB = b.first_name.toLowerCase();
-            return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
-          });
-          setContacts(sortedContacts || []);
-        }
+
+      if (error) {
+        console.error('Error fetching contacts:', error.message);
+      } else {
+        // Sort contacts alphabetically by first name
+        const sortedContacts = data?.sort((a: any, b: any) => {
+          const nameA = a.first_name.toLowerCase();
+          const nameB = b.first_name.toLowerCase();
+          return nameA < nameB ? -1 : nameA > nameB ? 1 : 0;
+        });
+        setContacts(sortedContacts || []);
+      }
     } catch (error) {
       console.error('Error fetching contacts:', error);
       toast.error(
@@ -230,7 +228,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         console.error('Error fetching agent settings:', error);
       } else {
         setAgents(data || []);
-        // Optionally, set default agent settings here
         if (data && data.length > 0) {
           const latestAgent = data[0];
           setAgentNameState(latestAgent.agent_name || '');
@@ -245,7 +242,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
       setAgents([]); // Ensure agents is an empty array on error
     }
   }, [userId]);
-
   /**
    * Handle Call Initiation
    */
@@ -317,7 +313,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
     fetchVoiceData,
     fetchAgentSettings,
   ]);
-
   /**
    * Handle Button Clicks on Dial Pad
    */
@@ -419,7 +414,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
     userId,
     voiceIdState,
   ]);
-
   /**
    * Handle Modal Cancellation
    */
@@ -437,25 +431,23 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
     DE: { code: '+49', name: 'Germany' },
     ES: { code: '+34', name: 'Spain' },
     IT: { code: '+39', name: 'Italy' },
-    
     // Add more countries as needed
   };
-    const [selectedCountryCode, setSelectedCountryCode] =
+  const [selectedCountryCode, setSelectedCountryCode] =
     useState<keyof typeof countries>('US');
-  useEffect(()=> {
+
+  useEffect(() => {
     const fetchUserCountry = async () => {
       const { data, error } = await supabase
         .from('client_settings')
         .select('default_country_name, default_country_code')
         .eq('user_id', userId)
         .single();
-      // setDefaultCountry(data?.default_country_name);
-      setSelectedCountryCode(data?.default_country_name)
-      setInput(data?.default_country_code)
+      setSelectedCountryCode(data?.default_country_name);
+      setInput(data?.default_country_code);
     };
     fetchUserCountry();
-  },[userId])
-  
+  }, [userId]);
 
   /**
    * Handle Contact Selection from Address Book
@@ -474,8 +466,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
     setNewLastName(contact.last_name);
     setIsAddressBookModalOpen(false);
   }, [selectedCountryCode]); // Make sure to depend on selectedCountryCode
-  
-
   /**
    * Handle Search Query Changes
    */
@@ -510,7 +500,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         .toLowerCase()
         .includes(searchQuery) || contact.phone.includes(searchQuery)
   );
-
   /**
    * Handle Number Selection from Dropdown
    */
@@ -530,7 +519,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         draggable
         pauseOnHover
       />
-
       {/* Left Panel for Address Book */}
       <div
         className={`hidden md:flex flex-col ${
@@ -591,7 +579,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
             />
           </div>
         )}
-
         {/* Contacts List */}
         {!isSidebarCollapsed && (
           <>
@@ -637,7 +624,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
           </>
         )}
       </div>
-
       {/* Right Panel for Dialer */}
       <div className="flex-grow flex flex-col items-center justify-center w-full pt-16 dark:bg-black">
         <div
@@ -728,7 +714,6 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
           </button>
         </div>
       </div>
-
       {/* Modal for Call Confirmation */}
       <CallConfirmationModal
         isOpen={isCallModalOpen}
@@ -760,7 +745,8 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
         agents={agents} // Pass the agents state here
         voiceId={voiceIdState}
         setVoiceId={setVoiceIdState} 
-        voices={voices}      />
+        voices={voices}      
+      />
 
       {/* Modal for Address Book */}
       {isAddressBookModalOpen && (

@@ -1,4 +1,4 @@
-// Add the dynamic rendering configuration
+//app/call-logs/page.tsx Add the dynamic rendering configuration
 export const dynamic = 'force-dynamic';
 
 import React from 'react';

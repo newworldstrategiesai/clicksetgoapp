@@ -1,20 +1,40 @@
-//@/types.ts
+// @/types.ts
+
+// Define the Monitor interface
+export interface Monitor {
+  listenUrl: string;
+  // Add other relevant properties if needed
+}
+
+// Define the Message interface
+export interface Message {
+  id: number;
+  name: string;
+  message: string;
+  direction: 'inbound' | 'outbound'; // Restrict to specific string literals
+  dateSent: string; // ISO date string
+  avatar?: string;
+}
+
+// Define the CallLog interface with the optional monitor and messages properties
 export interface CallLog {
   id: string;
   customer?: { number: string };
-  type: string;
-  status: string;
-  startedAt: string;
-  endedAt: string;
-  duration: string;
+  type: 'inboundPhoneCall' | 'outboundPhoneCall'; // Restrict to specific string literals
+  status: 'completed' | 'missed' | 'failed'; // Example statuses
+  startedAt: string; // ISO date string
+  endedAt: string; // ISO date string
+  duration: string; // Format: "HH:mm:ss"
   assistant?: { name: string };
   summary?: string;
   recordingUrl?: string;
   fullName: string;
-  createdAt: string;
+  createdAt: string; // ISO date string
+  monitor?: Monitor; // Added monitor as an optional property
+  messages?: Message[]; // Added messages as an optional property
 }
 
-// app/dashboard/_components/types.ts
+// Existing interfaces...
 
 export interface ChartData {
   date: string;
@@ -36,7 +56,6 @@ export interface RecentCallsProps {
   userId: string;
   vapiKey: string;
 }
-
 
 export interface Contact {
   id: string;
@@ -61,9 +80,9 @@ export interface SidebarLink {
   id: string; // Ensure this matches the type used everywhere
   name: string;
   phone: string;
-  messages: any[]; // Define a more specific type if possible
+  messages: Message[]; // Updated to use the Message interface
   avatar?: string;
-  variant: string;
+  variant: 'default' | 'active' | 'disabled'; // Example variants
 }
 
 export interface UserMessage {
@@ -89,16 +108,6 @@ export interface UserData {
   messages?: Message[];
 }
 
-export interface Message {
-  id: number;
-  name: string;
-  message: string;
-  direction: string; // 'inbound' or 'outbound'
-  dateSent: string;
-  avatar?: string;
-}
-
-// Updated Campaign interface based on the provided schema
 export interface Campaign {
   id: string; // UUID type corresponds to string in TypeScript
   name: string; // Text type
@@ -127,7 +136,6 @@ export interface Campaign {
   agent?: string; // UUID type corresponds to string in TypeScript, optional
   scheduled_at?: string; // Timestamp with time zone, optional
 }
-
 
 export interface DialerComponentProps {
   userId: string;
@@ -159,15 +167,11 @@ export interface YourTaskType {
   }>;
 }
 
-// types.ts
-export interface ChartData {
-  date: string;
-  inbound: number;
-  outbound: number;
-}
-
-export interface LineGraphProps {
-  userId: string;
-  vapiKey: string;
-  onDataFetched?: (data: ChartData[]) => void;
+// Define the VapiResponse interface (if not already defined)
+export interface VapiResponse {
+  userId: string; // Ensure this property exists
+  // Add other relevant properties based on your API response
+  // Example:
+  // id: string;
+  // callDetails: CallDetails;
 }

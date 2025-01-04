@@ -1,3 +1,4 @@
+//pages/api/get-api-keys.ts
 import { createClient } from '@/server'; // Import the createClient function
 import { getApiKeys } from '@/utils/supabase/queries'; // Import the function to get API keys
 import type { NextApiRequest, NextApiResponse } from 'next';
