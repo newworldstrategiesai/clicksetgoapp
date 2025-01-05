@@ -1,3 +1,5 @@
+// components/events/event-form.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -22,7 +24,7 @@ interface EventFormProps {
 export function EventForm({ open, onOpenChange, onSubmit }: EventFormProps) {
   const [formData, setFormData] = useState<Partial<Event>>({
     type: "",
-    date: new Date(), // Initialize with Date object
+    date: new Date(), // Initialize as Date object
     location: "",
     musicPreferences: [],
     notes: "",
@@ -39,7 +41,7 @@ export function EventForm({ open, onOpenChange, onSubmit }: EventFormProps) {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "date" ? new Date(value + "T00:00:00") : value,
+      [name]: name === "date" ? new Date(value) : value,
     }));
   };
 
@@ -66,7 +68,11 @@ export function EventForm({ open, onOpenChange, onSubmit }: EventFormProps) {
               id="date"
               name="date"
               type="date"
-              value={formData.date instanceof Date ? formData.date.toISOString().split("T")[0] : ""}
+              value={
+                formData.date
+                  ? formData.date.toISOString().split("T")[0]
+                  : ""
+              }
               onChange={handleChange}
               required
             />

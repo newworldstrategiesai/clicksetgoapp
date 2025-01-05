@@ -1,3 +1,5 @@
+// app/marketing/page.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -40,6 +42,8 @@ export default function MarketingPage() {
     type: "email",
     subject: "",
     content: "",
+    voiceId: "",    // Initialized
+    segment: "",    // Initialized
   });
   const [previewMode, setPreviewMode] = useState(false);
   const { toast } = useToast();
@@ -102,8 +106,8 @@ export default function MarketingPage() {
                   <Label htmlFor="subject">Subject Line</Label>
                   <Input
                     id="subject"
-                    value={campaignData.subject}
-                    onChange={(e) =>
+                    value={campaignData.subject || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                       setCampaignData((prev) => ({
                         ...prev,
                         subject: e.target.value,
@@ -117,7 +121,7 @@ export default function MarketingPage() {
                   <Textarea
                     id="emailContent"
                     value={campaignData.content}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setCampaignData((prev) => ({
                         ...prev,
                         content: e.target.value,
@@ -135,7 +139,7 @@ export default function MarketingPage() {
                   <Textarea
                     id="smsContent"
                     value={campaignData.content}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setCampaignData((prev) => ({
                         ...prev,
                         content: e.target.value,
@@ -154,8 +158,8 @@ export default function MarketingPage() {
                 <div className="space-y-2">
                   <Label htmlFor="voiceId">Voice Selection</Label>
                   <Select
-                    value={campaignData.voiceId}
-                    onValueChange={(value) =>
+                    value={campaignData.voiceId || ""} // Ensure value is string
+                    onValueChange={(value: string) =>
                       setCampaignData((prev) => ({ ...prev, voiceId: value }))
                     }
                   >
@@ -174,7 +178,7 @@ export default function MarketingPage() {
                   <Textarea
                     id="voiceContent"
                     value={campaignData.content}
-                    onChange={(e) =>
+                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                       setCampaignData((prev) => ({
                         ...prev,
                         content: e.target.value,
@@ -211,8 +215,8 @@ export default function MarketingPage() {
               <div className="space-y-2">
                 <Label htmlFor="segment">Audience Segment</Label>
                 <Select
-                  value={campaignData.segment}
-                  onValueChange={(value) =>
+                  value={campaignData.segment || ""} // Ensure value is string
+                  onValueChange={(value: string) =>
                     setCampaignData((prev) => ({ ...prev, segment: value }))
                   }
                 >
@@ -233,10 +237,10 @@ export default function MarketingPage() {
                 <Input
                   id="schedule"
                   type="datetime-local"
-                  onChange={(e) =>
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                     setCampaignData((prev) => ({
                       ...prev,
-                      schedule: new Date(e.target.value),
+                      schedule: e.target.value ? new Date(e.target.value) : undefined,
                     }))
                   }
                 />
@@ -258,7 +262,7 @@ export default function MarketingPage() {
                 {campaignType === "email" && (
                   <div className="grid grid-cols-3">
                     <dt className="text-muted-foreground">Subject:</dt>
-                    <dd className="col-span-2">{campaignData.subject}</dd>
+                    <dd className="col-span-2">{campaignData.subject || "N/A"}</dd>
                   </div>
                 )}
                 <div className="grid grid-cols-3">

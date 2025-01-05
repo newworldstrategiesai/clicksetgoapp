@@ -1,6 +1,6 @@
 // lib/types.ts
 
-// Define the ParsedMessage interface
+// **ParsedMessage Interface Definition**
 export interface ParsedMessage {
   entities: Record<string, any>; // Replace 'any' with more specific types as needed
   sentiment?: "positive" | "neutral" | "negative";
@@ -8,7 +8,7 @@ export interface ParsedMessage {
   // Add other relevant properties based on your application's requirements
 }
 
-// Communication types
+// **Communication Interface Definition**
 export interface Communication {
   id: string;
   type: "Email" | "SMS" | "Facebook" | "Internal";
@@ -102,7 +102,7 @@ export interface ChatNotification {
   metadata?: Record<string, any>;
 }
 
-// Database types
+// **Database Types**
 export interface Tables {
   agents: {
     id: string;
@@ -227,7 +227,7 @@ export interface Tables {
   };
 }
 
-// Voice Agent types
+// **Voice Agent Types**
 export interface VoiceAgent {
   id: string;
   name: string;
@@ -246,7 +246,7 @@ export interface VoiceAgent {
   user_id: string | null;
 }
 
-// Call types
+// **CallLog Interface Definition**
 export interface CallLog {
   id: string;
   phoneNumber: string;
@@ -258,7 +258,7 @@ export interface CallLog {
   createdAt: Date;
 }
 
-// Client types
+// **Client Interface Definition**
 export interface Client {
   id: string;
   name: string;
@@ -269,7 +269,7 @@ export interface Client {
   updatedAt: Date;
 }
 
-// Voice Configuration
+// **VoiceConfig Interface Definition**
 export interface VoiceConfig {
   defaultGreeting: string;
   voiceId: string;
@@ -278,4 +278,43 @@ export interface VoiceConfig {
   transcribeRecordings?: boolean;
   notifyEmail?: string;
   notifySMS?: string;
+}
+
+// lib/types.ts
+
+export interface Event {
+  id: string;
+  clientId: string; // Added
+  type: string;
+  location: string;
+  date: Date;
+  status: string;
+  musicPreferences: string[]; // Added
+  notes: string; // Added
+  createdAt: Date;
+  updatedAt: Date;
+  // Add other relevant properties as needed
+}
+
+
+// **Lead Interface Definition**
+export interface Lead {
+  id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  company?: string;
+  position?: string;
+  source?: string;
+  status?: "new" | "contacted" | "qualified" | "lost";
+  createdAt: Date;
+  updatedAt: Date;
+  // Add other relevant properties as needed
+}
+
+// **ColumnMeta Interface Definition**
+export interface ColumnMeta {
+  colSpan?: number;
+  // Add other relevant properties as needed
 }

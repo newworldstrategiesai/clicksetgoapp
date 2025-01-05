@@ -3,6 +3,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -11,17 +15,13 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { VoicePreview } from "@/components/voice/voice-preview";
 import { VoiceAgent } from "@/lib/types";
 
 interface AgentEditorProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (agent: VoiceAgent) => Promise<void>; // Updated to return Promise<void>
+  onSave: (agent: VoiceAgent) => Promise<void>; // Ensure it returns Promise<void>
   initialData?: VoiceAgent; // Renamed from initialAgent to initialData
 }
 
@@ -128,7 +128,7 @@ export function AgentEditor({
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e) =>
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setFormData((prev) => ({ ...prev, name: e.target.value }))
                 }
                 required
@@ -139,8 +139,11 @@ export function AgentEditor({
               <Input
                 id="voiceId"
                 value={formData.voiceId}
-                onChange={(e) =>
-                  setFormData((prev) => ({ ...prev, voiceId: e.target.value }))
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    voiceId: e.target.value,
+                  }))
                 }
                 required
               />
@@ -153,7 +156,7 @@ export function AgentEditor({
             <Textarea
               id="description"
               value={formData.description}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData((prev) => ({
                   ...prev,
                   description: e.target.value,
@@ -169,7 +172,7 @@ export function AgentEditor({
             <Textarea
               id="personality"
               value={formData.personality}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData((prev) => ({
                   ...prev,
                   personality: e.target.value,
@@ -186,7 +189,7 @@ export function AgentEditor({
             <Textarea
               id="useCase"
               value={formData.useCase}
-              onChange={(e) =>
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                 setFormData((prev) => ({ ...prev, useCase: e.target.value }))
               }
               placeholder="Describe when this agent should be used..."
@@ -203,8 +206,8 @@ export function AgentEditor({
                 <Label htmlFor="greeting">Greeting Message</Label>
                 <Textarea
                   id="greeting"
-                  value={formData.prompts?.greeting}
-                  onChange={(e) =>
+                  value={formData.prompts?.greeting || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setFormData((prev) => ({
                       ...prev,
                       prompts: {
@@ -229,8 +232,8 @@ export function AgentEditor({
                 <Label htmlFor="fallback">Fallback Message</Label>
                 <Textarea
                   id="fallback"
-                  value={formData.prompts?.fallback}
-                  onChange={(e) =>
+                  value={formData.prompts?.fallback || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setFormData((prev) => ({
                       ...prev,
                       prompts: {
@@ -248,8 +251,8 @@ export function AgentEditor({
                 <Label htmlFor="closing">Closing Message</Label>
                 <Textarea
                   id="closing"
-                  value={formData.prompts?.closing}
-                  onChange={(e) =>
+                  value={formData.prompts?.closing || ""}
+                  onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                     setFormData((prev) => ({
                       ...prev,
                       prompts: {
