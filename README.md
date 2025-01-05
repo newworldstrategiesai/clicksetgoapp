@@ -8,7 +8,7 @@
 
 ### Inbound and Outbound Phone Calls
 - Handle inbound and outbound phone calls.
-- The assistant checks the contact database when receiving calls and greets the caller by name.
+- The assistant checks the contact database when receiving calls and greets the caller by name .
 
 ### SMS Messaging
 - Send SMS messages, even during active calls.
