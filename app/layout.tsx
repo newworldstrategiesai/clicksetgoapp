@@ -25,7 +25,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
     '/leads/pipeline', '/requests', '/equipment', '/venues', '/playlists',
     '/analytics', '/settings', '/account', '/campaigns', '/signin',
     '/contacts', '/lists', '/sms-logs', '/tasks', '/new-campaign', '/campaigns',
-    '/editCampaign', '/customization/persona', '/schedule-new-form', '/pricing'
+    '/editCampaign', '/customization/persona', '/schedule-new-form', '/pricing', '/inbound'
   ];
   const hideSideBar = [
     '/signin',
