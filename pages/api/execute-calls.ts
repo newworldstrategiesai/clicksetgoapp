@@ -71,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         const { data: campaign, error: campaignError } = await supabase
           .from('campaigns')
-          .select('country_code, prompt')
+          .select('country_code, prompt, twilio_number')
           .eq('id', task.campaign_id)
           .single();
 
@@ -144,7 +144,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
         prompt:campaign.prompt,
         reason: task.call_subject,
-        twilioNumber: selectedTwilioNumber,
+        twilioNumber: campaign.twilio_number || selectedTwilioNumber,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: '', //'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
         credentials,

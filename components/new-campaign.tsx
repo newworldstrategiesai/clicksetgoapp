@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/NewCampaign/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/NewCampaign/textarea";
@@ -16,6 +16,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { useCountry } from "@/context/CountryContext";
 import moment from "moment-timezone";
 import { useRouter } from 'next/navigation';
+import axios from "axios";
 
 // Initialize Supabase client
 const supabase = createClient(
@@ -25,8 +26,14 @@ const supabase = createClient(
 
 interface NewCampaignProps {
   userId: string;
+  twilioSid: string;
+  twilioAuthToken: string;
 }
 
+interface TwilioNumber {
+  sid: string;
+  phoneNumber: string;
+}
 const countryCodes: Record<string, string> = {
   US: "+1",
   IN: "+91",
@@ -50,7 +57,7 @@ const timezones = [
   { value: 'Asia/Kolkata', label: 'India' }
 ];
 
-export function NewCampaign({ userId }: NewCampaignProps) {
+export function NewCampaign({ userId, twilioSid, twilioAuthToken }: NewCampaignProps) {
   const { defaultCountry, setDefaultCountry } = useCountry();
   const [formData, setFormData] = useState({
     name: '',
@@ -66,13 +73,15 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmCampaign: '',
     schedule: '',
     agent: '',
-    callDistribution: 'Immediate'
+    callDistribution: 'Immediate',
+    twilio_number: ''
   });
   const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
   const [schedules, setSchedules] = useState<{ id: string; name: string }[]>([]);
   const [agents, setAgents] = useState<{ id: string; agent_name: string; prompt:string }[]>([]);
-
+  const [twilioNumbers, setTwilioNumbers] = useState<TwilioNumber[]>([]);
+  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false); // For loading state
   const [isAdvanced, setIsAdvanced] = useState(false); // State for Advanced section
   const [prompt, setPrompt] = useState('');
@@ -221,7 +230,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       country_code: defaultCountry.code,
       scheduled_at: scheduledAtUTC,
       call_distribution: formData.callDistribution,
-      prompt:prompt
+      prompt:prompt,
+      twilio_number: selectedTwilioNumber
     };
     // Debugging: Log the data being sent
     // router.push('/campaigns');
@@ -247,7 +257,8 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           utmCampaign: '',
           schedule: '',
           agent: '',
-          callDistribution: 'Instant'
+          callDistribution: 'Instant',
+          twilio_number: ''
         });
         setIsAdvanced(false); // Reset Advanced section
       }
@@ -290,7 +301,30 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     setIsAdvanced(prev => !prev);
   };
 
+  const fetchTwilioNumbers = useCallback(async () => {
+    try {
+      const twilioClient = { twilioSid, twilioAuthToken };
 
+      // Send credentials along with userId to the API
+      const response = await axios.post('/api/get-twilio-numbers', {
+        userId,
+        twilioClient,
+      });
+
+      // Set the fetched Twilio numbers
+      setTwilioNumbers(response.data.allNumbers || []);
+      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+      }
+    } catch (error) {
+      console.error('Error fetching Twilio numbers:', error);
+      toast.error('Failed to fetch Twilio numbers. Please try again later.');
+    }
+  }, [twilioSid, twilioAuthToken, userId]);
+  
+  useEffect(() => {
+  fetchTwilioNumbers();
+  })
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8">
       <ToastContainer />
@@ -460,6 +494,21 @@ export function NewCampaign({ userId }: NewCampaignProps) {
               {isAdvanced ? 'Hide Advanced' : 'Show Advanced'}
             </Button>
           </div>
+            <label className="block mb-2">
+            <span className="block text-gray-400">Select Twilio Number:</span>
+            <select
+              value={selectedTwilioNumber}
+              onChange={(e) => setSelectedTwilioNumber(e.target.value)}
+              className="w-full mt-1 p-2 dark:bg-black rounded border border-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white"
+              aria-label="Select Twilio Number"
+            >
+              {twilioNumbers.map((twilioNumber) => (
+                <option key={twilioNumber.sid} value={twilioNumber.phoneNumber}>
+                  {twilioNumber.phoneNumber}
+                </option>
+              ))}
+            </select>
+          </label>
         </div>
         {/* Advanced Section */}
         {isAdvanced && (

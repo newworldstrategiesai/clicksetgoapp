@@ -14,6 +14,18 @@ export default async function NewCampaignPage() {
     // Fetch the logged-in user
     const user = await getUser(supabase);
 
+    // Fetch API keys
+    const { data: apiKeyData, error: apiKeyError } = await supabase
+      .from('api_keys')
+      .select('twilio_sid, twilio_auth_token')
+      .eq('user_id', user?.id)
+      .single();
+
+    if (apiKeyError) {
+      console.error('Error fetching API keys:', apiKeyError);
+    }
+    const twilioSid = apiKeyData?.twilio_sid || '';
+    const twilioAuthToken = apiKeyData?.twilio_auth_token || '';
     // If no user is found, redirect to sign-in
     if (!user) {
       console.error('No user found. Redirecting to sign in.');
@@ -24,8 +36,10 @@ export default async function NewCampaignPage() {
 
     // Render the NewCampaign component with the userId passed as a prop
     return (
-      <div className="pt-16"> {/* Add padding to prevent navbar overlap */}
-        <NewCampaign userId={user.id} />
+      <div className="pt-16">
+        {' '}
+        {/* Add padding to prevent navbar overlap */}
+        <NewCampaign userId={user.id} twilioSid={twilioSid} twilioAuthToken={twilioAuthToken} />
       </div>
     );
   } catch (error) {
