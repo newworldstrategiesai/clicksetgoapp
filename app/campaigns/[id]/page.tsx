@@ -197,7 +197,8 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         const { data: tasks, error: taskError } = await supabase
           .from('call_tasks')
           .select(`*, contacts(first_name, last_name, phone, user_id)`)
-          .eq('campaign_id', id);
+          .eq('campaign_id', id)
+          .order('scheduled_at', { ascending: true });
 
         if (taskError) {
           console.error('Error fetching call tasks:', taskError.message);

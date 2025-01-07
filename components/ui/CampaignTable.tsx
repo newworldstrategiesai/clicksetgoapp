@@ -140,6 +140,7 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
                 <th className="px-4 py-3 bg-gray-400 text-gray-900 dark:text-gray-800 font-semibold text-sm border-b text-start">End Date</th>
                 <th className="px-4 py-3 bg-gray-400 text-gray-900 dark:text-gray-800 font-semibold text-sm border-b text-start">Status</th>
                 <th className="px-4 py-3 bg-gray-400 text-gray-900 dark:text-gray-800 font-semibold text-sm border-b text-start">Budget</th>
+                <th className="px-4 py-3 bg-gray-400 text-gray-900 dark:text-gray-800 font-semibold text-sm border-b text-start">Type</th>
                 <th className="px-4 py-3 bg-gray-400 text-gray-900 dark:text-gray-800 font-semibold text-sm border-b">Action</th>
               </tr>
             </thead>
@@ -150,12 +151,13 @@ export default function CampaignTable({ userId,apiKey, twilioSid, twilioAuthToke
                   className="hover:bg-gray-300 dark:hover:bg-gray-700 transition duration-150"
                   // onClick={() => handleClick(campaign.id)} // Use handleClick function to redirect
                 >
-                  <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300 truncate">{campaign.name || 'No name'}</td>
-                  <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300 truncate max-w-xs sm:max-w-md">{campaign.description && campaign.description.length > 30 ? `${campaign.description.substring(0, 30)}...` : campaign.description || 'No description'}</td>
+                  <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300 truncate">{campaign.name && campaign.name.length > 20 ? `${campaign.name.substring(0,20)}...`: campaign.name || 'No name'}</td>
+                  <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300 truncate max-w-xs sm:max-w-md">{campaign.description && campaign.description.length > 20 ? `${campaign.description.substring(0, 20)}...` : campaign.description || 'No description'}</td>
                   <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300">{campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300">{campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : 'N/A'}</td>
                   <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300"><p>{campaign.status || "Not Available"}</p></td>
                   <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300">${campaign.budget?.toFixed(2)}</td>
+                  <td className="px-4 py-3 border-b text-gray-800 dark:text-gray-300"><p>{campaign.call_distribution || "Not Available"}</p></td>
                   <td className={`px-4 py-3 border-b text-gray-800 dark:text-gray-300`}>
                     <div className={`text-gray-800 dark:text-gray-300 flex justify-evenly`}>
                     <p className={` text-center p-2 hover:bg-blue-600 rounded-2xl cursor-pointer`}  onClick={(e) => { e.stopPropagation(); handleEdit(campaign.id) }}><Pencil2Icon className="h-6 w-6 text-muted-foreground/70" /></p>

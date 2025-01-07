@@ -126,6 +126,7 @@ export interface Campaign {
   user_id?: string; // UUID type corresponds to string in TypeScript, optional
   agent?: string; // UUID type corresponds to string in TypeScript, optional
   scheduled_at?: string; // Timestamp with time zone, optional
+  call_distribution?:string;
 }
 
 

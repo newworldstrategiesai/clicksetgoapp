@@ -66,7 +66,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
     utmCampaign: '',
     schedule: '',
     agent: '',
-    callDistribution: 'Immediate'
+    callDistribution: ''
   });
   const router = useRouter();
   const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
@@ -157,13 +157,21 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       agent: value
     }));
   };
-  const handleDistributionMethodChange = (value: string) => {  // Handle the distribution method change
-    setFormData(prevData => ({
+  const handleDistributionMethodChange = (value: string) => {
+    setFormData((prevData) => ({
       ...prevData,
-      distributionMethod: value
+      callDistribution: value,
     }));
+  
+    if (value === 'Immediate') {
+      // If Immediate, clear schedule and disable it
+      setFormData((prevData) => ({
+        ...prevData,
+        schedule: '', // Clear the schedule
+      }));
+    }
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -178,10 +186,11 @@ export function NewCampaign({ userId }: NewCampaignProps) {
       return;
     }
 
-    // if (!formData.schedule) {
-    //   toast.error('Please select a schedule');
-    //   return;
-    // }
+     // Check if "Distributed" is selected and if schedule is not selected
+    if (formData.callDistribution === 'Distributed' && !formData.schedule) {
+      toast.error('Please select a schedule');
+      return;
+    }
 
     // Optional: Add more validations as needed
 
@@ -241,16 +250,10 @@ export function NewCampaign({ userId }: NewCampaignProps) {
           utmCampaign: '',
           schedule: '',
           agent: '',
-          callDistribution: 'Instant'
+          callDistribution: ''
         });
         setIsAdvanced(false); // Reset Advanced section
-      }
-      try{
-        const { data } = await supabase.from('campaigns').select('*').order('created_at', { ascending: false }).limit(1);
-        const campId = data?.[0].id
-        router.push(`/campaigns/${campId}`);
-      }catch(error){
-        console.error('Error Routing to description page');
+        router.push(`/campaigns`);
       }
     } catch (error) {
       console.error('Error inserting campaign:', error);
@@ -380,7 +383,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <Label htmlFor="schedule">Schedule<span style={{ fontSize: '0.9em', color: '#888' }}>(Optional)</span></Label>
-            <Select onValueChange={handleScheduleChange} value={formData.schedule}>
+            <Select onValueChange={handleScheduleChange} value={formData.schedule} disabled={formData.callDistribution === 'Immediate'} >
               <SelectTrigger className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white">
                   <SelectValue placeholder={selectedScheduleName} />
               </SelectTrigger>
@@ -457,7 +460,7 @@ export function NewCampaign({ userId }: NewCampaignProps) {
                   min="0"
                   placeholder="Enter budget"
                   value={formData.budget}
-                  onChange={handleChange}
+                  onChange={handleChange} 
                   className="border rounded-lg p-2 w-full bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
                 />
               </div>
