@@ -1,10 +1,9 @@
-import { supabase } from '@/utils/supabaseClient';
 import twilio from 'twilio';
 
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_NUMBER || '';
-const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
+const DEFAULT_RECIPIENT_PHONE_NUMBER = '+918707279119'; // Default recipient phone number
 
-// const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
 interface CallReport {
   call_id: string;
@@ -23,19 +22,7 @@ interface CallReport {
   timestamp: string;
 }
 
-export async function sendSms(callReport: CallReport, number:string, userId:string) {
-
-  const {data, error} = await supabase
-  .from('api_keys')
-  .select('*')
-  .eq("user_id", userId)
-  .single();
-
-  const accountSid = data.twilioSid;
-  const authToken = data.twilioAuthToken;
-
-  const twilioClient = twilio(accountSid, authToken);
-  
+export async function sendSms(callReport: CallReport ) {
   await twilioClient.messages.create({
     body: `
       Call Report:
@@ -55,7 +42,6 @@ export async function sendSms(callReport: CallReport, number:string, userId:stri
       - Timestamp: ${callReport.timestamp}
     `,
     from: TWILIO_PHONE_NUMBER,
-    // to: DEFAULT_RECIPIENT_PHONE_NUMBER,
-    to: number,
+    to: DEFAULT_RECIPIENT_PHONE_NUMBER,
   });
 }
