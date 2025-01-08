@@ -65,7 +65,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const { message, sendSmsToggle = false, sendEmailToggle = false } = req.body; // Added toggle values with defaults
+  const { message, sendSmsToggle = false, sendEmailToggle = true } = req.body; // Added toggle values with defaults
 
   if (!message || !message.call) {
     return res.status(400).json({ error: 'Invalid data received' });
