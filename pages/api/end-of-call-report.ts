@@ -39,6 +39,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 import { sendSms } from './sendSms';
 import { sendEmail } from './sendEmail';
+import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -46,6 +47,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!user) {
         return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
+    }
+
+    const { data: authData, error: authError } = await supabaseServer
+      .from('auth.users') // Query the auth schema table
+      .select('*')
+      .eq('id', user.id) // Use 'id' instead of 'user_id' if you're targeting auth.users
+      .single(); // Use single() since we expect only one user
+
+    if (authError) {
+      console.error('Error fetching auth user data:', authError.message);
+      return res.status(400).json({ error: 'Unable to fetch user data' });
     }
     
     const {data, error} = await supabase
@@ -64,7 +76,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const { message, sendSmsToggle = false, sendEmailToggle = false } = req.body; // Added toggle values with defaults
+  const { message, sendSmsToggle = false, sendEmailToggle = true } = req.body; // Added toggle values with defaults
 
   if (!message || !message.call) {
     return res.status(400).json({ error: 'Invalid data received' });
@@ -106,14 +118,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   // Check if SMS sending is enabled
   if (sendSmsToggle) {
-    await sendSms(callReport);
+    await sendSms(callReport,authData.phone, user.id);
   } else {
     return res.status(403).json({ error: 'SMS sending is disabled' });
   }
 
   // Check if Email sending is enabled
   if (sendEmailToggle) {
-    await sendEmail(callReport);
+    await sendEmail(callReport, authData.email);
   } else {
     return res.status(403).json({ error: 'Email sending is disabled' });
   }
