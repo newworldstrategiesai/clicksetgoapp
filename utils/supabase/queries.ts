@@ -100,10 +100,17 @@ export async function getContactFirstName(
   supabase: SupabaseClient,
   phoneNumber: string
 ): Promise<string | null> {
+  const sanitizedPhoneNumber = phoneNumber.slice(-10);
+
+  // Ensure the sanitized phone number is exactly 10 digits
+  if (sanitizedPhoneNumber.length !== 10 || !/^\d+$/.test(sanitizedPhoneNumber)) {
+    console.error('Invalid phone number. It must be 10 digits.');
+    return null;
+  }
   const { data, error } = await supabase
     .from('contacts')
     .select('first_name')
-    .eq('phone', phoneNumber)
+    .eq('phone', sanitizedPhoneNumber)
     .single();
 
   if (error) {
