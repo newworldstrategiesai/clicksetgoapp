@@ -59,7 +59,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       console.error('Error fetching auth user data:', authError.message);
       return res.status(400).json({ error: 'Unable to fetch user data' });
     }
-    
+    console.log(authData.email)
     const {data, error} = await supabase
     .from('api_keys')
     .select('*')
