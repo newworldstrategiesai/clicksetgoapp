@@ -21,10 +21,10 @@ interface CallReport {
     timestamp: string;
 }
 
-export async function sendEmail(callReport: CallReport) {
+export async function sendEmail(callReport: CallReport, email:string) {
   await resend.emails.send({
     from: 'info@clicksetgo.app',
-    to: DEFAULT_RECIPIENT_EMAIL,
+    to: email,
     subject: 'Call Report',
     html: `
     <!DOCTYPE html>
