@@ -43,17 +43,16 @@ import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-    // const user = await getUser(supabase)
+    const user = await getUser(supabase)
 
-    // if (!user) {
-    //     return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
-    // }
-    const userId = "5a3639a0-1a6f-46cf-b68c-bdd2afc08b89"
+    if (!user) {
+        return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
+    }
     
     const {data, error} = await supabaseServer
-    .from('api_keys' as any)
+    .from('api_keys')
     .select('*')
-    .eq("user_id", userId)
+    .eq("user_id", user.id)
     .single();
 
     const accountSid = data.twilio_sid;

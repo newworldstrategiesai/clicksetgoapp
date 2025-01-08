@@ -1,7 +1,6 @@
 import { Resend } from 'resend';
 
-// const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipient email
-const DEFAULT_RECIPIENT_EMAIL = 'sonwanianshu@gmail.com'; // Default recipient email
+const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipient email/
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Define the CallReport interface
