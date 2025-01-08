@@ -39,6 +39,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 import { sendSms } from './sendSms';
 import { sendEmail } from './sendEmail';
+import { supabaseServer } from '@/utils/supabaseServerClient';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
@@ -49,8 +50,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // }
     const userId = "5a3639a0-1a6f-46cf-b68c-bdd2afc08b89"
     
-    const {data, error} = await supabase
-    .from('api_keys')
+    const {data, error} = await supabaseServer
+    .from('api_keys' as any)
     .select('*')
     .eq("user_id", userId)
     .single();
