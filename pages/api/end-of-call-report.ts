@@ -42,16 +42,17 @@ import { sendEmail } from './sendEmail';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
 
-    const user = await getUser(supabase)
+    // const user = await getUser(supabase)
 
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
-    }
+    // if (!user) {
+    //     return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
+    // }
+    const userId = "5a3639a0-1a6f-46cf-b68c-bdd2afc08b89"
     
     const {data, error} = await supabase
     .from('api_keys')
     .select('*')
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .single();
 
     const accountSid = data.twilioSid;
