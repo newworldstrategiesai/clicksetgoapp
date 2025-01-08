@@ -1,7 +1,7 @@
 import twilio from 'twilio';
 
 const TWILIO_PHONE_NUMBER = process.env.TWILIO_NUMBER || '';
-const DEFAULT_RECIPIENT_PHONE_NUMBER = '+918707279119'; // Default recipient phone number
+const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
 
 const twilioClient = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
 
