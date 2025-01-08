@@ -55,8 +55,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     .eq("user_id", userId)
     .single();
 
-    const accountSid = data.twilioSid;
-    const authToken = data.twilioAuthToken;
+    const accountSid = data.twilio_sid;
+    const authToken = data.twilio_auth_token;
 
     const twilioClient = twilio(accountSid, authToken);
 
