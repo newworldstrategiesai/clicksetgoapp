@@ -149,7 +149,6 @@
     "react-toastify": "^10.0.6",
     "recharts": "^2.14.1",
     "resend": "^3.5.0",
-    "shadcn-react": "^0.0.22",
     "shiki": "^1.24.0",
     "socket.io": "^4.8.1",
     "sonner": "^1.7.0",
