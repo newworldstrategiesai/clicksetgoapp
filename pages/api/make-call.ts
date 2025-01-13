@@ -44,6 +44,7 @@ interface MakeCallRequestBody {
   userId: string;
   credentials: Credentials;
   agentSettings: AgentSettings;
+  callTaskId?: string;
 }
 
 // Utility function to format phone numbers in E.164 format
@@ -77,6 +78,7 @@ export default async function handler(
     userId,
     credentials,
     agentSettings,
+    callTaskId,
   } = body;
 
   // Validate that credentials are present
@@ -190,7 +192,7 @@ export default async function handler(
       twilioAccountSid: twilioSid,
       twilioAuthToken: twilioAuthToken,
     },
-    assistantId: '3e90c863-0890-4369-8d4b-512cdb2b6981',
+    assistantId: '73f742eb-6790-4b9a-93d8-6ae74df341a3',
     assistantOverrides: {
       firstMessage: customizedFirstMessage,
       voice: {
@@ -209,6 +211,32 @@ export default async function handler(
             content: systemPrompt,
           },
         ],
+        functions: [
+          {
+            name: 'SendSMS',
+            description: "Sends requested info to the caller's phone number",
+            serverUrl: 'https://clicksetgo.itniche.live/api/send-sms',
+
+            parameters: {
+              type: 'object',
+              required: ['callerNumber', 'callerName', 'smsMessage'],
+              properties: {
+                callerName: {
+                  type: 'string',
+                  description: 'The name of the person receiving the SMS message.'
+                },
+                callerNumber: {
+                  type: 'string',
+                  description: "The end user's phone number to be used with SMS messaging."
+                },
+                smsMessage: {
+                  type: 'string',
+                  description: 'The SMS message content containing requested info.'
+                }
+              }
+            }
+          }
+        ]
       },
       clientMessages: [
         'transcript',
@@ -218,6 +246,11 @@ export default async function handler(
         'metadata',
         'conversation-update',
       ],
+      serverMessages: [
+        'end-of-call-report'
+      ],
+      serverUrl: 'https://clicksetgo.itniche.live/api/end-of-call-report',
+      serverUrlSecret: '777333777',
     },
   };
 
@@ -243,6 +276,24 @@ export default async function handler(
     });
 
     console.log('API Response from VAPI:', response.data);
+
+    if(response){
+      const { data, error } = await supabase
+      .from('calls')
+      .upsert({
+        user_id: userId, // Replace with your variable holding the user ID
+        caller_number: response.data.customer.number, // Replace with your variable for caller_number
+        call_sid: response.data.phoneCallProviderId, // Replace with your variable for call_sid
+      }, { onConflict: 'call_sid' }); // Specify the unique constraint to resolve conflicts
+
+      if (error) {
+        console.error('Error adding new contact to Supabase:', error);
+        return res
+          .status(500)
+          .json({ message: 'Failed to add new contact', error });
+      }
+
+    }
 
     // Check if contact is new
     if (response.data.newContact) {

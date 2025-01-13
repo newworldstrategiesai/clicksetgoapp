@@ -363,7 +363,7 @@ const DialerComponent: React.FC<DialerComponentProps> = ({
 
     try {
       setLoading(true);
-      await axios.post('/api/make-call', {
+      await axios.post('/api/make-call-dialer', {
         contact: {
           id: selectedContact?.id || '',
           first_name: newFirstName,
