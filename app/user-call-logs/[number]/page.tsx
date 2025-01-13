@@ -53,7 +53,7 @@ const UserCallLogs: React.FC = () => {
           headers: { 'Authorization': `Bearer ${userId}` }
         });
 
-        const contactsResponse = await axios.get('/api/contacts');
+        // const contactsResponse = await axios.get('/api/contacts');
         // const [callLogsResponse, contactsResponse] = await Promise.all([
         //   axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
         //   axios.get('/api/contacts'),
