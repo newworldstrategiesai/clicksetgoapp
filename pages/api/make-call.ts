@@ -215,7 +215,7 @@ export default async function handler(
           {
             name: 'SendSMS',
             description: "Sends requested info to the caller's phone number",
-            serverUrl: 'https://clicksetgo.itniche.live/api/send-sms',
+            serverUrl: 'https://clicksetgo.app/api/send-sms',
 
             parameters: {
               type: 'object',
@@ -249,7 +249,7 @@ export default async function handler(
       serverMessages: [
         'end-of-call-report'
       ],
-      serverUrl: 'https://clicksetgo.itniche.live/api/end-of-call-report',
+      serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
       serverUrlSecret: '777333777',
     },
   };
