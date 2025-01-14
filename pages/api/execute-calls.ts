@@ -161,7 +161,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       try {
         const response = await axios.post('https://clicksetgo.app/api/make-call', callData); // Adjust the URL if necessary
-
+        console.log('Call initiated:', response.data);
         // Update call task status to completed
         await supabase
           .from('call_tasks')

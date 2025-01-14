@@ -61,6 +61,8 @@ export default async function handler(
       .update({
         status: call.status || "NA",
         transcript: transcript || "NA",
+        started_at: call.startedAt || "NA",
+        ended_at: call.endedAt || "NA",
         summary: summary || "NA",
         analysis: analysis || "NA",
         recording_url: recordingUrl || "NA",
