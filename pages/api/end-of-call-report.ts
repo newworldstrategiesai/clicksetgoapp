@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { createPagesServerClient } from '@supabase/auth-helpers-nextjs';
 import { Database } from '@/types_db';
+import twilio from 'twilio';
+import { Resend } from 'resend';
 import { supabase } from '@/utils/supabaseClient';
 import { sendSms } from './sendSms';
 import { sendEmail } from './sendEmail';
@@ -28,6 +30,9 @@ type CallReport = {
   timestamp: string;
 };
 
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
@@ -49,6 +54,8 @@ export default async function handler(
     transcript,
     summary,
     messages,
+    startedAt,
+    endedAt,
     analysis,
     recordingUrl,
     stereoRecordingUrl,
@@ -61,6 +68,8 @@ export default async function handler(
       .update({
         status: call.status || "NA",
         transcript: transcript || "NA",
+        start_time: startedAt || null,
+        end_time: endedAt || null,
         summary: summary || "NA",
         analysis: analysis || "NA",
         recording_url: recordingUrl || "NA",

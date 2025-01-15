@@ -147,6 +147,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         twilioNumber: selectedTwilioNumber,
         firstMessage: task.first_message || `Calling ${contact.first_name} regarding ${task.call_subject}`,
         voiceId: '', //'CwhRBWXzGAHq8TQ4Fs17', // Or any other data needed for the call
+        userId,
         credentials,
         agentSettings: {
           agentName: agentSettings.agent_name,
@@ -161,7 +162,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       try {
         const response = await axios.post('https://clicksetgo.app/api/make-call', callData); // Adjust the URL if necessary
-
+        console.log('Call initiated:', response.data);
         // Update call task status to completed
         await supabase
           .from('call_tasks')

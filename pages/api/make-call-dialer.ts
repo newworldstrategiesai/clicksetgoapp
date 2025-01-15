@@ -190,7 +190,7 @@ export default async function handler(
       twilioAccountSid: twilioSid,
       twilioAuthToken: twilioAuthToken,
     },
-    assistantId: '73f742eb-6790-4b9a-93d8-6ae74df341a3',
+    assistantId: '3e90c863-0890-4369-8d4b-512cdb2b6981',
     assistantOverrides: {
       firstMessage: customizedFirstMessage,
       voice: {
@@ -280,7 +280,7 @@ export default async function handler(
       .from('calls')
       .upsert({
         user_id: userId, // Replace with your variable holding the user ID
-        caller_number: response.data.customer.number, // Replace with your variable for caller_number
+        caller_number: response.data.phoneNumber.twilioPhoneNumber, // Replace with your variable for caller_number
         call_sid: response.data.phoneCallProviderId, // Replace with your variable for call_sid
       }, { onConflict: 'call_sid' }); // Specify the unique constraint to resolve conflicts
 

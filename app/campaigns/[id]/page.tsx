@@ -12,6 +12,7 @@ import CryptoJS from 'crypto-js';
 import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
 import moment from 'moment-timezone';
+import CallTaskModal from '@/components/CallTaskModal';
 
 interface CallTask {
   id: string;
@@ -113,6 +114,30 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const [showPauseBtn, setShowPauseBtn] = useState(false);
   const [showAbortBtn, setShowAbortBtn] = useState(false);
   const [showResumeBtn, setShowResumeBtn] = useState(false);
+
+  const [isCallDetailsModalOpen, setCallDetailsIsModalOpen] = useState(false);
+  const [selectedCallDetailsTask, setSelectedCallDetailsTask] = useState<CallTask | null>(null);
+  const [callTaskData, setCallTaskData] = useState<any>(null);
+  const [callTaskError, setCallTaskError] = useState<any>(null);
+  useEffect(() => {
+    const fetchCallTaskData = async () => {
+      if (selectedCallDetailsTask) {
+        const { data, error } = await supabase
+          .from('calls')
+          .select('*')
+          .eq('call_tasks_id', selectedCallDetailsTask.id);
+        setCallTaskData(data);
+        setCallTaskError(error);
+        console.log(callTaskError);
+      }
+    };
+    fetchCallTaskData();
+  }, [selectedCallDetailsTask]);
+  
+  const closeCallDetailsModal = () => {
+    setCallDetailsIsModalOpen(false);
+    setSelectedCallDetailsTask(null);
+  };
 
   useEffect(() => {
     setShowLaunchBtn(shouldShowButton('launchBtn'));
@@ -659,7 +684,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               </thead>
               <tbody>
                 {campaignTasks.map((task) => (
-                  <tr key={task.id} className="hover:bg-gray-300 text-center dark:hover:bg-gray-700">
+                   <tr key={task.id} className="hover:bg-gray-300 text-center dark:hover:bg-gray-700"
+                   onClick={() =>{
+                     setCallDetailsIsModalOpen(true)
+                     setSelectedCallDetailsTask(task)
+                   }} // Open modal on row click
+                   >
                     <td className="border px-4 py-2 dark:border-gray-600">{task.call_subject}</td>
                     <td className="border px-4 py-2 dark:border-gray-600">{task.contact_name}</td>
                     <td className="border px-4 py-2 dark:border-gray-600">{task.call_status}</td>
@@ -669,7 +699,7 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                         .local()
                         .format('YYYY-MM-DD HH:mm:ss A')}
                     </td>
-                    <td className="border px-4 py-2 dark:border-gray-600">
+                    <td className="border px-4 py-2 dark:border-gray-600" onClick={(e) => {e.stopPropagation(); openModal(task)}}>
                       <button
                         onClick={() => openModal(task)} // Open modal on row click
                         className="text-blue-500 hover:underline"
@@ -682,6 +712,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
               </tbody>
             </table>
           </div>
+
+          <CallTaskModal
+            isOpen={isCallDetailsModalOpen}
+            onClose={closeCallDetailsModal}
+            task={callTaskData && callTaskData.length > 0 ? callTaskData[0] : null}
+          />
 
           {/* Modal for editing task */}
           {isModalOpen && selectedTask && (
