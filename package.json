@@ -31,6 +31,7 @@
   "dependencies": {
     "@11labs/react": "^0.0.2",
     "@ai-sdk/openai": "^0.0.36",
+    "@anthropic-ai/sdk": "^0.33.1",
     "@emoji-mart/data": "^1.2.1",
     "@emoji-mart/react": "^1.1.1",
     "@faker-js/faker": "^8.4.1",
@@ -83,6 +84,7 @@
     "@vapi-ai/web": "^2.1.8",
     "@vercel/analytics": "^1.4.1",
     "ai": "^3.4.33",
+    "anthropic": "^0.0.0",
     "axios": "^1.7.8",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
