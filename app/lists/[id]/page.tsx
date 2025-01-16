@@ -1,9 +1,12 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, use } from 'react';
 import ContactsTable from '@/components/ContactsTable'; // Adjust the import path as necessary
 import Modal from 'react-modal';
 import { supabase } from 'utils/supabaseClient';
+import { createClient } from '@/utils/supabase/client';
+import { User } from '@supabase/supabase-js';
+import { usePathname } from 'next/navigation';
 
 interface Contact {
   id: string;
@@ -13,15 +16,32 @@ interface Contact {
   user_id: string;
 }
 
-const ListPage = ({ params }: { params: { id: string } }) => {
-  const { id } = params;
+interface ListPage {
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
+}
+
+const ListPage = ({ params }: ListPage) => {
+  const { id } = use(params);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [listName, setListName] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const userId = 'some-user-id'; // Replace this with how you get the actual userId
+  const [user, setUser] = useState<User | null>(null);
   const [selectedContactsForList, setSelectedContactsForList] = useState<Set<string>>(new Set()); // Initialize as state
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const getUser = async () => {
+      const supabase = createClient();
+      const { data } = await supabase.auth.getUser();
+      console.log(data.user)
+      setUser(data.user);
+      setLoading(false);
+    };
+
+    getUser();
+  }, [pathname]);
 
   useEffect(() => {
     const fetchContacts = async () => {
@@ -101,8 +121,8 @@ const ListPage = ({ params }: { params: { id: string } }) => {
   };
 
   return (
-    <section className="mb-32 bg-black min-h-screen">
-      <div className="fixed top-0 left-0 w-full bg-black text-white py-4 z-10">
+    <section className="mb-32 dark:bg-black min-h-screen">
+      <div className="fixed top-0 left-0 w-full dark:bg-black dark:text-white py-4 z-10">
         <div className="max-w-6xl px-4 py-2 mx-auto sm:px-6 sm:pt-24 lg:px-8">
           <h1 className="text-4xl font-extrabold sm:text-center sm:text-6xl">
             {listName}
@@ -126,7 +146,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
               onAddToList={handleAddToList}
               searchQuery={searchQuery} // Pass the search query
               onSearchChange={handleSearchChange} // Pass the search change handler
-              userId={userId} // Pass userId prop to ContactsTable
+              userId={user ? user.id : ''}  // Pass userId prop to ContactsTable
               selectedContacts={selectedContactsForList} // Pass selected contacts
               onToggleSelectContact={handleToggleSelectContact} // Pass toggle handler
               onSelectAll={handleSelectAll} // Pass select all handler

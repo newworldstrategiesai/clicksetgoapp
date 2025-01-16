@@ -1,7 +1,51 @@
+// pages/api/make-call.ts
+
 import type { NextApiRequest, NextApiResponse } from 'next';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
 import { parsePhoneNumberFromString } from 'libphonenumber-js';
+
+// Define interfaces for strong typing
+interface Contact {
+  id: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  lead_status: string;
+  lead_source: string;
+  opt_in_status: boolean;
+  notes: string;
+  vertical: string;
+  sub_category: string;
+  preferred_language: string;
+}
+
+interface AgentSettings {
+  agentName: string;
+  role: string;
+  companyName: string;
+  prompt?: string; // Make prompt optional
+  voiceId: string;
+}
+
+interface Credentials {
+  twilioSid: string;
+  twilioAuthToken: string;
+  vapiKey: string;
+}
+
+interface MakeCallRequestBody {
+  contact: Contact;
+  reason: string;
+  prompt: string;
+  twilioNumber: string;
+  firstMessage?: string;
+  voiceId?: string;
+  userId: string;
+  credentials: Credentials;
+  agentSettings: AgentSettings;
+  callTaskId?: string;
+}
 
 // Utility function to format phone numbers in E.164 format
 const formatPhoneNumber = (phoneNumber: string): string | null => {
@@ -13,217 +57,291 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (req.method === 'POST') {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    console.error('Method Not Allowed:', req.method);
+    return res.status(405).json({ message: 'Method Not Allowed' });
+  }
 
-    const { contact, reason, twilioNumber, firstMessage, voiceId, sendSMS, sendEmail, credentials } = req.body;
+  const body: MakeCallRequestBody = req.body;
 
-    // Check if sendSMS and sendEmail are defined
-    console.log('sendSMS:', sendSMS); // Check if sendSMS is received
-    console.log('sendEmail:', sendEmail); // Check if sendEmail is received
+  // Log the entire request body for debugging
+  console.log('Received /api/make-call POST request:', JSON.stringify(body, null, 2));
 
-    // Convert sendSMS and sendEmail to boolean if needed
-    const isSendSMS = sendSMS === "yes";
-    const isSendEmail = sendEmail === "yes";
+  const {
+    contact,
+    reason,
+    twilioNumber,
+    firstMessage,
+    voiceId,
+    prompt,
+    userId,
+    credentials,
+    agentSettings,
+    callTaskId,
+  } = body;
 
-    const accountSid = credentials.twilioSid;
-    const authToken = credentials.twilioAuthToken;
-    const vapi_key = credentials.vapiKey;
+  // Validate that credentials are present
+  if (!credentials) {
+    console.error('Missing credentials in request body');
+    return res.status(400).json({ message: 'Missing credentials' });
+  }
 
-    // Default voice ID
-    const defaultVoiceId = '9c6NBxIEEDowC6QfhIaO';
+  const { twilioSid, twilioAuthToken, vapiKey } = credentials;
 
-    // Check for required fields
-    if (
-      !contact ||
-      !contact.first_name ||
-      !contact.phone ||
-      !reason ||
-      !twilioNumber
-    ) {
-      return res.status(400).json({ message: 'Missing required fields' });
-    }
+  // Validate that required credential fields are present
+  if (!twilioSid || !twilioAuthToken || !vapiKey) {
+    console.error('Incomplete credentials provided:', { twilioSid, twilioAuthToken, vapiKey });
+    return res.status(400).json({ message: 'Incomplete credentials' });
+  }
 
-    // Use the provided voiceId or default to the specified defaultVoiceId
-    const selectedVoiceId = voiceId || defaultVoiceId;
+  // Check for required contact fields
+  if (
+    !contact ||
+    !contact.first_name ||
+    !contact.phone
+  ) {
+    console.error('Missing required contact fields:', contact);
+    return res.status(400).json({ message: 'Missing required contact fields' });
+  }
 
-    // Format phone numbers
-    const formattedContactNumber = formatPhoneNumber(contact.phone);
-    const formattedTwilioNumber = formatPhoneNumber(twilioNumber);
+  // Check for required call reason
+  if (!reason) {
+    console.error('Missing reason for call');
+    return res.status(400).json({ message: 'Missing reason for call' });
+  }
 
-    // Check if phone numbers are valid
-    if (!formattedContactNumber || !formattedTwilioNumber) {
-      return res.status(400).json({ message: 'Invalid phone number format' });
-    }
+  // Check for Twilio number
+  if (!twilioNumber) {
+    console.error('Missing Twilio number');
+    return res.status(400).json({ message: 'Missing Twilio number' });
+  }
 
-    // Use the custom firstMessage if provided, otherwise default to a standard message
-    const customizedFirstMessage =
-      firstMessage ||
-      `Hello, this is Sarah from I T Niche. Am I speaking with ${contact.first_name}?`;
+  // **Modified Validation: Make 'prompt' Optional**
+  if (
+    !agentSettings ||
+    !agentSettings.agentName ||
+    !agentSettings.role ||
+    !agentSettings.companyName ||
+    !agentSettings.voiceId
+    // Removed: || !agentSettings.prompt
+  ) {
+    console.error('Missing agent settings:', agentSettings);
+    return res.status(400).json({ message: 'Missing agent settings' });
+  }
 
-    const callData = {
-      customer: {
+  // Format phone numbers
+  const formattedContactNumber = formatPhoneNumber(contact.phone);
+  const formattedTwilioNumber = formatPhoneNumber(twilioNumber);
+
+  // Check if phone numbers are valid
+  if (!formattedContactNumber || !formattedTwilioNumber) {
+    console.error('Invalid phone number format:', { contactPhone: contact.phone, twilioNumber });
+    return res
+      .status(400)
+      .json({ message: 'Invalid phone number format' });
+  }
+
+  const contextDetails = `
+  Contact Name: ${contact.first_name || 'Unknown'} ${contact.last_name || ''}.
+  Lead Source: ${contact.lead_source || 'Unknown'}.
+  Vertical/Sub-category: ${contact.vertical || 'Unknown'}.
+  Preferred Language: ${contact.preferred_language || 'Unknown'}.
+  Notes: ${contact.notes || 'None'}.
+  Opt-in Status: ${contact.opt_in_status ? 'Opted-in' : 'Not Opted-in'}.
+`;
+
+  const toneAdjustments = contact.lead_status === 'cold' 
+  ? 'Adopt a more engaging and persuasive tone.' 
+  : contact.lead_status === 'warm'
+  ? 'Maintain a friendly and professional tone.' 
+  : 'Proceed confidently with a closing-oriented tone.';
+
+  // Use the custom firstMessage if provided, otherwise default to a standard message
+  const customizedFirstMessage =
+    `Hello, this is ${agentSettings.agentName} from ${agentSettings.companyName}. Am I speaking with ${contact.first_name}?`|| firstMessage;
+  // **Handle Optional 'prompt'**
+  const systemPrompt = `
+    You are ${agentSettings.agentName}, a ${agentSettings.role} from ${agentSettings.companyName}.
+    Purpose of Call: "The purpose of the call is to ${reason}." Keep responses concise, as this is a phone conversation. Ensure you wait for the person to finish speaking before responding.
+    If you didn't get what the user is saying, ask them politely to repeat it.
+    Avoid asking, "How may I help you today?" Remember, you are a ${agentSettings.role} representing the company, ${toneAdjustments}.
+    Do not repeat the closing sentence multiple times. Before delivering the closing sentence, if there is prolonged silence, use the closing sentence to wrap up the conversation.
+    If the customer ends the conversation, call the Twilio hungup function to disconnect the call.
+    If the customer asks any questions not related to the product or the call's purpose, answer politely and steer the conversation back on track.
+    If the customer wishes to schedule a consultation, ask them for the date and time for the consultation.
+    Never verbally provide a URL unless requested; URLs should only be sent in SMS form.${(prompt ||  agentSettings.prompt) ? ' ' + (prompt ||  agentSettings.prompt) : ''}
+    ${contextDetails}
+    The current date and time at the beginning of this phone call is: ${new Date().toISOString()}.
+    Here is the contact information we have for the caller:
+    Phone number they are calling from: ${formattedContactNumber}. 
+    If their name is on file: ${contact.first_name || 'unknown'}.
+  `;
+
+  const callData = {
+    customer: {
+      number: formattedContactNumber,
+      name: contact.first_name,
+    },
+    phoneNumber: {
+      fallbackDestination: {
+        type: 'number',
         number: formattedContactNumber,
-        name: contact.first_name
       },
-      phoneNumber: {
-        fallbackDestination: {
-          type: 'number',
-          number: formattedContactNumber
-        },
-        twilioPhoneNumber: formattedTwilioNumber,
-        twilioAccountSid: accountSid,
-        twilioAuthToken: authToken
+      twilioPhoneNumber: formattedTwilioNumber,
+      twilioAccountSid: twilioSid,
+      twilioAuthToken: twilioAuthToken,
+    },
+    assistantId: '3e90c863-0890-4369-8d4b-512cdb2b6981',
+    assistantOverrides: {
+      firstMessage: customizedFirstMessage,
+      voice: {
+        voiceId: agentSettings.voiceId || voiceId || '9c6NBxIEEDowC6QfhIaO',
+        provider: '11labs',
+        stability: 0.3,
+        similarityBoost: 0.75,
+        style: 0.1,
       },
-      // d1070629-bbd4-4a39-bb68-f0bcef1da950
-      // a8cad288-e468-49de-85ff-00725364c107
-      assistantId: 'd1070629-bbd4-4a39-bb68-f0bcef1da950',
-      assistantOverrides: {
-        firstMessage: customizedFirstMessage,
-        voice: {
-          voiceId: selectedVoiceId,
-          provider: '11labs',
-          stability: 0.30,
-          similarityBoost: 0.75,
-          style: 0.1
-        },
-        model: {
-          provider: 'openai',
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              //Introduce a promotion, where I T Niche is providing free website for Individual or a business, which will help them generate leads and boost their brands online presence.
-              content: `You are Sarah, a Sales representative from I T Niche.
-                        Purpose of Call: "The purpose of the call is to ${reason}."
-                        In the opening script, introduce the product and the reason for the call, then ask if the user is interested.
-                        Be friendly and personable.
-                        Keep responses concise, as this is a phone conversation. Ensure you wait for the person to finish speaking before responding.
-                        if you didn't get what the user is saying, ask them politely to repeat it.
-                        Avoid asking, "How may I help you today?" Remember, you are a salesperson representing the company, so communicate in a professional tone.
-                        Do not repeat the closing sentence multiple times. before delivering the closing sentence. If there is prolonged silence, use the closing sentence to wrap up the conversation.
-                        If the customer ends the conversation, call the Twilio hungup function to disconnect the call.
-                        If the customer asks any questions not related to the product or the call's purpose, answer politely and steer the conversation back on track.
-                        If the customer wishes to schedule a consultation, as them date and time for the consultation.
-                        Never verbally provide a URL unless requested; URLs should only be sent in SMS form.
-                        The current date and time at the beginning of this phone call is: ${new Date().toISOString()}.
-                        Here is the contact information we have for the caller: Phone number they are calling from: ${formattedContactNumber}. 
-                        If their name is on file: ${contact.first_name || 'unknown'}.`
-            }
-          ],
-          // functions: [
-          //   {
-          //     name: 'SendSMS',
-          //     description: "Sends requested info to the caller's phone number",
-          //     serverUrl: process.env.CSGSENDSMSURL,
-
-          //     parameters: {
-          //       type: 'object',
-          //       required: ['callerNumber', 'callerName', 'smsMessage'],
-          //       properties: {
-          //         callerName: {
-          //           type: 'string',
-          //           description:
-          //             'The name of the person receiving the SMS message.'
-          //         },
-          //         callerNumber: {
-          //           type: 'string',
-          //           description:
-          //             "The end user's phone number to be used with SMS messaging."
-          //         },
-          //         smsMessage: {
-          //           type: 'string',
-          //           description:
-          //             'The SMS message content containing requested info.'
-          //         }
-          //       }
-          //     }
-          // ]
-        },
-        clientMessages: [
-          'transcript',
-          'hang',
-          'function-call',
-          'speech-update',
-          'metadata',
-          'conversation-update'
-        ],
-        // serverMessages: ['end-of-call-report'],
-        // serverUrl: process.env.END_OF_CALL_REPORT,
-        // serverUrlSecret: '777333777'
-      }
-    };
-
-    // Ensure environment variables are defined
-    const vapiCallUrl = process.env.VAPI_CALL;
-    const vapiApiKey = vapi_key;
-
-
-    if (!vapiCallUrl || !vapiApiKey) {
-      return res.status(500).json({ message: 'Missing environment variables' });
-    }
-
-    try {
-      console.log('Payload being sent:', JSON.stringify(callData, null, 2));
-
-      const response = await axios.post(vapiCallUrl, callData, {
-        headers: {
-          Authorization: `Bearer ${vapiApiKey}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      // Check if contact is new
-      if (response.data.newContact) {
-        const { error } = await supabase.from('contacts').insert([
+      model: {
+        provider: 'openai',
+        model: 'gpt-4o-mini',
+        messages: [
           {
-            ...contact,
-            phone: formattedContactNumber
-          }
-        ]);
+            role: 'system',
+            content: systemPrompt,
+          },
+        ],
+        functions: [
+          {
+            name: 'SendSMS',
+            description: "Sends requested info to the caller's phone number",
+            serverUrl: 'https://clicksetgo.app/api/send-sms',
 
-        if (error) {
-          console.error('Error adding new contact to Supabase:', error);
-          return res
-            .status(500)
-            .json({ message: 'Failed to add new contact', error });
-        }
+            parameters: {
+              type: 'object',
+              required: ['callerNumber', 'callerName', 'smsMessage'],
+              properties: {
+                callerName: {
+                  type: 'string',
+                  description: 'The name of the person receiving the SMS message.'
+                },
+                callerNumber: {
+                  type: 'string',
+                  description: "The end user's phone number to be used with SMS messaging."
+                },
+                smsMessage: {
+                  type: 'string',
+                  description: 'The SMS message content containing requested info.'
+                }
+              }
+            }
+          }
+        ]
+      },
+      clientMessages: [
+        'transcript',
+        'hang',
+        'function-call',
+        'speech-update',
+        'metadata',
+        'conversation-update',
+      ],
+      serverMessages: [
+        'end-of-call-report'
+      ],
+      serverUrl: 'https://clicksetgo.app/api/end-of-call-report',
+      serverUrlSecret: '777333777',
+    },
+  };
+
+  // Ensure environment variables are defined
+  const vapiCallUrl = process.env.VAPI_CALL;
+  const vapiApiKey = vapiKey;
+
+  if (!vapiCallUrl || !vapiApiKey) {
+    console.error('Missing environment variables VAPI_CALL or VAPI_API_KEY');
+    return res
+      .status(500)
+      .json({ message: 'Missing environment variables' });
+  }
+
+  try {
+    console.log('Payload being sent to VAPI API:', JSON.stringify(callData, null, 2));
+
+    const response = await axios.post(vapiCallUrl, callData, {
+      headers: {
+        Authorization: `Bearer ${vapiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log('API Response from VAPI:', response.data);
+
+    if(response){
+      const { data, error } = await supabase
+      .from('calls')
+      .upsert({
+        user_id: userId, // Replace with your variable holding the user ID
+        caller_number: response.data.phoneNumber.twilioPhoneNumber, // Replace with your variable for caller_number
+        call_sid: response.data.phoneCallProviderId, // Replace with your variable for call_sid
+        call_tasks_id: callTaskId, // Replace with your variable for call_tasks_id
+      }, { onConflict: 'call_sid' }); // Specify the unique constraint to resolve conflicts
+
+      if (error) {
+        console.error('Error adding new contact to Supabase:', error);
+        return res
+          .status(500)
+          .json({ message: 'Failed to add new contact', error });
       }
 
-      console.log('Response from VAPI API:', response.data);
-      res
-        .status(200)
-        .json({ message: 'Call initiated successfully', data: response.data });
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error(
-          'Error initiating call:',
-          error.response?.data || error.message
-        );
-        res.status(500).json({
-          message: 'Failed to initiate call 1',
-          error: error.response?.data || error.message,
-          requestData: callData // Log request data for debugging
-        });
-      } else if (error instanceof Error) {
-        console.error('Error initiating call:', error.message);
-        res.status(500).json({
-          message: 'Failed to initiate call 2',
-          error: error.message,
-          requestData: callData // Log request data for debugging
-        });
-      } else {
-        console.error('Unknown error:', error);
-        res.status(500).json({
-          message: 'Failed to initiate call 3',
-          error: 'Unknown error',
-          requestData: callData // Log request data for debugging
-        });
+    }
+
+    // Check if contact is new
+    if (response.data.newContact) {
+      const { error } = await supabase.from('contacts').insert([
+        {
+          ...contact,
+          phone: formattedContactNumber,
+        },
+      ]);
+
+      if (error) {
+        console.error('Error adding new contact to Supabase:', error);
+        return res
+          .status(500)
+          .json({ message: 'Failed to add new contact', error });
       }
     }
-  } else {
-    res.status(405).json({ message: 'Method Not Allowed' });
+
+    res.status(200).json({
+      message: 'Call initiated successfully',
+      data: response.data,
+    });
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      console.error(
+        'Axios Error initiating call:',
+        error.response?.data || error.message
+      );
+      res.status(500).json({
+        message: 'Failed to initiate call',
+        error: error.response?.data || error.message,
+        requestData: callData, // Log request data for debugging
+      });
+    } else if (error instanceof Error) {
+      console.error('Error initiating call:', error.message);
+      res.status(500).json({
+        message: 'Failed to initiate call',
+        error: error.message,
+        requestData: callData, // Log request data for debugging
+      });
+    } else {
+      console.error('Unknown error:', error);
+      res.status(500).json({
+        message: 'Failed to initiate call',
+        error: 'Unknown error',
+        requestData: callData, // Log request data for debugging
+      });
+    }
   }
 }
-// Ben's Content
-// content: `You are Ben's helpful assistant.\n\nPurpose of Call:\n"The purpose of the call is to ${reason}."\n\nBe very friendly and nice. \n\nKeep responses short as this is a phone conversation. Be sure to wait for the person to stop talking before speaking again.\n Do not ask them "how may I help you today" and you are a sales person in company, You want to sell your product, so communicate as in professional manner and tone.\n If the customer finishes up the conversation automatically disconnect the call after 10 sec. \n If asked any question other than the product or the purpose of the call, politly revert the conversation on the track. \nDo not repeat the closing sentence multiple times. Instead, wait to see if there is a pause or "dead-air" of more than 7 seconds before saying the closing sentence. If there is a prolonged silence, use the closing sentence to wrap up the conversation. \nIf the caller would like to schedule a consultation, just send them our Calendly link: (https://calendly.com/m10djcompany/consultation) via SMS. Never verbally speak a URL unless requested by the user. URL's are to be only sent in SMS form to the user. The current date and time at the beginning of this phone call is: ${new Date().toISOString()}. Here is the contact information we have for the caller: Phone number they are calling from is ${formattedContactNumber}. If their name is on file, it is: ${contact.first_name || 'unknown'}. Here is the link to DJ pricing PDF: (https://m10djcompany.com/wp-content/uploads/2024/06/2024-Official-Wedding-Pricing.pdf)`
-

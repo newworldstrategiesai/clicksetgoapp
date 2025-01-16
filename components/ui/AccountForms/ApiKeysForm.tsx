@@ -1,20 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { toast } from 'react-toastify';
+import { toast} from 'react-toastify';
 import Button from '@/components/ui/Button/Button'; // Changed to default import
 import Card from '@/components/ui/Card/Card';
 import { saveApiKeys } from '@/utils/supabase/queries';
 import { createClient } from '@/utils/supabase/client';
+import 'react-toastify/dist/ReactToastify.css';
 
 interface ApiKeysFormProps {
   userId: string;
   apiKeys: {
-    twilio_sid: string;
-    twilio_auth_token: string;
-    eleven_labs_key: string;
-    vapi_key: string;
-    open_ai_api_key: string;
+    twilio_sid: string | null;
+    twilio_auth_token: string | null;
+    eleven_labs_key: string | null;
+    vapi_key: string | null;
+    open_ai_api_key: string | null;
   } | null;
 }
 
@@ -55,9 +56,6 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
     try {
       const supabase = createClient();
 
-      console.log('User ID:', userId);
-      console.log('Updating API keys with values:', formValues);
-
       const result = await saveApiKeys(supabase, {
         userId,
         twilioSid: formValues.twilioSid,
@@ -66,8 +64,6 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
         vapiKey: formValues.vapiKey,
         openAiApiKey: formValues.openAiApiKey,
       });
-
-      console.log('API Keys save result:', result);
 
       if (result.success) {
         toast.success('API keys saved successfully!');
@@ -94,7 +90,7 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="twilioSid" className="block text-sm font-medium text-white">
+          <label htmlFor="twilioSid" className="block text-sm font-medium dark:text-white">
             Twilio Account SID
           </label>
           <input
@@ -103,12 +99,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="twilioSid"
             value={formValues.twilioSid}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
-            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
+            
           />
         </div>
         <div>
-          <label htmlFor="twilioAuthToken" className="block text-sm font-medium text-white">
+          <label htmlFor="twilioAuthToken" className="block text-sm font-medium dark:text-white">
             Twilio Auth Token
           </label>
           <input
@@ -117,12 +113,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="twilioAuthToken"
             value={formValues.twilioAuthToken}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
-            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
+            
           />
         </div>
         <div>
-          <label htmlFor="elevenLabsKey" className="block text-sm font-medium text-white">
+          <label htmlFor="elevenLabsKey" className="block text-sm font-medium dark:text-white">
             ElevenLabs API Key
           </label>
           <input
@@ -131,12 +127,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="elevenLabsKey"
             value={formValues.elevenLabsKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
-            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
+            
           />
         </div>
         <div>
-          <label htmlFor="vapiKey" className="block text-sm font-medium text-white">
+          <label htmlFor="vapiKey" className="block text-sm font-medium dark:text-white">
             VAPI Key
           </label>
           <input
@@ -145,12 +141,12 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="vapiKey"
             value={formValues.vapiKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
-            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
+            
           />
         </div>
         <div>
-          <label htmlFor="openAiApiKey" className="block text-sm font-medium text-white">
+          <label htmlFor="openAiApiKey" className="block text-sm font-medium dark:text-white">
             OpenAI API Key
           </label>
           <input
@@ -159,13 +155,13 @@ export default function ApiKeysForm({ userId, apiKeys }: ApiKeysFormProps) {
             id="openAiApiKey"
             value={formValues.openAiApiKey}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent text-white"
-            required
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-transparent dark:text-white"
+            
           />
         </div>
         <div>
-          <Button type="submit">
-            Save API Keys
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? 'Saving...' : 'Save API Keys'}
           </Button>
         </div>
       </form>

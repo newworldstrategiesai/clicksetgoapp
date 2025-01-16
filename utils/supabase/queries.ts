@@ -16,7 +16,10 @@ export interface NotificationSettings {
 // Existing functions
 
 export async function getUser(supabase: SupabaseClient) {
-  const { data: { user }, error } = await supabase.auth.getUser();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
   if (error) throw error;
   return user;
 }
@@ -65,8 +68,14 @@ export async function getMessages(supabase: SupabaseClient) {
   return data;
 }
 
-export async function sendMessage(supabase: SupabaseClient, messageText: string) {
-  const { data: { user }, error: userError } = await supabase.auth.getUser();
+export async function sendMessage(
+  supabase: SupabaseClient,
+  messageText: string
+) {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
   if (userError) throw userError;
   if (!user) throw new Error('User not found');
 
@@ -78,34 +87,38 @@ export async function sendMessage(supabase: SupabaseClient, messageText: string)
   return data;
 }
 
-// Add this function to get contacts
+// Function to get contacts
 export async function getContacts(supabase: SupabaseClient) {
-  const { data: contacts, error } = await supabase
-    .from('contacts')
-    .select('*');
+  const { data: contacts, error } = await supabase.from('contacts').select('*');
 
   if (error) throw error;
   return contacts;
 }
 
-// New function to get contact's first name by phone number
-export async function getContactFirstName(supabase: SupabaseClient, phoneNumber: string): Promise<string | null> {
+// Function to get contact's first name by phone number
+export async function getContactFirstName(
+  supabase: SupabaseClient,
+  phoneNumber: string
+): Promise<string | null> {
   const { data, error } = await supabase
     .from('contacts')
     .select('first_name')
     .eq('phone', phoneNumber)
-    .single(); // Use single() for a single expected result
+    .single();
 
   if (error) {
     console.error('Error fetching contact:', error);
-    return null; // Or handle the error as appropriate
+    return null;
   }
 
   return data?.first_name || null;
 }
 
-// New function to get lists
-export async function getLists(supabase: SupabaseClient, userId: string) {
+// Function to get lists
+export async function getLists(
+  supabase: SupabaseClient,
+  userId: string
+) {
   const { data: lists, error } = await supabase
     .from('lists')
     .select('*')
@@ -116,12 +129,17 @@ export async function getLists(supabase: SupabaseClient, userId: string) {
 }
 
 // Function to get API keys
-export async function getApiKeys(supabase: SupabaseClient, userId: string) {
+export async function getApiKeys(
+  supabase: SupabaseClient,
+  userId: string
+) {
   const { data, error } = await supabase
     .from('api_keys')
-    .select('twilio_sid, twilio_auth_token, eleven_labs_key, vapi_key, open_ai_api_key') // Include OpenAI API key
+    .select(
+      'twilio_sid, twilio_auth_token, eleven_labs_key, vapi_key, open_ai_api_key'
+    )
     .eq('user_id', userId)
-    .single(); // Ensure you get a single row
+    .single();
 
   if (error) {
     console.error('Error fetching API keys:', error);
@@ -140,14 +158,14 @@ export async function saveApiKeys(
     twilioAuthToken,
     elevenLabsKey,
     vapiKey,
-    openAiApiKey, // Add OpenAI API key
+    openAiApiKey,
   }: {
     userId: string;
     twilioSid: string;
     twilioAuthToken: string;
     elevenLabsKey: string;
     vapiKey: string;
-    openAiApiKey: string; // Include OpenAI API key type
+    openAiApiKey: string;
   }
 ) {
   const { data, error } = await supabase
@@ -159,9 +177,9 @@ export async function saveApiKeys(
         twilio_auth_token: twilioAuthToken,
         eleven_labs_key: elevenLabsKey,
         vapi_key: vapiKey,
-        open_ai_api_key: openAiApiKey, // Save OpenAI API key
+        open_ai_api_key: openAiApiKey,
       },
-      { onConflict: 'user_id' } // This ensures that it updates if the record already exists
+      { onConflict: 'user_id' }
     );
 
   if (error) {
@@ -171,7 +189,6 @@ export async function saveApiKeys(
 
   console.log('API Keys save result:', data);
 
-  // Return the result explicitly
   return { success: true, data };
 }
 
@@ -187,7 +204,8 @@ export async function getUserNotificationSettings(
       .eq('user_id', userId)
       .single();
 
-    if (error && error.code !== 'PGRST116') { // 'PGRST116' is the error code for "no rows found"
+    if (error && error.code !== 'PGRST116') {
+      // 'PGRST116' is the error code for "no rows found"
       console.error('Error fetching notification settings:', error);
       return null;
     }
@@ -226,7 +244,7 @@ export async function saveNotificationSettings(
   settings: NotificationSettings
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('notification_settings')
       .upsert(
         {
@@ -238,7 +256,7 @@ export async function saveNotificationSettings(
           campaign_email_summary: settings.campaignEmailSummary,
           campaign_sms_initiation: settings.campaignSmsInitiation,
         },
-        { onConflict: 'user_id' } // Ensures upsert based on user_id
+        { onConflict: 'user_id' }
       );
 
     if (error) {
@@ -249,6 +267,9 @@ export async function saveNotificationSettings(
     return { success: true };
   } catch (err: any) {
     console.error('Unexpected error saving notification settings:', err);
-    return { success: false, error: err.message || 'An unexpected error occurred' };
+    return {
+      success: false,
+      error: err.message || 'An unexpected error occurred',
+    };
   }
 }

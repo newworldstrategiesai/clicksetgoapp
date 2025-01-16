@@ -29,6 +29,9 @@ interface CampModalProps {
 
 // Fetch audience name based on audience
 const fetchAudienceName = async (audience: string) => {
+  if (!audience) {
+    return null; // Return null if audience is not provided
+  }
   const { data, error } = await supabase
     .from('lists')
     .select('name')
@@ -56,8 +59,10 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
   // Fetch audience name when the component mounts
   useEffect(() => {
     const getAudienceName = async () => {
-      const name = await fetchAudienceName(campaign.audience);
-      setAudienceName(name);
+      if (campaign.audience) { // Check if audience is provided
+        const name = await fetchAudienceName(campaign.audience);
+        setAudienceName(name);
+      }
     };
     getAudienceName();
   }, [campaign.audience]);
@@ -68,8 +73,9 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
 
     const { error } = await supabase
       .from('campaigns')
-      .update({ status })
-      .eq('id', campaign.id);
+      .update({ status, updated_at: new Date() })
+      .eq('id', campaign.id)
+      .neq('status', 'Aborted');
 
     if (error) {
       console.error("Error updating campaign status:", error.message);
@@ -102,24 +108,36 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
     }
 
     setIsSaving(true);
-    const { error } = await supabase
+    try{
+    const { error: campaignError  } = await supabase
       .from('campaigns')
-      .update({ name: formData.name, description: formData.description })
+      .update({ name: formData.name, description: formData.description, updated_at: new Date() })
       .eq('id', campaign.id);
 
-    if (error) {
-      setError(error.message);
-    } else {
+    if (campaignError) {
+      setError(campaignError.message);
+    } 
+    const { error: taskError   } = await supabase
+      .from('call_tasks')
+      .update({call_subject: formData.description, updated_at: new Date() })
+      .eq('campaign_id', campaign.id);
+
+    if (taskError ) {
+      setError(taskError .message);
+    } 
       setIsEditing(false); // Exit edit mode
       console.log("Campaign details updated");
       onEdit(); // Refresh campaign data if necessary
-    }
+    }catch(error){
+
+    }finally{
     setIsSaving(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80">
-      <div className="bg-black text-white p-6 rounded-md shadow-md w-1/2">
+    <div className="fixed inset-0 flex items-center backdrop-blur-sm justify-center bg-opacity-80">
+      <div className="bg-modal dark:bg-gray-800 dark:text-white p-6 rounded-md shadow-md w-1/2">
         {/* Campaign Title with Link */}
         <h2 className="text-xl font-bold mb-4">
           {isEditing ? (
@@ -128,11 +146,11 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
               name="name"
               value={formData.name}
               onChange={handleFormChange}
-              className="w-full p-2 bg-gray-800 text-white rounded-md"
+              className="w-full p-2 dark:bg-gray-500 dark:text-white rounded-md"
               placeholder='Edit Campaign Name'
             />
           ) : (
-            <Link href={`/campaigns/${campaign.id}`} className="text-blue-500 underline">
+            <Link href={`/campaigns/${campaign.id}`} className="text-blue-500">
               {formData.name} {/* Ensure this is clickable */}
             </Link>
           )}
@@ -144,18 +162,18 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
             name="description"
             value={formData.description}
             onChange={handleFormChange}
-            className="w-full p-2 bg-gray-800 text-white rounded-md mb-4"
+            className="w-full p-2 text-lg dark:border-black dark:bg-gray-500 dark:text-white rounded-md mb-4"
             placeholder="Edit campaign description"
           />
         ) : (
           <>
-            <p>Description: {formData.description || 'No description provided'}</p>
-            <p>Start Date: {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : 'N/A'}</p>
-            <p>End Date: {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : 'N/A'}</p>
+            <p className='text-lg'>Description: {formData.description || 'No description provided'}</p>
+            <p className='text-lg'>Start Date: {campaign.start_date ? new Date(campaign.start_date).toLocaleDateString() : 'N/A'}</p>
+            <p className='text-lg'>End Date: {campaign.end_date ? new Date(campaign.end_date).toLocaleDateString() : 'N/A'}</p>
           </>
         )}
 
-        {audienceName && <p>Audience: {audienceName}</p>}
+        {audienceName && <p className='text-2xl'>Audience: {audienceName}</p>}
 
         {/* Status Dropdown */}
         <div className="mt-4">
@@ -164,13 +182,16 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
             id="status"
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 bg-gray-800 text-white rounded-md"
+            className="w-full p-2  dark:bg-gray-500 dark:text-white rounded-md border-black"
           >
-            <option value="Active">Active</option>
+            <option className='bg-green-400' value="Active">Active</option>
             <option value="Completed">Completed</option>
             <option value="Paused">Paused</option>
+            <option value="Aborted">Aborted</option>
+            <option value="Resumed">Resumed</option>
+            <option value="Scheduled">Scheduled</option>
           </select>
-        </div>
+        </div>  
 
         {error && <p className="text-red-500 mt-2">{error}</p>}
 
@@ -179,7 +200,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           {isEditing ? (
             <button
               onClick={handleEditSave}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="px-4 py-2 bg-green-500 dark:text-white rounded"
               disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Changes'}
@@ -187,7 +208,7 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           ) : (
             <button
               onClick={handleSave}
-              className="px-4 py-2 bg-green-500 text-white rounded"
+              className="px-4 py-2 text-white bg-green-500 dark:text-white rounded"
               disabled={isSaving}
             >
               {isSaving ? 'Saving...' : 'Save Status'}
@@ -195,17 +216,17 @@ export default function CampModal({ campaign, onClose, onEdit, onDelete, audienc
           )}
           <button
             onClick={handleEditToggle}
-            className={`px-4 py-2 ${isEditing ? 'bg-gray-500' : 'bg-blue-500'} text-white rounded`}
+            className={`px-4 py-2 ${isEditing ? 'bg-gray-500' : 'bg-blue-500'} text-white dark:text-white rounded`}
           >
             {isEditing ? 'Cancel' : 'Edit'}
           </button>
           <button
             onClick={onDelete}
-            className="px-4 py-2 bg-red-500 text-white rounded"
+            className="px-4 py-2 bg-red-500 text-white dark:text-white rounded"
           >
             Delete
           </button>
-          <button onClick={onClose} className="px-4 py-2 bg-gray-500 text-white rounded">
+          <button onClick={onClose} className="px-4 py-2 text-white bg-gray-500 dark:text-white rounded">
             Close
           </button>
         </div>

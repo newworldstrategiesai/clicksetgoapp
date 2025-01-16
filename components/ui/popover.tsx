@@ -11,9 +11,9 @@ export function Popover({ children }: { children: React.ReactNode }) {
 
 export function PopoverTrigger({ children }: { children: React.ReactNode }) {
   return (
-    <HeadlessPopover.Button className="focus:outline-none">
+    <HeadlessPopover className="focus:outline-none">
       {children}
-    </HeadlessPopover.Button>
+    </HeadlessPopover>
   );
 }
 

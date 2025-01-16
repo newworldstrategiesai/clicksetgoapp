@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Modal from 'react-modal';
 import { supabase } from 'utils/supabaseClient';
 
@@ -14,7 +14,7 @@ const customStyles = {
     maxWidth: '600px',
     padding: '20px',
     borderRadius: '10px',
-    backgroundColor: 'black',
+    backgroundColor: `dark:black white`,
     color: 'white',
     maxHeight: '80vh', // Limit the modal's height
     overflowY: 'auto' as const, // Specify overflowY type as 'auto'
@@ -191,52 +191,52 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onClose} style={customStyles} contentLabel="Contact Details Modal">
+    <Modal isOpen={isOpen} onRequestClose={onClose} contentLabel="Contact Details Modal" className={"bg-modal dark:bg-black text-black dark:text-white   fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-11/12 max-w-lg p-5 rounded-lg max-h-[80vh] overflow-y-auto"}>
       <h2 className="text-xl font-bold mb-4">Contact Details</h2>
       {deleteSuccess ? (
         <p>Contact Successfully Deleted</p>
       ) : (
-        <>
+        <div className='bg-wbite dark:bg-black'>
           {editedContact && (
-            <div>
+            <div className='bg-modal  dark:bg-black'>
               <label className="block mb-2">
-                <span className="block text-gray-400">First Name:</span>
+                <span className="shadow-sm block text-gray-800 dark:text-gray-400">First Name:</span>
                 <input
                   type="text"
                   name="first_name"
                   value={editedContact.first_name}
                   onChange={handleChange}
-                  className="p-2 border rounded-lg w-full"
+                  className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                 />
               </label>
               <label className="block mb-2">
-                <span className="block text-gray-400">Last Name:</span>
+                <span className="shadow-sm block text-gray-800 dark:text-gray-400">Last Name:</span>
                 <input
                   type="text"
                   name="last_name"
                   value={editedContact.last_name}
                   onChange={handleChange}
-                  className="p-2 border rounded-lg w-full"
+                  className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                 />
               </label>
               <label className="block mb-2">
-                <span className="block text-gray-400">Phone:</span>
+                <span className="shadow-sm block text-gray-800 dark:text-gray-400">Phone:</span>
                 <input
                   type="text"
                   name="phone"
                   value={editedContact.phone}
                   onChange={handleChange}
-                  className="p-2 border rounded-lg w-full"
+                  className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                 />
               </label>
               <label className="block mb-2">
-                <span className="block text-gray-400">Email:</span>
+                <span className="shadow-sm block text-gray-800 dark:text-gray-400">Email:</span>
                 <input
                   type="text"
                   name="email_address"
                   value={editedContact.email_address || ''}
                   onChange={handleChange}
-                  className="p-2 border rounded-lg w-full"
+                  className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                 />
               </label>
 
@@ -264,143 +264,143 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
                   <div className="mt-4 space-y-4">
                     {/* Add additional fields here */}
                     <label className="block mb-2">
-                      <span className="block text-gray-400">LinkedIn:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">LinkedIn:</span>
                       <input
                         type="text"
                         name="linkedin"
                         value={editedContact.linkedin || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Position:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Position:</span>
                       <input
                         type="text"
                         name="position"
                         value={editedContact.position || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Company:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Company:</span>
                       <input
                         type="text"
                         name="company"
                         value={editedContact.company || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Company Phone:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Company Phone:</span>
                       <input
                         type="text"
                         name="company_phone"
                         value={editedContact.company_phone || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Website:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Website:</span>
                       <input
                         type="text"
                         name="website"
                         value={editedContact.website || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Domain:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Domain:</span>
                       <input
                         type="text"
                         name="domain"
                         value={editedContact.domain || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Facebook:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Facebook:</span>
                       <input
                         type="text"
                         name="facebook"
                         value={editedContact.facebook || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Twitter:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Twitter:</span>
                       <input
                         type="text"
                         name="twitter"
                         value={editedContact.twitter || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">LinkedIn Company Page:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">LinkedIn Company Page:</span>
                       <input
                         type="text"
                         name="linkedin_company_page"
                         value={editedContact.linkedin_company_page || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Country:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Country:</span>
                       <input
                         type="text"
                         name="country"
                         value={editedContact.country || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">State:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">State:</span>
                       <input
                         type="text"
                         name="state"
                         value={editedContact.state || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Vertical:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Vertical:</span>
                       <input
                         type="text"
                         name="vertical"
                         value={editedContact.vertical || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Sub-Category:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Sub-Category:</span>
                       <input
                         type="text"
                         name="sub_category"
                         value={editedContact.sub_category || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w-full"
+                        className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                     <label className="block mb-2">
-                      <span className="block text-gray-400">Notes:</span>
+                      <span className="shadow-sm block text-gray-800 dark:text-gray-400">Notes:</span>
                       <input
                         type="text"
                         name="notes"
                         value={editedContact.notes || ''}
                         onChange={handleChange}
-                        className="p-2 border rounded-lg w/full"
+                        className="p-2 rounded-lg w/full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400"
                       />
                     </label>
                   </div>
@@ -412,7 +412,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
                 <select
                   value={selectedList || ''}
                   onChange={(e) => setSelectedList(e.target.value)}
-                  className="p-2 border rounded-lg w-full mb-4"
+                  className="p-2 rounded-lg w-full border-solid border-2 shadow-sm block text-gray-800 dark:text-gray-400 mb-4"
                 >
                   <option value="">Select a list</option>
                   {lists.length > 0 ? (
@@ -460,13 +460,13 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
               <div className="flex justify-between mt-4">
                 <button
                   onClick={() => setShowDeleteConfirmation(false)}
-                  className="px-4 py-2 bg-gray-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-gray-600 dark:text-white rounded-lg"
                 >
                   No
                 </button>
                 <button
                   onClick={handleDelete}
-                  className="px-4 py-2 bg-red-600 text-white rounded-lg"
+                  className="px-4 py-2 bg-red-600 dark:text-white rounded-lg"
                 >
                   Yes
                 </button>
@@ -474,7 +474,7 @@ const ContactDetailsModal: React.FC<ContactDetailsModalProps> = ({
               {loading && <p>Loading...</p>}
             </Modal>
           )}
-        </>
+        </div>
       )}
     </Modal>
   );

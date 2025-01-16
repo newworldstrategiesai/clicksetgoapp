@@ -1,5 +1,5 @@
 .root {
-  @apply sticky top-0 bg-black z-40 transition-all duration-150 h-16 md:h-20;
+  @apply sticky top-0 dark:bg-black z-40 transition-all duration-150 h-16 md:h-20;
 }
 
 .link {
@@ -19,7 +19,7 @@
 }
 
 .menuButton {
-  @apply md:hidden text-white focus:outline-none;
+  @apply md:hidden dark:text-white focus:outline-none;
 }
 
 .menuIcon {
@@ -31,7 +31,7 @@
 }
 
 .navLink {
-  @apply block py-2 px-4 text-white hover:bg-gray-700 md:inline-block;
+  @apply block py-2 px-4 dark:text-white hover:bg-gray-700 md:inline-block;
 }
 
 .navForm {

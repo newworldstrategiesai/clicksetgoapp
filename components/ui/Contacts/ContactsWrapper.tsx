@@ -9,9 +9,20 @@ import { toast } from 'react-toastify'; // For user notifications
 
 interface ContactsWrapperProps {
     userId: string;
+    AllApiKeys: { // Define the structure of AllApiKeys
+
+        apiKey: string;
+
+        twilioSid: string;
+
+        twilioAuthToken: string;
+
+        vapiKey: string;
+
+    };
 }
 
-const ContactsWrapper: React.FC<ContactsWrapperProps> = ({ userId }) => {
+const ContactsWrapper: React.FC<ContactsWrapperProps> = ({ userId, AllApiKeys }) => {
 
     const handleAddToList = async (contactIds: string[], listId: string) => {
         try {
@@ -40,6 +51,7 @@ const ContactsWrapper: React.FC<ContactsWrapperProps> = ({ userId }) => {
     return (
         <Contacts 
             userId={userId} 
+            AllApiKeys = {AllApiKeys}
             onAddToList={handleAddToList} // Pass the handler as a prop
         />
     );

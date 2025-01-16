@@ -32,7 +32,7 @@ export default function PasswordSignIn({
   };
 
   return (
-    <div className="my-8 pt-8"> {/* Added padding-top here */}
+    <div className="my-8"> {/* Added padding-top here */}
       <form
         noValidate={true}
         className="mb-4"
@@ -51,7 +51,7 @@ export default function PasswordSignIn({
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
-              className="w-full p-3 rounded-md bg-zinc-800"
+              className="w-full p-3 rounded-md bg-white dark:text-black"
               required // Mark as required for form validation
             />
             <label htmlFor="password">Password</label>
@@ -63,7 +63,7 @@ export default function PasswordSignIn({
               type="password"
               name="password"
               autoComplete="current-password"
-              className="w-full p-3 rounded-md bg-zinc-800"
+              className="w-full p-3 rounded-md bg-white dark:text-black"
               required // Mark as required for form validation
             />
           </div>

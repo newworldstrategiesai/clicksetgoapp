@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, SetStateAction } from 'react';
 import axios, { AxiosResponse } from 'axios';
 import SMSList from '@/components/SMSList';
 import SMSLogModal from '@/components/SMSLogModal';
@@ -20,66 +20,48 @@ interface SMSLogResponse {
   totalCount: number;
 }
 
-const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: string; twilioAuthToken : string; vapiKey: string  }> = 
- ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }) => {
+const SMSLogsClient: React.FC<{
+  userId: string;
+  apiKey: string;
+  twilioSid: string;
+  twilioAuthToken: string;
+  vapiKey: string;
+}> = ({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }) => {
   const [smsLogs, setSmsLogs] = useState<SMSLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [csvLoading, setCsvLoading] = useState(false);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedLog, setSelectedLog] = useState<SMSLog | null>(null);
-  const [totalLogs, setTotalLogs] = useState(0);
-  const [pageToken, setPageToken] = useState<string | null>(null);
-  const logsPerPage = 30;
 
-  // Fetch a single page of SMS logs
-  const fetchSMSLogs = async (page: number, token: string | null = null) => {
-    try {
-      setLoading(true);
-      const response: AxiosResponse<SMSLogResponse> = await axios.get<SMSLogResponse>('/api/get-sms-logs', {
-        params: { 
-          page, 
-          pageSize: logsPerPage, 
-          pageToken: token, 
-          userId,
-        },
-        headers: { // Moved credentials to headers
-          'twilioSid': twilioSid,
-          'twilioAuthToken': twilioAuthToken,
-        }
-      });
-
-      const { messages, nextPageToken, totalCount } = response.data;
-
-      setSmsLogs((prevLogs) => [...prevLogs, ...messages]);
-      setTotalLogs(totalCount);
-      setPageToken(nextPageToken);
-      setError('');
-    } catch (error) {
-      console.error('Error fetching SMS logs:', error);
-      setError('Failed to fetch SMS logs');
-      setSmsLogs([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // const logsPerPage = 30;
+  const [logsPerPage] = useState(10);
+  const [currentLog, setCurrentLog] = useState<SMSLog | null>(null);
 
   useEffect(() => {
-    fetchSMSLogs(currentPage, pageToken);
-  }, [currentPage]);
+    const fetchSMSLogs = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await axios.get('/api/get-sms-logs', {
+          params: { pageSize: 100, maxRecords: 1000 },
+          headers: {
+            twiliosid: process.env.NEXT_PUBLIC_TWILIO_SID,
+            twilioauthtoken: process.env.NEXT_PUBLIC_TWILIO_AUTH_TOKEN
+          }
+        });
+        setSmsLogs(response.data.messages);
+      } catch (err) {
+        console.error('Error fetching SMS logs:', err);
+        setError('Failed to fetch SMS logs. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const paginate = (pageNumber: number) => {
+    fetchSMSLogs();
+  }, []);
+  const paginate = (pageNumber: SetStateAction<number>) =>
     setCurrentPage(pageNumber);
-    fetchSMSLogs(pageNumber, pageToken);
-  };
-
-  const handleRowClick = (log: SMSLog) => {
-    setSelectedLog(log);
-  };
-
-  const closeModal = () => {
-    setSelectedLog(null);
-  };
 
   // Fetch all SMS logs
   const fetchAllSMSLogs = async (): Promise<SMSLog[]> => {
@@ -91,18 +73,20 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
 
     while (true) {
       try {
-        const response: AxiosResponse<SMSLogResponse> = await axios.get<SMSLogResponse>('/api/get-sms-logs', {
-          params: { 
-            page, 
-            pageSize: logsPerPage, 
-            pageToken: token, 
-            userId,
-          },
-          headers: { // Moved credentials to headers
-            'twilioSid': twilioSid,
-            'twilioAuthToken': twilioAuthToken,
-          }
-        });
+        const response: AxiosResponse<SMSLogResponse> =
+          await axios.get<SMSLogResponse>('/api/get-sms-logs', {
+            params: {
+              page,
+              pageSize: logsPerPage,
+              pageToken: token,
+              userId
+            },
+            headers: {
+              // Moved credentials to headers
+              twilioSid: twilioSid,
+              twilioAuthToken: twilioAuthToken
+            }
+          });
 
         const { messages, nextPageToken } = response.data;
         allLogs = [...allLogs, ...messages];
@@ -125,13 +109,15 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
     const allLogs = await fetchAllSMSLogs();
 
     const csvHeaders = ['ID', 'From', 'To', 'Message', 'Date Sent'].join(',');
-    const csvRows = allLogs.map(log => [
-      log.id || '',
-      log.from || '',
-      log.to || '',
-      `"${log.body.replace(/"/g, '""')}"`,
-      log.dateSent || ''
-    ].join(','));
+    const csvRows = allLogs.map((log) =>
+      [
+        log.id || '',
+        log.from || '',
+        log.to || '',
+        `"${log.body.replace(/"/g, '""')}"`,
+        log.dateSent || ''
+      ].join(',')
+    );
 
     const csvContent = [csvHeaders, ...csvRows].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -144,13 +130,16 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
     document.body.removeChild(link);
   };
 
+  const indexOfLastLog = currentPage * logsPerPage;
+  const indexOfFirstLog = indexOfLastLog - logsPerPage;
+  const currentLogs = smsLogs.slice(indexOfFirstLog, indexOfLastLog);
   return (
     <div className="flex flex-col h-screen p-4 mt-16 max-w-full">
       <h1 className="text-xl mb-4 text-center md:text-left">SMS Logs</h1>
 
       <button
         onClick={downloadCSV}
-        className={`mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className={`mb-4 px-4 py-2 bg-blue-500 dark:text-white rounded-lg ${csvLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
         disabled={csvLoading}
       >
         {csvLoading ? 'Generating CSV...' : 'Download All SMS Logs as CSV'}
@@ -169,17 +158,17 @@ const SMSLogsClient: React.FC<{ userId: string , apiKey: string; twilioSid: stri
       ) : (
         <div className="flex-grow overflow-auto">
           <SMSList
-            logs={smsLogs}
-            onRowClick={handleRowClick}
+            logs={currentLogs}
+            onRowClick={(log) => setCurrentLog(log)}
             currentPage={currentPage}
             logsPerPage={logsPerPage}
-            totalLogs={totalLogs}
+            totalLogs={smsLogs.length}
             paginate={paginate}
           />
         </div>
       )}
-      {selectedLog && (
-        <SMSLogModal log={selectedLog} onClose={closeModal} />
+      {currentLog && (
+        <SMSLogModal log={currentLog} onClose={() => setCurrentLog(null)} />
       )}
     </div>
   );

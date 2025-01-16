@@ -22,12 +22,12 @@ const VoiceDropdown: React.FC<VoiceDropdownProps> = ({ voices, selectedVoice, se
         <select
           value={selectedVoice}
           onChange={(e) => setSelectedVoice(e.target.value)}
-          className="p-2 border rounded-lg w-full bg-gray-800 text-white max-h-40 overflow-y-auto"
+          className="p-2 border rounded-xl w-full dark:bg-black dark:text-white max-h-40 overflow-y-auto"
         >
           {voices.length > 0 ? (
             voices.map((voice) => (
               <option key={voice.voice_id} value={voice.voice_id}>
-                {voice.name} (ID: {voice.voice_id}) - {voice.gender}, {voice.accent}
+                {voice.name}
               </option>
             ))
           ) : (

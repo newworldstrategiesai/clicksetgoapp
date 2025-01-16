@@ -1,3 +1,6 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
 // pages/new-campaign.tsx
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server'; // make sure this imports Supabase correctly
@@ -6,7 +9,7 @@ import { NewCampaign } from '@/components/new-campaign'; // ensure this path is 
 
 export default async function NewCampaignPage() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     
     // Fetch the logged-in user
     const user = await getUser(supabase);

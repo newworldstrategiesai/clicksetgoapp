@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 
 interface Contact {
   id: string;
@@ -16,7 +16,12 @@ interface List {
   contacts: Contact[];
 }
 
-const ListPage = ({ params }: { params: { id: string } }) => {
+interface ListPage {
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
+}
+
+const ListPage = ({ params }: ListPage ) => {
+  const { id } = use(params);
   const [list, setList] = useState<List | null>(null);
   const [navbarHeight, setNavbarHeight] = useState<number>(0);
   const router = useRouter();
@@ -24,7 +29,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     const fetchList = async () => {
       try {
-        const response = await fetch(`/api/lists/${params.id}`);
+        const response = await fetch(`/api/lists/${id}`);
         const data = await response.json();
         setList(data);
       } catch (error) {
@@ -33,7 +38,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
     };
 
     fetchList();
-  }, [params.id]);
+  }, [id]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -60,7 +65,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <div className={`min-h-screen bg-black text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
+    <div className={`min-h-screen dark:bg-black dark:text-white flex flex-col items-center px-4 md:px-0`} style={{ paddingTop: `${navbarHeight}px` }}>
       <h1 className="text-2xl font-bold mb-4">{list.name}</h1>
       <table className="min-w-full divide-y divide-gray-700">
         <thead>
@@ -73,7 +78,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
           {list.contacts && list.contacts.length > 0 ? (
             list.contacts.map((contact) => (
               <tr key={contact.id}>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{contact.first_name}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium dark:text-white">{contact.first_name}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-400">{contact.phone}</td>
               </tr>
             ))
@@ -85,7 +90,7 @@ const ListPage = ({ params }: { params: { id: string } }) => {
         </tbody>
       </table>
       <button
-        className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+        className="mt-4 px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
         onClick={handleBackClick}
       >
         Back to Lists

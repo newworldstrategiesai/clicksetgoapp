@@ -1,18 +1,24 @@
+// Add the dynamic rendering configuration
+export const dynamic = 'force-dynamic';
+
+import React from 'react';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/server';
 import { getUser } from '@/utils/supabase/queries';
-import CallLogsClient from '@/components/CallLogsClient';
+import { CallLogsPage } from '@/components/CallLogLatestUI';
 
-export default async function CallLogsPage() {
+export default async function CallLogs() {
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const user = await getUser(supabase);
-
     if (!user) {
       return redirect('/signin');
     }
-
-    return <CallLogsClient userId={user.id} />; // Pass userId to CallLogsClient
+    return (
+      <>
+        <CallLogsPage user={user.id} />
+      </>
+    );
   } catch (error) {
     console.error('Error fetching user data:', error);
     return redirect('/signin');

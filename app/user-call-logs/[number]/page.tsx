@@ -5,6 +5,7 @@ import axios from 'axios';
 import moment from 'moment';
 import { useParams } from 'next/navigation';
 import CallLogModal from 'components/CallLogModal'; // Adjust the path based on your project structure
+import { useSearchParams } from 'next/navigation';
 
 interface CallLog {
   id: string;
@@ -18,11 +19,14 @@ interface CallLog {
   summary?: string;
   recordingUrl?: string;
   fullName?: string;
+  first_name?:string;
   createdAt: string;
 }
 
 const UserCallLogs: React.FC = () => {
-  const { number: encodedNumber } = useParams() as { number: string };
+  const { number: encodedNumber} = useParams() as { number: string};
+  const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
+  const userId = searchParams?.get('user')|| '';
   const number = decodeURIComponent(encodedNumber);
   const [callLogs, setCallLogs] = useState<CallLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,11 +48,26 @@ const UserCallLogs: React.FC = () => {
       try {
         setLoading(true);
 
-        const [callLogsResponse, contactsResponse] = await Promise.all([
-          axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
-          axios.get('/api/contacts'),
-        ]);
+        const callLogsResponse = await axios.get('/api/get-call-logs-by-number', {
+          params: { number, page },
+          headers: { 'Authorization': `Bearer ${userId}` }
+        });
 
+        // const contactsResponse = await axios.get('/api/contacts');
+        // const [callLogsResponse, contactsResponse] = await Promise.all([
+        //   axios.get('/api/get-call-logs-by-number', { params: { number, page } }),
+        //   axios.get('/api/contacts'),
+        // ]);
+        // const [callLogsResponse, contactsResponse] = await Promise.all([
+        //   axios.get('/api/get-call-logs-by-number', { params: { number, page },
+        //     headers: { 'Authorization': `Bearer ${userId}` }
+        //   }),
+        //   axios.get('/api/contacts'),
+        // ]);
+        // main
+        const contactsResponse = await axios.get('/api/contacts',{
+          params: {userId}
+        });
         const contacts = contactsResponse.data;
         const contact = contacts.find(
           (contact: any) =>
@@ -77,6 +96,8 @@ const UserCallLogs: React.FC = () => {
         setLoading(false);
       }
     };
+
+
 
     fetchCallLogs();
   }, [number, page]);
@@ -145,6 +166,7 @@ const UserCallLogs: React.FC = () => {
                     </td>
                     <td className="py-2 px-4 border-b">
                       {moment(log.startedAt).format('MM/DD/YY hh:mm A')}
+                      {moment(log.startedAt || log.createdAt).format('MM/DD/YY hh:mm A')}
                     </td>
                     <td className="py-2 px-4 border-b">
                       {moment

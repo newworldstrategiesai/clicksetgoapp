@@ -1,14 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { supabase } from "@/utils/supabaseClient";
-import axios from "axios";
-import TaskModal from "@/components/TaskModal"; // Import the TaskModal component
+import { useState, useEffect, use } from 'react';
+import { supabase } from '@/utils/supabaseClient';
+import axios from 'axios';
+import TaskModal from '@/components/TaskModal'; // Import the TaskModal component
 import { ToastContainer, toast } from 'react-toastify'; // Import ToastContainer and toast
 import 'react-toastify/dist/ReactToastify.css';
 import { useRouter } from 'next/navigation'; // Import useRouter
 import { useSearchParams } from 'next/navigation'; // Import useSearchParams
 import CryptoJS from 'crypto-js';
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'; // Import FontAwesomeIcon
+import moment from 'moment-timezone';
+import CallTaskModal from '@/components/CallTaskModal';
 
 interface CallTask {
   id: string;
@@ -25,18 +29,24 @@ interface CallTask {
 interface CampaignData {
   id: string;
   name: string;
-  status: string;
+  status: 'Aborted' | 'Paused' | 'Scheduled' | 'Active' | 'Resumed' | 'Completed'| 'Pending';
   start_date: string;
   end_date: string;
+  description: string;
+  start_timezone: string;
   twilioNumber?: string; // Optional field
+  country_code?: string;
+  budget: number; // Add this field
+  agents?: { agent_name: string} // Define the shape of `agents`
+  lists?: { name: string}; // Define the shape of `lists`  
 }
 
 interface CampaignPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>; // or adjust based on migration guide details
 }
 
 export default function CampaignPage({ params }: CampaignPageProps) {
-  const { id } = params;
+  const { id } = use(params);
   const router = useRouter(); // Initialize useRouter
   const searchParams = useSearchParams(); // Use useSearchParams to get query parameters
   const userId = searchParams?.get('userId') || null; // Get encrypted userId
@@ -46,16 +56,44 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const vapiKey = searchParams?.get('vapiKey') || null; // Get encrypted vapiKey
 
   // Decrypt the keys using CryptoJS
-  const decryptedUserId = userId ? CryptoJS.AES.decrypt(userId, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8) : "";
-  const decryptedApiKey = apiKey ? CryptoJS.AES.decrypt(apiKey, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8) : "";
-  const decryptedTwilioSid = twilioSid ? CryptoJS.AES.decrypt(twilioSid, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
-  const decryptedTwilioAuthToken = twilioAuthToken ? CryptoJS.AES.decrypt(twilioAuthToken, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
-  const decryptedVapiKey = vapiKey ? CryptoJS.AES.decrypt(vapiKey, process.env.SECRET_KEY || "").toString(CryptoJS.enc.Utf8): "";
+  const decryptedUserId = userId
+    ? CryptoJS.AES.decrypt(userId, process.env.SECRET_KEY || '').toString(
+        CryptoJS.enc.Utf8
+      )
+    : '';
+  const decryptedApiKey = apiKey
+    ? CryptoJS.AES.decrypt(apiKey, process.env.SECRET_KEY || '').toString(
+        CryptoJS.enc.Utf8
+      )
+    : '';
+  const decryptedTwilioSid = twilioSid
+    ? CryptoJS.AES.decrypt(twilioSid, process.env.SECRET_KEY || '').toString(
+        CryptoJS.enc.Utf8
+      )
+    : '';
+  const decryptedTwilioAuthToken = twilioAuthToken
+    ? CryptoJS.AES.decrypt(
+        twilioAuthToken,
+        process.env.SECRET_KEY || ''
+      ).toString(CryptoJS.enc.Utf8)
+    : '';
+  const decryptedVapiKey = vapiKey
+    ? CryptoJS.AES.decrypt(vapiKey, process.env.SECRET_KEY || '').toString(
+        CryptoJS.enc.Utf8
+      )
+    : '';
 
   // Use the decrypted keys as needed
-  const credentials = { apiKey: decryptedApiKey, twilioSid: decryptedTwilioSid, twilioAuthToken: decryptedTwilioAuthToken, vapiKey: decryptedVapiKey };
+  const credentials = {
+    apiKey: decryptedApiKey,
+    twilioSid: decryptedTwilioSid,
+    twilioAuthToken: decryptedTwilioAuthToken,
+    vapiKey: decryptedVapiKey
+  };
 
-  const [campaignTasks, setCampaignTasks] = useState<(CallTask & { contact_name: string })[]>([]);
+  const [campaignTasks, setCampaignTasks] = useState<
+    (CallTask & { contact_name: string })[]
+  >([]);
   const [campaignData, setCampaignData] = useState<CampaignData | null>(null); // Updated type
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,31 +106,97 @@ export default function CampaignPage({ params }: CampaignPageProps) {
   const [selectedTask, setSelectedTask] = useState<CallTask | null>(null);
 
   const [twilioNumbers, setTwilioNumbers] = useState<any[]>([]); // State to store Twilio numbers
-  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<string | null>(null); // State for selected Twilio number
+  const [selectedTwilioNumber, setSelectedTwilioNumber] = useState<
+    string | null
+  >(null); // State for selected Twilio number
 
-  // Fetch Twilio numbers
-  const fetchTwilioNumbers = async () => {
-    try {
-      const userId = decryptedUserId;
-      const twilioClient = { twilioSid: credentials.twilioSid, twilioAuthToken:credentials.twilioAuthToken };
+  const [showLaunchBtn, setShowLaunchBtn] = useState(false);
+  const [showPauseBtn, setShowPauseBtn] = useState(false);
+  const [showAbortBtn, setShowAbortBtn] = useState(false);
+  const [showResumeBtn, setShowResumeBtn] = useState(false);
 
-      const response = await axios.post(`/api/get-twilio-numbers`, {
-        user_Id: userId,
-        twilioClient: twilioClient // Include the credentials data
-      });
-
-      setTwilioNumbers(response.data.allNumbers || []);
-      if (response.data.allNumbers && response.data.allNumbers.length > 0) {
-        setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+  const [isCallDetailsModalOpen, setCallDetailsIsModalOpen] = useState(false);
+  const [selectedCallDetailsTask, setSelectedCallDetailsTask] = useState<CallTask | null>(null);
+  const [callTaskData, setCallTaskData] = useState<any>(null);
+  const [callTaskError, setCallTaskError] = useState<any>(null);
+  useEffect(() => {
+    const fetchCallTaskData = async () => {
+      if (selectedCallDetailsTask) {
+        const { data, error } = await supabase
+          .from('calls')
+          .select('*')
+          .eq('call_tasks_id', selectedCallDetailsTask.id);
+        setCallTaskData(data);
+        setCallTaskError(error);
+        console.log(callTaskError);
       }
-    } catch (error) {
-      console.error('Error fetching Twilio numbers:', error);
-      toast.error('Failed to fetch Twilio numbers. Please try again later.');
+    };
+    fetchCallTaskData();
+  }, [selectedCallDetailsTask]);
+  
+  const closeCallDetailsModal = () => {
+    setCallDetailsIsModalOpen(false);
+    setSelectedCallDetailsTask(null);
+  };
+
+  useEffect(() => {
+    setShowLaunchBtn(shouldShowButton('launchBtn'));
+    setShowPauseBtn(shouldShowButton('pauseBtn'));
+    setShowAbortBtn(shouldShowButton('abortBtn'));
+    setShowResumeBtn(shouldShowButton('resumeBtn'));
+  }, [campaignData?.status, campaignTasks]); // Re-run the effect when campaignData changes
+
+  const shouldShowButton = (buttonName: string) => {
+    if (buttonName === 'launchBtn' && campaignData?.status === 'Pending') {
+      return true;
+    } else if (
+      buttonName === 'pauseBtn' &&
+      (campaignData?.status === 'Scheduled' ||
+        campaignData?.status === 'Active' ||
+        campaignData?.status === 'Resumed')
+    ) {
+      return true;
+    } else if (
+      buttonName === 'abortBtn' && 
+      ( campaignData?.status === 'Scheduled' || campaignData?.status === 'Resumed'|| campaignData?.status === 'Paused')
+    ) {
+      return true;
+    } else if (
+      buttonName === 'resumeBtn' &&
+      campaignData?.status === 'Paused'
+    ) {
+      return true;
+    } else {
+      return false;
     }
   };
 
-  // Fetch campaign details and call tasks
   useEffect(() => {
+    // Fetch Twilio numbers
+    const fetchTwilioNumbers = async () => {
+      try {
+        const userId = decryptedUserId;
+        const twilioClient = {
+          twilioSid: credentials.twilioSid,
+          twilioAuthToken: credentials.twilioAuthToken
+        };
+
+        const response = await axios.post(`/api/get-twilio-numbers`, {
+          user_Id: userId,
+          twilioClient: twilioClient // Include the credentials data
+        });
+
+        setTwilioNumbers(response.data.allNumbers || []);
+        if (response.data.allNumbers && response.data.allNumbers.length > 0) {
+          setSelectedTwilioNumber(response.data.allNumbers[0].phoneNumber);
+        }
+      } catch (error) {
+        console.error('Error fetching Twilio numbers:', error);
+        toast.error('Failed to fetch Twilio numbers. Please try again later.');
+      }
+    };
+
+    // Fetch campaign details and call tasks
     let isMounted = true; // Track if component is mounted
 
     async function fetchCampaignAndTasks() {
@@ -100,13 +204,13 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
       try {
         const { data: campaign, error: campaignError } = await supabase
-          .from("campaigns")
-          .select("*")
-          .eq("id", id)
+          .from('campaigns')
+          .select('*, audience, lists (name), agent, agents (agent_name) ')
+          .eq('id', id)
           .single();
 
         if (campaignError) {
-          console.error("Error fetching campaign:", campaignError.message);
+          console.error('Error fetching campaign:', campaignError.message);
           setError(campaignError.message); // Display actual error message
           return;
         }
@@ -116,19 +220,19 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         }
 
         const { data: tasks, error: taskError } = await supabase
-          .from("call_tasks")
+          .from('call_tasks')
           .select(`*, contacts(first_name, last_name, phone, user_id)`)
-          .eq("campaign_id", id);
+          .eq('campaign_id', id);
 
         if (taskError) {
-          console.error("Error fetching call tasks:", taskError.message);
+          console.error('Error fetching call tasks:', taskError.message);
           setError(taskError.message); // Display actual error message
         } else {
           const enrichedTasks = tasks.map((task: any) => ({
             ...task,
             contact_name: task.contacts
               ? `${task.contacts.first_name} ${task.contacts.last_name}`
-              : "Unknown Contact",
+              : 'Unknown Contact'
           }));
           if (isMounted) {
             setCampaignTasks(enrichedTasks || []);
@@ -136,12 +240,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         }
       } catch (error: unknown) {
         if (axios.isAxiosError(error)) {
-          console.error("Error fetching campaign and tasks:", error.message);
+          console.error('Error fetching campaign and tasks:', error.message);
           setError(error.message); // Display actual error message
         } else {
-          console.error("Unexpected error:", error);
+          console.error('Unexpected error:', error);
         }
-        setError("Error fetching campaign and tasks.");
+        setError('Error fetching campaign and tasks.');
       } finally {
         if (isMounted) {
           setLoading(false);
@@ -163,67 +267,91 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null);
 
     try {
-      for (const task of campaignTasks) {
-        const { data: contact, error: contactError } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("id", task.contact_id)
-          .single();
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'Scheduled', updated_at: new Date()})
+        .eq('id', id);
 
-        if (contactError || !contact) {
-          console.error("Error fetching contact details:", contactError || "No contact found.");
-          setError(`Failed to fetch contact details for task ${task.id}.`);
-          continue;
-        }
+      const { error: updateStatusError } = await supabase
+        .from('call_tasks')
+        .update({ call_status: 'Scheduled' }) // Update the status based on current state
+        .eq('campaign_id', id); // Update all tasks related to the campaign
 
-        if (!contact.phone) {
-          console.error(`Contact for task ${task.id} does not have a phone number.`);
-          setError(`Contact for task ${task.id} does not have a phone number.`);
-          continue;
-        }
-
-        const contactData = {
-          first_name: contact.first_name,
-          last_name: contact.last_name,
-          phone: contact.phone,
-          user_id: contact.user_id // Ensure user_id is included
-        };
-        
-        try {
-          await axios.post("/api/execute-calls", {
-            contact: contactData, // Ensure this contains all necessary fields
-            reason: task.call_subject,
-            twilioNumber: selectedTwilioNumber || campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use selected Twilio number
-            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
-            userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
-            credentials
-          });
-
-          console.log('execute-call task completed');
-          const { error: updateTaskError } = await supabase
-            .from('call_tasks')
-            .update({ call_status: 'Completed' }) // Update the status to "Completed"
-            .eq('id', task.id); // Update the specific call task row
-
-          if (updateTaskError) {
-            console.error('Error updating call task status:', updateTaskError.message);
-            setError(`Failed to update status for task ${task.id}.`);
-          } else {
-            console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
-          }
-        } catch (apiError) {
-          console.error(`Failed to initiate call for task ${task.id}:`, apiError);
-          setError(`Failed to initiate call for task ${task.id}.`);
-        }
+      if (updateStatusError) {
+        console.error(
+          'Error updating call task status:',
+          updateStatusError.message
+        );
+        setError(
+          `Failed to update call task status. ${updateStatusError.message}`
+        );
+      } else {
+        console.log(
+          `Call task status updated to Scheduled for campaign ID:`,
+          id
+        );
+        window.location.reload();
+        setIsPaused(!isPaused); // Toggle the pause state
       }
 
-      alert("Campaign launched successfully!");
+      alert('Campaign launched successfully!');
     } catch (error) {
-      console.error("Error launching campaign:", error);
-      setError("Failed to launch campaign. Check the console for more details.");
+      console.error('Error launching campaign:', error);
+      setError(
+        'Failed to launch campaign. Check the console for more details.'
+      );
     } finally {
       setIsLaunching(false);
+    }
+  };
+
+  const handleResumeCampaign = async () => {
+    setIsPausing(true);
+    setError(null); // Reset error state
+
+    try {
+      const newStatus = 'Resumed'; // Determine new status
+
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: newStatus, updated_at: new Date()})
+        .eq('id', id)
+        .eq('status', 'Paused');
+
+        if (error) {
+            throw new Error(`Failed to update campaign status: ${error.message}`);
+        }
+
+      const { error: updateStatusError } = await supabase
+        .from('call_tasks')
+        .update({ call_status: 'Scheduled' }) // Update the status based on current state
+        .eq('campaign_id', id) // Update all tasks related to the campaign
+        .eq('call_status', 'Paused');
+
+      if (updateStatusError) {
+        console.error(
+          'Error updating call task status:',
+          updateStatusError.message
+        );
+        setError(
+          `Failed to update call task status. ${updateStatusError.message}`
+        );
+      } else {
+        console.log(
+          `Call task status updated to "${newStatus}" for campaign ID:`,
+          id
+        );
+        setIsPaused(!isPaused); // Toggle the pause state
+      }
+      toast.info(`Campaign ${newStatus.toLowerCase()}.`); // New toast notification
+      window.location.reload();
+    } catch (error) {
+      console.error('Error Resuming campaign:', error);
+      setError(
+        'Failed to update campaign status. Check the console for more details.'
+      );
+    } finally {
+      setIsPausing(false);
     }
   };
 
@@ -232,24 +360,42 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null); // Reset error state
 
     try {
-      const newStatus = isPaused ? 'Scheduled' : 'Paused'; // Determine new status
+      const newStatus = 'Paused'; // Determine new status
+
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'Paused', updated_at: new Date() })
+        .eq('id', id)
+        .in('status', ['Scheduled', 'Active', 'Resumed']);
+
       const { error: updateStatusError } = await supabase
         .from('call_tasks')
-        .update({ call_status: newStatus }) // Update the status based on current state
-        .eq('campaign_id', id); // Update all tasks related to the campaign
+        .update({ call_status: 'Paused' }) // Update the status based on current state
+        .eq('campaign_id', id) // Update all tasks related to the campaign
+        .in('call_status', ['Scheduled', 'Active', 'Resumed']);
 
       if (updateStatusError) {
-        console.error('Error updating call task status:', updateStatusError.message);
-        setError(`Failed to update call task status. ${updateStatusError.message}`);
+        console.error(
+          'Error updating call task status:',
+          updateStatusError.message
+        );
+        setError(
+          `Failed to update call task status. ${updateStatusError.message}`
+        );
       } else {
-        console.log(`Call task status updated to "${newStatus}" for campaign ID:`, id);
+        console.log(
+          `Call task status updated to "${newStatus}" for campaign ID:`,
+          id
+        );
         setIsPaused(!isPaused); // Toggle the pause state
       }
-
       toast.info(`Campaign ${newStatus.toLowerCase()}.`); // New toast notification
+      window.location.reload();
     } catch (error) {
-      console.error("Error pausing/resuming campaign:", error);
-      setError("Failed to update campaign status. Check the console for more details.");
+      console.error('Error Pausing campaign:', error);
+      setError(
+        'Failed to update campaign status. Check the console for more details.'
+      );
     } finally {
       setIsPausing(false);
     }
@@ -281,21 +427,37 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     setError(null); // Reset error state
 
     try {
+      const { error } = await supabase
+        .from('campaigns')
+        .update({ status: 'Aborted', updated_at: new Date() })
+        .eq('id', id)
+        .neq('status', 'Completed');
+
       const { error: updateStatusError } = await supabase
         .from('call_tasks')
         .update({ call_status: 'Aborted' }) // Update the status to "Aborted"
-        .eq('campaign_id', id); // Update all tasks related to the campaign
+        .eq('campaign_id', id) // Update all tasks related to the campaign
+        .neq('call_status', 'Completed');
 
       if (updateStatusError) {
-        console.error('Error updating call task status:', updateStatusError.message);
-        setError(`Failed to update call task status. ${updateStatusError.message}`);
+        console.error(
+          'Error updating call task status:',
+          updateStatusError.message
+        );
+        setError(
+          `Failed to update call task status. ${updateStatusError.message}`
+        );
       } else {
-        console.log(`Call task status updated to "Aborted" for campaign ID:`, id);
-        toast.error("Campaign aborted successfully!"); // New toast notification
+        console.log(
+          `Call task status updated to "Aborted" for campaign ID:`,
+          id
+        );
+        toast.error('Campaign aborted successfully!'); // New toast notification
+        window.location.reload();
       }
     } catch (error) {
-      console.error("Error aborting campaign:", error);
-      setError("Failed to abort campaign. Check the console for more details.");
+      console.error('Error aborting campaign:', error);
+      setError('Failed to abort campaign. Check the console for more details.');
     }
   };
 
@@ -306,63 +468,91 @@ export default function CampaignPage({ params }: CampaignPageProps) {
     try {
       for (const task of campaignTasks) {
         const { data: contact, error: contactError } = await supabase
-          .from("contacts")
-          .select("*")
-          .eq("id", task.contact_id)
+          .from('contacts')
+          .select('*')
+          .eq('id', task.contact_id)
           .single();
 
         if (contactError || !contact) {
-          console.error("Error fetching contact details:", contactError || "No contact found.");
+          console.error(
+            'Error fetching contact details:',
+            contactError || 'No contact found.'
+          );
           setError(`Failed to fetch contact details for task ${task.id}.`);
           continue;
         }
 
         if (!contact.phone) {
-          console.error(`Contact for task ${task.id} does not have a phone number.`);
+          console.error(
+            `Contact for task ${task.id} does not have a phone number.`
+          );
           setError(`Contact for task ${task.id} does not have a phone number.`);
           continue;
         }
 
+        // Conditional Phone Number Dialing
+        const countryCode = campaignData?.country_code || '';
+        const phoneNumber = contact.phone.startsWith(countryCode)
+          ? contact.phone
+          : `${countryCode}${contact.phone}`;
+
         const contactData = {
           first_name: contact.first_name,
           last_name: contact.last_name,
-          phone: contact.phone,
+          phone: phoneNumber,
           user_id: contact.user_id // Ensure user_id is included
         };
-        
+
+        const userId = decryptedUserId;
+
         try {
-          await axios.post("/api/make-call", {
+          await axios.post('/api/make-call', {
             contact: contactData, // Ensure this contains all necessary fields
             reason: task.call_subject,
-            twilioNumber: selectedTwilioNumber ||campaignData?.twilioNumber || process.env.TWILIO_NUMBER, // Use optional chaining
-            firstMessage: task.first_message || `Calling ${contact.first_name} for ${task.call_subject}`,
+            twilioNumber:
+              selectedTwilioNumber ||
+              campaignData?.twilioNumber ||
+              process.env.TWILIO_NUMBER, // Use optional chaining
+            firstMessage:
+              task.first_message ||
+              `Calling ${contact.first_name} for ${task.call_subject}`,
             userId: contact.user_id, // Ensure user ID is passed to fetch API keys
-            voiceId: "CwhRBWXzGAHq8TQ4Fs17",
+            user_Id: userId,
+            voiceId: 'CwhRBWXzGAHq8TQ4Fs17',
             credentials
           });
 
-          console.log('execute-call task completed');
           const { error: updateTaskError } = await supabase
             .from('call_tasks')
             .update({ call_status: 'Completed' }) // Update the status to "Completed"
             .eq('id', task.id); // Update the specific call task row
 
           if (updateTaskError) {
-            console.error('Error updating call task status:', updateTaskError.message);
+            console.error(
+              'Error updating call task status:',
+              updateTaskError.message
+            );
             setError(`Failed to update status for task ${task.id}.`);
           } else {
-            console.log(`Call task status updated to 'Completed' for task ID: ${task.id}`);
+            console.log(
+              `Call task status updated to 'Completed' for task ID: ${task.id}`
+            );
           }
         } catch (apiError) {
-          console.error(`Failed to initiate call for task ${task.id}:`, apiError);
+          console.error(
+            `Failed to initiate call for task ${task.id}:`,
+            apiError
+          );
           setError(`Failed to initiate call for task ${task.id}.`);
         }
       }
 
-      alert("Campaign launched successfully!");
+      alert('Campaign launched successfully!');
     } catch (error) {
-      console.error("Error launching campaign:", error);
-      setError("Failed to launch campaign. Check the console for more details.");
+      console.error('Error launching campaign:', error);
+      setError(
+        'Failed to launch campaign. Check the console for more details.'
+      );
     } finally {
       setIsLaunching(false);
     }
@@ -370,10 +560,17 @@ export default function CampaignPage({ params }: CampaignPageProps) {
 
   if (loading) {
     return <p className="text-center">Loading campaign data...</p>;
-  }
+  } 
 
   return (
     <div className="container mx-auto pt-16 py-8 px-4 sm:px-6 lg:px-8">
+      <button
+        onClick={() => router.push('/campaigns')} // Navigate back to the campaign table
+        className="flex items-center mb-6 bg-gray-200 text-gray-800 hover:bg-gray-300 
+    dark:bg-gray-800 dark:text-white dark:hover:bg-gray-700 rounded-lg px-4 py-2 "
+      >
+        <FontAwesomeIcon icon={faArrowLeft} className=" mr-2 text-gray-600 dark:text-gray-300" />
+      </button>
       <ToastContainer
         position="top-right"
         autoClose={3000} // Adjust timing as desired
@@ -385,71 +582,124 @@ export default function CampaignPage({ params }: CampaignPageProps) {
         draggable
         pauseOnHover
         style={{ zIndex: 9999 }} // Ensure it overlays content without shifting it
-      />      {error ? (
-        <p className="text-red-500">{error}</p>
+      />{' '}
+      {error ? (
+        <p className="text-red-500 dark:text-red-400">{error}</p>
       ) : campaignData ? (
         <>
-          <h1 className="text-3xl font-bold mb-6">{campaignData.name}</h1>
-          <p>Status: {campaignData.status}</p>
-          <p>Start Date: {new Date(campaignData.start_date).toLocaleDateString()}</p>
-          <p>End Date: {new Date(campaignData.end_date).toLocaleDateString()}</p>
-
+          <h1 className="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">{campaignData.name}</h1>
+          <div className="flex flex-wrap bg-gray-200 dark:bg-gray-800 justify-between p-4 text-left gap-2">
+          <div className="p-4 rounded-lg text-lg font-medium">
+                    <p>Status: {campaignData.status}</p>
+                    <p>
+                      Start Date: {moment.utc(campaignData.start_date).local().format('YYYY-MM-DD HH:mm:ss A')}
+                    </p>
+                    <p>
+                      End Date: {moment.utc(campaignData.end_date).local().format('YYYY-MM-DD HH:mm:ss A')}
+                    </p>
+                    <p>Description: {campaignData.description}</p>
+                </div>
+                <div className="p-4 rounded-lg text-lg font-medium">
+                    <p>Timezone: {campaignData.start_timezone}</p>
+                    <p>Audience Name: {campaignData.lists?.name}</p>
+                    <p>Budget: {campaignData.budget}</p>
+                    <p>Agent Name: {campaignData.agents?.agent_name}</p>
+                </div>
+          </div>
           <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mt-6">
-            <button
-              onClick={handleLaunchCampaign}
-              disabled={isLaunching}
-              className={`px-4 py-2 bg-green-500 text-white rounded-lg transition-all ${
-                isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"
-              }`}
-            >
-              {isLaunching ? "Launching..." : "Launch Campaign"}
-            </button>
-            <button
+            {showLaunchBtn && (
+              <button
+                onClick={handleLaunchCampaign}
+                disabled={isLaunching}
+                style={{
+                  display: shouldShowButton('launchBtn') ? 'block' : 'none'
+                }}
+                className={`px-4 py-2 bg-green-500 dark:text-white rounded-lg transition-all ${
+                  isLaunching
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-green-600'
+                }`}
+              >
+                {isLaunching ? 'Launching...' : 'Launch Campaign'}
+              </button>
+            )}
+            {/* <button
               onClick={handleForceLaunchCampaign} // New button for force launch
               disabled={isLaunching}
-              className={`px-4 py-2 bg-orange-500 text-white rounded-lg transition-all ${
-                isLaunching ? "opacity-50 cursor-not-allowed" : "hover:bg-orange-600"
+              className={`px-4 py-2 bg-orange-500 dark:text-white rounded-lg transition-all ${
+                isLaunching
+                  ? 'opacity-50 cursor-not-allowed'
+                  : 'hover:bg-orange-600'
               }`}
             >
-              {isLaunching ? "Force Launching..." : "Force Launch Campaign"}
-            </button>
-            <button
-              onClick={handlePauseCampaign}
-              disabled={isPausing}
-              className={`px-4 py-2 ${isPaused ? 'bg-blue-500' : 'bg-red-500'} text-white rounded-lg transition-all ${
-                isPausing ? "opacity-50 cursor-not-allowed" : (isPaused ? "hover:bg-blue-600" : "hover:bg-red-600")
-              }`}
-            >
-              {isPaused ? "Resume Campaign" : "Pause Campaign"}
-            </button>
-            <button
-              onClick={handleAbortCampaign}
-              className="px-4 py-2 bg-yellow-500 text-white rounded-lg transition-all hover:bg-yellow-600"
-            >
-              Abort Campaign
-            </button>
+              {isLaunching ? 'Force Launching...' : 'Force Launch Campaign'}
+            </button> */}
+            {showPauseBtn && (
+              <button
+                onClick={handlePauseCampaign}
+                disabled={isPausing}
+                style={{
+                  display: shouldShowButton('abortBtn') ? 'block' : 'none'
+                }}
+                className="px-4 py-2 bg-red-500 dark:text-white rounded-lg hover:bg-red-600 transition-all"
+              >
+                Pause Campaign
+              </button>
+            )}
+            {showAbortBtn && (
+              <button
+                onClick={handleAbortCampaign}
+                style={{
+                  display: shouldShowButton('abortBtn') ? 'block' : 'none'
+                }}
+                className="px-4 py-2 bg-yellow-500 dark:text-white rounded-lg transition-all hover:bg-yellow-600"
+              >
+                Abort Campaign
+              </button>
+            )}
+            {showResumeBtn && (
+              <button
+                onClick={handleResumeCampaign}
+                style={{
+                  display: shouldShowButton('resumeBtn') ? 'block' : 'none'
+                }}
+                className="px-4 py-2 bg-green-500 dark:text-white rounded-lg transition-all hover:bg-green-600"
+              >
+                Resume Campaign
+              </button>
+            )}
           </div>
 
-          <h2 className="text-2xl font-bold mt-6">Call Tasks</h2>
+          <h2 className="text-2xl font-bold mt-6 text-gray-900 dark:text-gray-100">Call Tasks</h2>
           <div className="overflow-x-auto">
-            <table className="table-auto w-full text-left border-collapse mt-4">
+            <table className="table-auto w-full border-collapse mt-4 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100">
               <thead>
-                <tr className="bg-gray-800">
-                  <th className="px-4 py-2 border">Call Subject</th>
-                  <th className="px-4 py-2 border">Contact Name</th>
-                  <th className="px-4 py-2 border">Call Status</th>
-                  <th className="px-4 py-2 border">Scheduled At</th>
-                  <th className="px-4 py-2 border">Actions</th>
+                <tr className="bg-gray-200 dark:bg-gray-700">
+                  <th className="px-4 py-2 border dark:border-gray-600">Call Subject</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Contact Name</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Call Status</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Scheduled At</th>
+                  <th className="px-4 py-2 border dark:border-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {campaignTasks.map((task) => (
-                  <tr key={task.id} className="hover:bg-gray-700">
-                    <td className="border px-4 py-2">{task.call_subject}</td>
-                    <td className="border px-4 py-2">{task.contact_name}</td>
-                    <td className="border px-4 py-2">{task.call_status}</td>
-                    <td className="border px-4 py-2">{new Date(task.scheduled_at).toLocaleString()}</td>
-                    <td className="border px-4 py-2">
+                   <tr key={task.id} className="hover:bg-gray-300 text-center dark:hover:bg-gray-700"
+                   onClick={() =>{
+                     setCallDetailsIsModalOpen(true)
+                     setSelectedCallDetailsTask(task)
+                   }} // Open modal on row click
+                   >
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.call_subject}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.contact_name}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">{task.call_status}</td>
+                    <td className="border px-4 py-2 dark:border-gray-600">
+                      {moment
+                        .utc(task.scheduled_at)
+                        .local()
+                        .format('YYYY-MM-DD HH:mm:ss A')}
+                    </td>
+                    <td className="border px-4 py-2 dark:border-gray-600" onClick={(e) => {e.stopPropagation(); openModal(task)}}>
                       <button
                         onClick={() => openModal(task)} // Open modal on row click
                         className="text-blue-500 hover:underline"
@@ -463,6 +713,12 @@ export default function CampaignPage({ params }: CampaignPageProps) {
             </table>
           </div>
 
+          <CallTaskModal
+            isOpen={isCallDetailsModalOpen}
+            onClose={closeCallDetailsModal}
+            task={callTaskData && callTaskData.length > 0 ? callTaskData[0] : null}
+          />
+
           {/* Modal for editing task */}
           {isModalOpen && selectedTask && (
             <TaskModal
@@ -472,7 +728,10 @@ export default function CampaignPage({ params }: CampaignPageProps) {
                 setCampaignTasks((prevTasks) =>
                   prevTasks.map((t) =>
                     t.id === selectedTask.id
-                      ? { ...selectedTask, contact_name: selectedTask.contact_name || '' } // Ensure contact_name is a string
+                      ? {
+                          ...selectedTask,
+                          contact_name: selectedTask.contact_name || ''
+                        } // Ensure contact_name is a string
                       : t
                   )
                 );
@@ -482,8 +741,9 @@ export default function CampaignPage({ params }: CampaignPageProps) {
           )}
         </>
       ) : (
-        <p>No campaign data found.</p>
+        <p className='text-gray-900 dark:text-gray-100'>No campaign data found.</p>
       )}
     </div>
   );
 }
+

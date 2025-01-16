@@ -25,13 +25,13 @@ export default function GreetingPage() {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
+    <div className="max-w-5xl mx-auto p-6 dark:bg-black dark:text-white min-h-screen">
       <h1 className="text-3xl font-bold mb-2">Greeting</h1>
       <p className="text-gray-400 mb-6">For greeting customers at the start of the conversation.</p>
       <p className="text-gray-500 mb-10">Last updated 2 hours ago</p>
       <div className="flex justify-end mb-4">
         <div className="relative">
-          <select className="appearance-none bg-gray-800 border border-gray-600 text-white text-sm rounded-lg p-2.5 focus:outline-none focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+          <select className="appearance-none bg-gray-800 border border-gray-600 dark:text-white text-sm rounded-lg p-2.5 focus:outline-none focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
             <option value="default">English (Default)</option>
             {/* Add more language options here if needed */}
           </select>
@@ -59,7 +59,7 @@ export default function GreetingPage() {
                   newGreetings[index].messages[i] = e.target.value;
                   setGreetings(newGreetings);
                 }}
-                className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-800 text-white"
+                className="mt-1 block w-full p-2 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-gray-800 dark:text-white"
               />
             </div>
           ))}

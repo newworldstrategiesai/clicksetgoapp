@@ -22,7 +22,7 @@ interface CallReport {
   timestamp: string;
 }
 
-export async function sendSms(callReport: CallReport) {
+export async function sendSms(callReport: CallReport ) {
   await twilioClient.messages.create({
     body: `
       Call Report:

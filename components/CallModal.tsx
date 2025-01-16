@@ -157,7 +157,7 @@ const CallModal: React.FC<CallModalProps> = ({
             {error && <p className="text-red-500">{error}</p>}
             <button
               onClick={handleCallNow}
-              className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg"
+              className="mt-4 px-4 py-2 bg-blue-600 dark:text-white rounded-lg"
               disabled={loading}
             >
               {loading ? 'Calling...' : 'Call Now'}

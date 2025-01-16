@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import VoiceLibrary from '@/components/ui/VoiceLibrary/VoiceLibrary'; // Adjust the import path as needed
-import AddVoiceModal from '@/components/ui/VoiceLibrary/AddVoiceModal';
+// import AddVoiceModal from '@/components/ui/VoiceLibrary/AddVoiceModal';
 import { createClient } from '@/utils/supabase/client';
 
 const VoicePage = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  // const [isModalOpen, setIsModalOpen] = useState(false);
   const [apiKey, setApiKey] = useState<string | null>(null);
 
   useEffect(() => {
@@ -25,18 +25,18 @@ const VoicePage = () => {
     fetchApiKey();
   }, []);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  // const openModal = () => setIsModalOpen(true);
+  // const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="p-4 pt-20 md:pt-24 lg:pt-28"> {/* Added padding top */}
+    <div className="p-4 pt-20 md:pt-24 lg:pt-12"> {/* Added padding top */}
       {apiKey ? (
         <>
           <VoiceLibrary apiKey={apiKey} />
-          <button onClick={openModal} className="mt-4 bg-blue-500 text-white py-2 px-4 rounded">
+          {/* <button onClick={openModal} className="mt-4 bg-blue-500 dark:text-white py-2 px-4 rounded">
             Add Voice
           </button>
-          <AddVoiceModal isOpen={isModalOpen} onClose={closeModal} apiKey={apiKey} />
+          <AddVoiceModal isOpen={isModalOpen} onClose={closeModal} apiKey={apiKey} /> */}
         </>
       ) : (
         <p>Loading API Key...</p>

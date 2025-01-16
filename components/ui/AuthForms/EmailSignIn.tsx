@@ -14,7 +14,7 @@ interface EmailSignInProps {
   disableButton?: boolean;
 }
 
-export default function EmailSignIn({
+export default async function EmailSignIn({
   allowPassword,
   redirectMethod,
   disableButton

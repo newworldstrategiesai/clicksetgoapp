@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import axios from 'axios';
 import { supabase } from '@/utils/supabaseClient';
+import { Textarea } from './ui/textarea';
 
 interface Voice {
   voice_id: string;
@@ -23,18 +24,18 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
   return (
     <div>
       <label className="block mb-2">
-        <span className="block text-gray-400">Select Voice:</span>
+        <span className="block text-gray-700 dark:text-gray-300">Select Voice:</span>
         <select
           value={selectedVoice}
           onChange={(e) => setSelectedVoice(e.target.value)}
-          className="p-2 border rounded-lg w-full bg-gray-800 text-white max-h-40 overflow-y-auto"
+          className="p-2 border rounded-lg w-full dark:text-white dark:bg-gray-800 dark:border-gray-600 max-h-40 overflow-y-auto"
         >
           {voices.length > 0 ? (
             voices.map((voice) => (
               <option key={voice.voice_id} value={voice.voice_id}>
                 {voice.name} (ID: {voice.voice_id}) - {voice.gender}, {voice.accent}
               </option>
-            ))
+            ))  
           ) : (
             <option value="" disabled>No voices available</option>
           )}
@@ -44,15 +45,14 @@ function VoiceDropdown({ voices, selectedVoice, setSelectedVoice }: VoiceDropdow
   );
 }
 
-export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey: string }) {
+export default function PersonaPage({ userId, apiKey, twilioSid, twilioAuthToken, vapiKey }: { userId: string; apiKey: string; twilioSid: string; twilioAuthToken: string; vapiKey: string }) {
   const [activeTab, setActiveTab] = useState('identity');
   const [agentId, setAgentId] = useState<string | null>(null);
-  
+
   // Form State
-  const [agentName, setAgentName] = useState('Chloe');
-  const [companyName, setCompanyName] = useState('Ben Spins');
+  const [agentName, setAgentName] = useState('');
+  const [companyName, setCompanyName] = useState('');
   const [companyDescription, setCompanyDescription] = useState('');
-  const [timezone, setTimezone] = useState('');
   const [toneOfVoice, setToneOfVoice] = useState('Friendly');
   const [emojiUsage, setEmojiUsage] = useState(true);
   const [emojiLimit, setEmojiLimit] = useState('');
@@ -63,19 +63,26 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
   const [noCompetitors, setNoCompetitors] = useState(false);
   const [voices, setVoices] = useState<Voice[]>([]);
   const [selectedVoice, setSelectedVoice] = useState<string>("");
+  const [selectedRole, setSelectedRole] = useState<string>("");
+  const [roleType, setRoleType] = useState<string>(''); // Inbound or Outbound
+  const [prompt, setPrompt] = useState('');
 
   // Fetch available voices from Eleven Labs
   const fetchVoices = async () => {
     try {
-      const response = await axios.get("https://api.elevenlabs.io/v1/voices", {
+      const response = await axios.get('https://api.elevenlabs.io/v1/voices', {
         headers: {
-          Authorization: `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'xi-api-key': apiKey,
         },
       });
 
       setVoices(response.data.voices);
-      if (response.data.voices.length > 0) {
-        setSelectedVoice(response.data.voices[0].voice_id); // Set default voice if available
+      if (response.data && response.data.voices) {
+        setVoices(response.data.voices);
+        if (response.data.voices.length > 0) {
+          setSelectedVoice(response.data.voices[0].voice_id);
+        }
       }
     } catch (error) {
       console.error("Error fetching voices:", error);
@@ -85,6 +92,80 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
   useEffect(() => {
     fetchVoices(); // Fetch voices on load
   }, [apiKey]);
+
+  // Fetch company info from the 'companies' table
+  const fetchCompanyInfo = async () => {
+    if (!userId) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('companies')
+        .select('name, description')
+        .eq('owner_id', userId)
+        .single(); // Get single record based on owner_id
+
+      if (error) {
+        console.error("Error fetching company data:", error);
+        return;
+      }
+
+      if (data) {
+        setCompanyName(data.name || '');
+        setCompanyDescription(data.description || '');
+      }
+    } catch (error) {
+      console.error("Error fetching company info from Supabase:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCompanyInfo(); // Fetch company info from the 'companies' table on load
+  }, [userId]);
+
+  // Role options for inbound and outbound
+  const inboundRoles = [
+    'Customer Support Representative',
+    'Inbound Sales Representative',
+    'Help Desk Specialist',
+    'Technical Support Specialist',
+    'Client Success Specialist',
+  ];
+
+  const outboundRoles = [
+    'Sales Development Representative (SDR)',
+    'Account Executive',
+    'Business Development Representative (BDR)',
+    'Customer Success Manager',
+    'Market Researcher',
+  ];
+
+  const fetchPromptTemplate = async () => {
+    if (!roleType || !selectedRole) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('prompt_templates')
+        .select('template')
+        .eq('role_type', roleType)
+        .eq('role', selectedRole)
+        .single(); // Get a single record matching both role and roleType
+
+      if (error) {
+        console.error("Error fetching prompt template:", error);
+        return;
+      }
+
+      if (data && data.template) {
+        setPrompt(data.template);  // Set the fetched prompt template
+      }
+    } catch (error) {
+      console.error("Error fetching prompt template:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchPromptTemplate();  // Fetch the prompt template whenever roleType or selectedRole changes
+  }, [roleType, selectedRole]);
 
   const handleSave = async () => {
     if (!userId) {
@@ -97,7 +178,6 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
       agent_name: agentName,
       company_name: companyName,
       company_description: companyDescription,
-      default_timezone: timezone,
       tone_of_voice: toneOfVoice,
       allow_emoji_usage: emojiUsage,
       emoji_limit: emojiLimit,
@@ -107,6 +187,8 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
       no_personal_info: noPersonalInfo,
       no_competitors: noCompetitors,
       default_voice: selectedVoice,
+      role: selectedRole,
+      prompt: prompt,
     };
 
     let error;
@@ -124,7 +206,7 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
         .insert(agentData)
         .select();
 
-      if (!insertError) {
+      if (data && !insertError) {
         setAgentId(data[0].id); // Save new agent ID
       }
 
@@ -140,25 +222,26 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-black text-white min-h-screen">
-      <h1 className="text-3xl font-bold mb-6">Persona</h1>
-
-      <div className="mb-6">
-        <Link href="/customization/personas">
-          <span className="bg-blue-500 text-white py-2 px-4 rounded-md">
-            View All Personas
-          </span>
-        </Link>
+    <div className="max-w-5xl mx-auto p-6 bg-slate-200 dark:bg-black dark:text-white min-h-screen">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold mb-6">Persona</h1>
+        <div className="mb-6">
+          <Link href={`/customization/personas?usd=${userId}`}>
+            <span className="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-400">
+              View All Personas
+            </span>
+          </Link>
+        </div>
       </div>
 
-      <div className="border-b border-gray-700">
-        <nav className="-mb-px flex space-x-8">
+      <div className="border-b dark:border-gray-700 border-gray-300">
+        <nav className="-flex space-x-8">
           <button
             onClick={() => setActiveTab('identity')}
             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${
               activeTab === 'identity'
-                ? 'text-white border-white'
-                : 'text-gray-400 border-transparent hover:text-gray-200 hover:border-gray-600'
+                ? 'dark:text-white text-black border-black dark:border-white'
+                : 'dark:text-gray-400 text-gray-500 border-transparent hover:dark:text-gray-200 hover:dark:border-gray-600 hover:text-gray-700 hover:border-gray-400'
             }`}
           >
             Identity and company
@@ -167,8 +250,8 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
             onClick={() => setActiveTab('tone')}
             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${
               activeTab === 'tone'
-                ? 'text-white border-white'
-                : 'text-gray-400 border-transparent hover:text-gray-200 hover:border-gray-600'
+                ? 'dark:text-white text-black border-black dark:border-white'
+                : 'dark:text-gray-400 text-gray-500 border-transparent hover:dark:text-gray-200 hover:dark:border-gray-600 hover:text-gray-700 hover:border-gray-400'
             }`}
           >
             Tone and style
@@ -177,8 +260,8 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
             onClick={() => setActiveTab('manners')}
             className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg ${
               activeTab === 'manners'
-                ? 'text-white border-white'
-                : 'text-gray-400 border-transparent hover:text-gray-200 hover:border-gray-600'
+                ? 'dark:text-white text-black border-black dark:border-white'
+                : 'dark:text-gray-400 text-gray-500 border-transparent hover:dark:text-gray-200 hover:dark:border-gray-600 hover:text-gray-700 hover:border-gray-400'
             }`}
           >
             Manners
@@ -188,52 +271,62 @@ export default function PersonaPage({ userId, apiKey }: { userId: string; apiKey
 
       <div className="mt-6">
         {activeTab === 'identity' && (
-          <IdentityAndCompany
-            agentName={agentName}
-            setAgentName={setAgentName}
-            companyName={companyName}
-            setCompanyName={setCompanyName}
-            companyDescription={companyDescription}
-            setCompanyDescription={setCompanyDescription}
-            timezone={timezone}
-            setTimezone={setTimezone}
-          />
+          <div className="p-4 bg-gray-200 dark:bg-gray-800 rounded-md">
+            <IdentityAndCompany
+              agentName={agentName}
+              setAgentName={setAgentName}
+              companyName={companyName}
+              setCompanyName={setCompanyName}
+              companyDescription={companyDescription}
+              setCompanyDescription={setCompanyDescription}
+              selectedRole={selectedRole}
+              setSelectedRole={setSelectedRole}
+              roleType={roleType}
+              setRoleType={setRoleType}
+            />
+          </div>
         )}
 
         {activeTab === 'tone' && (
-          <ToneAndStyle
-            toneOfVoice={toneOfVoice}
-            setToneOfVoice={setToneOfVoice}
-            emojiUsage={emojiUsage}
-            setEmojiUsage={setEmojiUsage}
-            emojiLimit={emojiLimit}
-            setEmojiLimit={setEmojiLimit}
-            messageLength={messageLength}
-            setMessageLength={setMessageLength}
-            multistepInstructions={multistepInstructions}
-            setMultistepInstructions={setMultistepInstructions}
-            voices={voices}
-            selectedVoice={selectedVoice}
-            setSelectedVoice={setSelectedVoice}
-          />
+          <div className="p-4 bg-gray-200 dark:bg-gray-800 rounded-md">
+            <ToneAndStyle
+              toneOfVoice={toneOfVoice}
+              setToneOfVoice={setToneOfVoice}
+              emojiUsage={emojiUsage}
+              setEmojiUsage={setEmojiUsage}
+              emojiLimit={emojiLimit}
+              setEmojiLimit={setEmojiLimit}
+              messageLength={messageLength}
+              setMessageLength={setMessageLength}
+              multistepInstructions={multistepInstructions}
+              setMultistepInstructions={setMultistepInstructions}
+              voices={voices}
+              selectedVoice={selectedVoice}
+              setSelectedVoice={setSelectedVoice}
+              prompt={prompt}
+              setPrompt={setPrompt}
+            />
+          </div>
         )}
 
         {activeTab === 'manners' && (
-          <Manners
-            askForHelp={askForHelp}
-            setAskForHelp={setAskForHelp}
-            noPersonalInfo={noPersonalInfo}
-            setNoPersonalInfo={setNoPersonalInfo}
-            noCompetitors={noCompetitors}
-            setNoCompetitors={setNoCompetitors}
-          />
+          <div className="p-4 bg-gray-200 dark:bg-gray-800 rounded-md">
+            <Manners
+              askForHelp={askForHelp}
+              setAskForHelp={setAskForHelp}
+              noPersonalInfo={noPersonalInfo}
+              setNoPersonalInfo={setNoPersonalInfo}
+              noCompetitors={noCompetitors}
+              setNoCompetitors={setNoCompetitors}
+            />
+          </div>
         )}
       </div>
 
       <div className="mt-6">
         <button
           onClick={handleSave}
-          className="bg-purple-600 text-white py-2 px-4 rounded-md"
+          className="bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-500"
         >
           Save Persona
         </button>
@@ -250,8 +343,10 @@ function IdentityAndCompany({
   setCompanyName,
   companyDescription,
   setCompanyDescription,
-  timezone,
-  setTimezone
+  selectedRole,
+  setSelectedRole,
+  roleType,
+  setRoleType,
 }: {
   agentName: string;
   setAgentName: (name: string) => void;
@@ -259,58 +354,91 @@ function IdentityAndCompany({
   setCompanyName: (name: string) => void;
   companyDescription: string;
   setCompanyDescription: (description: string) => void;
-  timezone: string;
-  setTimezone: (timezone: string) => void;
+  selectedRole: string;
+  setSelectedRole: (role: string) => void;
+  roleType: string;
+  setRoleType: (roleType: string) => void;
 }) {
+  // Role options for inbound and outbound
+  const inboundRoles = [
+    'Customer Support Representative',
+    'Inbound Sales Representative',
+    'Help Desk Specialist',
+    'Technical Support Specialist',
+    'Client Success Specialist',
+  ];
+
+  const outboundRoles = [
+    'Sales Development Representative (SDR)',
+    'Account Executive',
+    'Business Development Representative (BDR)',
+    'Customer Success Manager',
+    'Market Researcher',
+  ];
+
   return (
     <div className="space-y-6">
       <div>
-        <label className="block text-sm font-medium text-gray-300">Agent Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Agent Name</label>
         <input
           type="text"
           value={agentName}
           onChange={(e) => setAgentName(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300">Company Name</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Name</label>
         <input
           type="text"
           value={companyName}
           onChange={(e) => setCompanyName(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
         />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-300">Company Description</label>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Role Type</label>
+        <select
+          value={roleType}
+          onChange={(e) => setRoleType(e.target.value)}
+          className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
+        >
+          <option value="">Select Role Type</option>
+          <option value="inbound">Inbound</option>
+          <option value="outbound">Outbound</option>
+        </select>
+      </div>
+
+      {roleType && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Select Role</label>
+          <select
+            value={selectedRole}
+            onChange={(e) => setSelectedRole(e.target.value)}
+            className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
+          >
+            <option value="">Select Role</option>
+            {(roleType === 'inbound' ? inboundRoles : outboundRoles).map((role, index) => (
+              <option key={index} value={role}>
+                {role}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Company Description</label>
         <textarea
           value={companyDescription}
           onChange={(e) => setCompanyDescription(e.target.value)}
           placeholder="Describe your company's products and services"
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+          className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
         />
         <p className="mt-2 text-sm text-gray-500">
           This provides context for the AI Agent to reply to general questions about your company and its products and services.
-        </p>
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium text-gray-300">Default Timezone</label>
-        <select
-          value={timezone}
-          onChange={(e) => setTimezone(e.target.value)}
-          className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
-        >
-          <option value="">Time Zone</option>
-          <option value="GMT">GMT</option>
-          <option value="EST">EST</option>
-          <option value="PST">PST</option>
-        </select>
-        <p className="mt-2 text-sm text-gray-500">
-          Provides a default date and time for the AI Agent to reference when it is unable to retrieve the user's timezone to personalize conversations.
         </p>
       </div>
     </div>
@@ -331,7 +459,9 @@ function ToneAndStyle({
   setMultistepInstructions,
   voices,
   selectedVoice,
-  setSelectedVoice
+  setSelectedVoice,
+  prompt,
+  setPrompt,
 }: {
   toneOfVoice: string;
   setToneOfVoice: (tone: string) => void;
@@ -346,17 +476,19 @@ function ToneAndStyle({
   voices: Voice[];
   selectedVoice: string;
   setSelectedVoice: (voiceId: string) => void;
+  prompt: string;
+  setPrompt: (prompt: string) => void
 }) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-lg font-semibold">General</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">General</h2>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">Tone of voice</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Tone of voice</label>
           <select
             value={toneOfVoice}
             onChange={(e) => setToneOfVoice(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
           >
             <option>Friendly</option>
             <option>Professional</option>
@@ -365,32 +497,32 @@ function ToneAndStyle({
         </div>
 
         <div className="mt-4 flex items-center justify-between">
-          <label className="block text-sm font-medium text-gray-300">Allow emoji usage</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Allow emoji usage</label>
           <CustomSwitch checked={emojiUsage} onChange={(value) => setEmojiUsage(value)} />
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">Limit emoji usage to these ones:</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Limit emoji usage to these ones:</label>
           <input
             type="text"
             value={emojiLimit}
             onChange={(e) => setEmojiLimit(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
           />
-          <p className="mt-2 text-sm text-gray-500">
-            Find and copy emojis from <a href="#" className="text-blue-400 underline">the Unicode website</a>.
+          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            Find and copy emojis from <a href="#" className="text-blue-500 dark:text-blue-400 underline">the Unicode website</a>.
           </p>
         </div>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold">Messages</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Messages</h2>
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">Message Length</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Message Length</label>
           <select
             value={messageLength}
             onChange={(e) => setMessageLength(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
           >
             <option>Normal</option>
             <option>Short</option>
@@ -399,11 +531,11 @@ function ToneAndStyle({
         </div>
 
         <div className="mt-4">
-          <label className="block text-sm font-medium text-gray-300">Multistep Instructions</label>
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Multistep Instructions</label>
           <select
             value={multistepInstructions}
             onChange={(e) => setMultistepInstructions(e.target.value)}
-            className="mt-1 block w-full p-2 border border-gray-700 bg-gray-900 text-white rounded-md"
+            className="mt-1 block w-full p-2 border border-gray-300 bg-white text-black dark:border-gray-700 dark:bg-gray-900 dark:text-white rounded-md"
           >
             <option>Send multiple steps</option>
             <option>Send all at once</option>
@@ -416,6 +548,17 @@ function ToneAndStyle({
             voices={voices}
             selectedVoice={selectedVoice}
             setSelectedVoice={setSelectedVoice}
+          />
+        </div>
+        <div>
+          <label htmlFor="prompt">Prompt:</label>
+          <Textarea          
+            id="prompt"
+            name="prompt"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Write your Prompt."
+            className="w-full border rounded-lg p-2 bg-white dark:bg-gray-800 dark:text-white focus:ring-2 focus:ring-blue-500"
           />
         </div>
       </div>
@@ -443,8 +586,8 @@ function Manners({
     <div className="space-y-8">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold">Ask if more help is needed</h2>
-          <p className="mt-1 text-sm text-gray-400">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Ask if more help is needed</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             After attempting to resolve an inquiry, the AI Agent will ask if the customer needs more help.
           </p>
         </div>
@@ -453,8 +596,8 @@ function Manners({
 
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold">Don't mention customers' personal info</h2>
-          <p className="mt-1 text-sm text-gray-400">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Don't mention customers' personal info</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             The AI Agent will not mention personal info, such as a customer's name or email, in conversation.
           </p>
         </div>
@@ -463,8 +606,8 @@ function Manners({
 
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-lg font-semibold">Don't talk about competitors</h2>
-          <p className="mt-1 text-sm text-gray-400">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Don't talk about competitors</h2>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             The AI Agent will refrain from engaging in conversation about your competitors.
           </p>
         </div>

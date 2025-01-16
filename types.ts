@@ -14,6 +14,30 @@ export interface CallLog {
   createdAt: string;
 }
 
+// app/dashboard/_components/types.ts
+
+export interface ChartData {
+  date: string;
+  inbound: number;
+  outbound: number;
+}
+
+export interface LineGraphProps {
+  userId: string;
+  vapiKey: string;
+  onDataFetched?: (data: ChartData[]) => void;
+}
+
+export interface BarGraphProps {
+  data: ChartData[];
+}
+
+export interface RecentCallsProps {
+  userId: string;
+  vapiKey: string;
+}
+
+
 export interface Contact {
   id: string;
   first_name: string;
@@ -102,4 +126,35 @@ export interface Campaign {
   user_id?: string; // UUID type corresponds to string in TypeScript, optional
   agent?: string; // UUID type corresponds to string in TypeScript, optional
   scheduled_at?: string; // Timestamp with time zone, optional
+}
+
+
+export interface DialerComponentProps {
+  userId: string;
+  apiKey: string;
+  twilioSid: string;
+  twilioAuthToken: string;
+  vapiKey: string;
+  agentName: string;
+  role: string;
+  companyName: string;
+  prompt: string;
+  voiceId: string;
+}
+
+export interface YourTaskType {
+  id: string;
+  campaign_id: string | null;
+  campaign_name: string;
+  call_subject: string;
+  call_status: string;
+  priority: number | null;
+  scheduled_at: Date | null;
+  created_at: Date;
+  updated_at: Date;
+  contacts: Array<{
+    first_name: string;
+    last_name: string;
+    phone: string;
+  }>;
 }

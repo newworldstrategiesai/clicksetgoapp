@@ -4,7 +4,8 @@ import { Database } from '@/types_db';
 import twilio from 'twilio';
 import { Resend } from 'resend';
 import { supabase } from '@/utils/supabaseClient';
-import { getUser } from '@/utils/supabase/queries';
+import { sendSms } from './sendSms';
+import { sendEmail } from './sendEmail';
 
 // Define the type for the call report
 type CallReport = {
@@ -29,94 +30,117 @@ type CallReport = {
   timestamp: string;
 };
 
-const TWILIO_PHONE_NUMBER = process.env.TWILIO_NUMBER || ''; // Twilio phone number
-const DEFAULT_RECIPIENT_PHONE_NUMBER = '+19014977001'; // Default recipient phone number
-const DEFAULT_RECIPIENT_EMAIL = 'ben@newworldstrategies.ai'; // Default recipient email
-
-
 // Initialize Resend with your API key
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-import { sendSms } from './sendSms';
-import { sendEmail } from './sendEmail';
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-
-    const user = await getUser(supabase)
-
-    if (!user) {
-        return res.status(401).json({ error: 'Unauthorized' }); // Handle the case where user is null
-    }
-    
-    const {data, error} = await supabase
-    .from('api_keys')
-    .select('*')
-    .eq("user_id", user.id)
-    .single();
-
-    const accountSid = data.twilioSid;
-    const authToken = data.twilioAuthToken;
-
-    const twilioClient = twilio(accountSid, authToken);
-
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
   if (req.method !== 'POST') {
     res.setHeader('Allow', ['POST']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 
-  const { message, sendSmsToggle = false, sendEmailToggle = false } = req.body; // Added toggle values with defaults
-
+  const { message } = req.body;
+  console.log("message from vapi", message);
   if (!message || !message.call) {
     return res.status(400).json({ error: 'Invalid data received' });
   }
 
+  
   const {
     endedReason,
     transcript,
     summary,
     messages,
+    startedAt,
+    endedAt,
     analysis,
     recordingUrl,
     stereoRecordingUrl,
-    call,
+    assistant,
+    call
   } = message;
 
+    const { data, error } = await supabase
+      .from('calls')
+      .update({
+        status: call.status || "NA",
+        transcript: transcript || "NA",
+        start_time: startedAt || null,
+        end_time: endedAt || null,
+        summary: summary || "NA",
+        analysis: analysis || "NA",
+        recording_url: recordingUrl || "NA",
+        stereo_recording_url: stereoRecordingUrl || "NA",
+      })
+      .eq('call_sid', message.call.phoneCallProviderId)
+      .select('*')
+      .single();
+
+    if (error) {
+      console.error('Error updating call in Supabase:', error);
+      return res
+        .status(500)
+        .json({ message: 'Failed to update call', error });
+    }
+
+    const { data: notificationData, error: notificationError } = await supabase
+        .from('notification_settings')
+        .select('*')
+        .eq('user_id', data.user_id)
+        .single();
+
+        if (notificationError) {
+          console.error('Error getting Notification settings:', notificationError);
+          return res.status(500).json({ message: 'Failed to get Notification settings', error: notificationError });
+        }
+        
+        console.log("notificationData", notificationData);
+        const { email_outbound_call_completion, sms_outbound_calls } = notificationData;
+    
   // Construct the call report with fallback values
   const callReport: CallReport = {
     call_id: call.id,
     org_id: call.orgId,
-    type: call.type || "Unknown", // Fallback to "Unknown" if the type is missing
-    status: call.status || "Unknown", // Fallback to "Unknown"
-    ended_reason: endedReason || "Unknown", // Fallback to "Unknown"
-    transcript: transcript || "No transcript available",
-    summary: summary || "No summary provided",
+    type: call.type || 'Unknown', // Fallback to "Unknown" if the type is missing
+    status: call.status || 'Unknown', // Fallback to "Unknown"
+    ended_reason: endedReason || 'Unknown', // Fallback to "Unknown"
+    transcript: transcript || 'No transcript available',
+    summary: summary || 'No summary provided',
     messages: messages || [],
-    analysis: analysis || "No analysis provided",
-    recording_url: recordingUrl || "No recording URL",
-    stereo_recording_url: stereoRecordingUrl || "No stereo recording URL",
-    customer_number: call.customer?.number || "Unknown",
-    assistant_name: call.assistant?.name || "Unknown", // Fallback for missing assistant name
-    assistant_model: call.assistant?.model?.model || "Unknown", // Fallback for missing assistant model
-    assistant_transcriber: call.assistant?.transcriber?.provider || "Unknown",
-    assistant_voice_provider: call.assistant?.voice?.provider || "Unknown",
-    assistant_voice_id: call.assistant?.voice?.voiceId || "Unknown",
-    phone_number: call.phoneNumberId || "Unknown",
-    timestamp: message.timestamp || new Date().toISOString(), // Fallback to current timestamp
+    analysis: analysis || 'No analysis provided',
+    recording_url: recordingUrl || 'No recording URL',
+    stereo_recording_url: stereoRecordingUrl || 'No stereo recording URL',
+    customer_number: call.customer?.number || 'Unknown',
+    assistant_name: assistant?.name || 'Unknown', // Fallback for missing assistant name
+    assistant_model: assistant?.model?.model || 'Unknown', // Fallback for missing assistant model
+    assistant_transcriber: assistant?.transcriber?.provider || 'Unknown',
+    assistant_voice_provider: assistant?.voice?.provider || 'Unknown',
+    assistant_voice_id: assistant?.voice?.voiceId || 'Unknown',
+    phone_number: call.phoneNumberId || 'Unknown',
+    timestamp: message.timestamp || new Date().toISOString() // Fallback to current timestamp
   };
 
-  // Check if SMS sending is enabled
-  if (sendSmsToggle) {
-    await sendSms(callReport);
-  } else {
-    return res.status(403).json({ error: 'SMS sending is disabled' });
-  }
+  // Asynchronous function to send SMS and Email
+  (async function () {
+    try {
+      // Send the SMS with the call report
+      if(sms_outbound_calls){
+        await sendSms(callReport);
+      }
+      // Send the email with the call report using Resend
+      if(email_outbound_call_completion){
+        await sendEmail(callReport);
+      }
 
-  // Check if Email sending is enabled
-  if (sendEmailToggle) {
-    await sendEmail(callReport);
-  } else {
-    return res.status(403).json({ error: 'Email sending is disabled' });
-  }
-
-  res.status(200).json({ success: true });
+      res.status(200).json({ success: true });
+    } catch (error: unknown) {
+      console.error('Error sending SMS or email:', error);
+      res
+        .status(500)
+        .json({ error: (error as Error).message || 'Internal Server Error' });
+    }
+  })();
 }

@@ -1,13 +1,9 @@
-//app/tasks/components/data-table.tsx
+// app/tasks/components/data-table.tsx
 
-'use client';
+"use client";
 
-import * as React from 'react';
+import * as React from "react";
 import {
-  ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -16,7 +12,11 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from '@tanstack/react-table';
+  SortingState,
+  ColumnFiltersState,
+  VisibilityState,
+  Table as ReactTableType,
+} from "@tanstack/react-table";
 
 import {
   Table,
@@ -25,22 +25,34 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/registry/new-york/ui/table';
-import { DataTablePagination } from './data-table-pagination';
-import { DataTableToolbar } from './data-table-toolbar';
+} from "@/registry/new-york/ui/table";
+import { DataTablePagination } from "./data-table-pagination";
+import { DataTableToolbar } from "./data-table-toolbar"; // Correct import
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+import { CustomColumnDef } from "./custom-column-def"; // Correct import
+import { YourTaskType } from "./columns"; // Correct import
+
+interface DataTableProps {
+  columns: CustomColumnDef<YourTaskType, any>[];
+  data: YourTaskType[];
+  allColumns: CustomColumnDef<YourTaskType, any>[];
+  visibleColumns: string[];
+  toggleColumn: (columnId: string) => void;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable({
+  columns,
+  data,
+  allColumns,
+  visibleColumns,
+  toggleColumn,
+}: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const table = useReactTable({
+  const table: ReactTableType<YourTaskType> = useReactTable({
     data,
     columns,
     state: {
@@ -62,32 +74,39 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  // Log all columns for debugging
+  console.log("All Columns in DataTable:", allColumns);
+  console.log("Visible Columns in DataTable:", visibleColumns);
+
   return (
     <div className="space-y-4">
-      <DataTableToolbar table={table} />
-      <div className="rounded-md border">
+      <DataTableToolbar
+        table={table}
+        allColumns={allColumns}
+        visibleColumns={visibleColumns}
+        toggleColumn={toggleColumn}
+      />
+      <div className="rounded-md border overflow-x-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(header.column.columnDef.header, header.getContext())}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id} colSpan={header.colSpan}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                    <TableCell key={cell.id} className="whitespace-nowrap">
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
